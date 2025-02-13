@@ -34,15 +34,19 @@
         <div class="card shadow-sm" style="border-top: 3px solid #007bff;">
              @php
              $headers=[
-                       'client.ID',
-                       'client.name',
-                       'client.phone',
-                       'client.email',
-                       'client.address1',
-                       'client.subscription',
-                       'client.price',
-                       'client.subscription_date',
-                       'client.action',
+                       'clients.ID',
+                       'clients.name',
+                       'clients.phone',
+                    //    'clients.email',
+                       'clients.user',
+                       'clients.box_switch',
+                       'clients.client_type',
+                       'clients.address1',
+                       'clients.subscription',
+                       'clients.price',
+                       'clients.subscription_date',
+                       'clients.start_date',
+                       'clients.action',
 
                      ];
 
@@ -84,11 +88,15 @@
                     {data: 'id', className: 'text-center no-export'},
                     {data: 'name', className: 'text-center'},
                     {data: 'phone', className: 'text-center'},
-                    {data: 'email', className: 'text-center'},
+                    // {data: 'email', className: 'text-center'},
+                    {data: 'user', className: 'text-center'},
+                    {data: 'box_switch', className: 'text-center'},
+                    {data: 'client_type', className: 'text-center'},
                     {data: 'address1', className: 'text-center'},
                     {data: 'subscription', className: 'text-center'},
                     {data: 'price', className: 'text-center'},
                     {data: 'subscription_date', className: 'text-center'},
+                    {data: 'start_date', className: 'text-center'},
                     {data: 'action', name: 'action', orderable: false, className: 'text-center no-export'},
                 ],
                 "columnDefs": [

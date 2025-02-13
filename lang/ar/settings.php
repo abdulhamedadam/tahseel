@@ -57,4 +57,6 @@
   'subscriptions' => 'الاشتراكات',
   'price' => 'السعر',
   'add_subscription' => 'اضافة اشتراك',
+  'unnpaid_invoice_notifications' => 'unnpaid_invoice_notifications',
+  'unpaid_invoice' => 'الفواتير المستحقة',
 );

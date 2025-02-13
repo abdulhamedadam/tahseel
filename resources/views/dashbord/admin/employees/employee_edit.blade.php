@@ -37,7 +37,7 @@
                     @csrf
                     <div class="card-body">
                         <div class="col-md-12 row" style="margin-top: 10px">
-                            <div class="col-md-3">
+                            <div class="col-md-3" style="margin-top: 10px">
                                 <label for="emp_code" class="form-label">{{ trans('employees.emp_code') }}</label>
                                 <div class="input-group flex-nowrap">
                                     <span class="input-group-text" id="basic-addon3"><i class="bi bi-caret-down fs-2"></i></span>
@@ -45,7 +45,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-3">
+                            <div class="col-md-3" style="margin-top: 10px">
                                 <label for="first_name" class="form-label">{{ trans('employees.first_name') }}</label>
                                 <div class="input-group flex-nowrap">
                                     <span class="input-group-text" id="basic-addon3"><i class="bi bi-person fs-2"></i></span>
@@ -56,7 +56,7 @@
                                 @enderror
                             </div>
 
-                            <div class="col-md-3">
+                            <div class="col-md-3" style="margin-top: 10px">
                                 <label for="last_name" class="form-label">{{ trans('employees.last_name') }}</label>
                                 <div class="input-group flex-nowrap">
                                     <span class="input-group-text" id="basic-addon3"><i class="bi bi-person fs-2"></i></span>
@@ -67,7 +67,7 @@
                                 @enderror
                             </div>
 
-                            <div class="col-md-3">
+                            {{-- <div class="col-md-3" style="margin-top: 10px">
                                 <label for="email" class="form-label">{{ trans('employees.email') }}</label>
                                 <div class="input-group flex-nowrap">
                                     <span class="input-group-text" id="basic-addon3"><i class="bi bi-envelope fs-2"></i></span>
@@ -80,7 +80,7 @@
                         </div>
 
                         <div class="col-md-12 row" style="margin-top: 10px">
-                            <div class="col-md-3">
+                            <div class="col-md-3" style="margin-top: 10px">
                                 <label for="national_id" class="form-label">{{ trans('employees.national_id') }}</label>
                                 <div class="input-group flex-nowrap">
                                     <span class="input-group-text" id="basic-addon3"><i class="bi bi-caret-down fs-2"></i></span>
@@ -91,7 +91,7 @@
                                 @enderror
                             </div>
 
-                            <div class="col-md-3">
+                            <div class="col-md-3" style="margin-top: 10px">
                                 <label for="religion" class="form-label">{{ trans('employees.religion') }}</label>
                                 <div class="input-group flex-nowrap">
                                     <span class="input-group-text" id="basic-addon3"><i class="bi bi-caret-down fs-2"></i></span>
@@ -106,9 +106,9 @@
                                 @error('religion')
                                 <span class="invalid-feedback d-block" role="alert">{{ $message }}</span>
                                 @enderror
-                            </div>
+                            </div> --}}
 
-                            <div class="col-md-3">
+                            <div class="col-md-3" style="margin-top: 10px">
                                 <label for="phone" class="form-label">{{ trans('employees.phone') }}</label>
                                 <div class="input-group flex-nowrap">
                                     <span class="input-group-text" id="basic-addon3"><i class="bi bi-phone fs-2"></i></span>
@@ -119,7 +119,7 @@
                                 @enderror
                             </div>
 
-                            <div class="col-md-3">
+                            <div class="col-md-3" style="margin-top: 10px">
                                 <label for="whatsapp_num" class="form-label">{{ trans('employees.whatsapp_num') }}</label>
                                 <div class="input-group flex-nowrap">
                                     <span class="input-group-text" id="basic-addon3"><i class="bi bi-phone fs-2"></i></span>
@@ -129,10 +129,10 @@
                                 <span class="invalid-feedback d-block" role="alert">{{ $message }}</span>
                                 @enderror
                             </div>
-                        </div>
+                        {{-- </div>
 
-                        <div class="col-md-12 row" style="margin-top: 10px">
-                            <div class="col-md-3">
+                        <div class="col-md-12 row" style="margin-top: 10px"> --}}
+                            <div class="col-md-3" style="margin-top: 10px">
                                 <label for="address" class="form-label">{{ trans('employees.address') }}</label>
                                 <div class="input-group flex-nowrap">
                                     <span class="input-group-text" id="basic-addon3"><i class="bi bi-house-door fs-2"></i></span>
@@ -143,7 +143,7 @@
                                 @enderror
                             </div>
 
-                            <div class="col-md-3">
+                            {{-- <div class="col-md-3" style="margin-top: 10px">
                                 <label for="date_of_birth" class="form-label">{{ trans('employees.date_of_birth') }}</label>
                                 <div class="input-group flex-nowrap">
                                     <span class="input-group-text" id="basic-addon3"><i class="bi bi-calendar fs-2"></i></span>
@@ -154,7 +154,7 @@
                                 @enderror
                             </div>
 
-                            <div class="col-md-3">
+                            <div class="col-md-3" style="margin-top: 10px">
                                 <label for="gender" class="form-label">{{ trans('employees.gender') }}</label>
                                 <div class="input-group flex-nowrap">
                                     <span class="input-group-text" id="basic-addon3"><i class="bi bi-caret-down fs-2"></i></span>
@@ -171,7 +171,7 @@
                                 @enderror
                             </div>
 
-                            <div class="col-md-3">
+                            <div class="col-md-3" style="margin-top: 10px">
                                 <label for="material_status" class="form-label">{{ trans('employees.material_status') }}</label>
                                 <div class="input-group flex-nowrap">
                                     <span class="input-group-text" id="basic-addon3"><i class="bi bi-caret-down fs-2"></i></span>
@@ -190,9 +190,9 @@
                             </div>
                         </div>
 
-                        <div class="col-md-12 row" style="margin-top: 10px">
+                        <div class="col-md-12 row" style="margin-top: 10px"> --}}
 
-                            <div class="col-md-3">
+                            <div class="col-md-3" style="margin-top: 10px">
                                 <label for="position" class="form-label">{{ trans('employees.position') }}</label>
                                 <div class="input-group flex-nowrap">
                                     <span class="input-group-text" id="basic-addon3"><i class="bi bi-briefcase fs-2"></i></span>
@@ -203,7 +203,7 @@
                                 @enderror
                             </div>
 
-                            <div class="col-md-3">
+                            <div class="col-md-3" style="margin-top: 10px">
                                 <label for="salary" class="form-label">{{ trans('employees.salary') }}</label>
                                 <div class="input-group flex-nowrap">
                                     <span class="input-group-text" id="basic-addon3"><i class="bi bi-cash fs-2"></i></span>
@@ -214,7 +214,7 @@
                                 @enderror
                             </div>
 
-                            <div class="col-md-3">
+                            <div class="col-md-3" style="margin-top: 10px">
                                 <label for="personal_photo" class="form-label">{{ trans('employees.personal_photo') }}</label>
                                 <div class="input-group flex-nowrap">
                                     <input type="file" class="form-control" name="personal_photo" id="personal_photo">
@@ -223,14 +223,26 @@
                                 <span class="invalid-feedback d-block" role="alert">{{ $message }}</span>
                                 @enderror
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-3" style="margin-top: 10px">
                                 @if($employee->profile_picture)
                                     <img src="{{ asset('images/' . $employee->profile_picture) }}" alt="Current Photo" class="img-thumbnail" width="100">
                                 @endif
                             </div>
+
+                            <div class="col-md-3" style="margin-top: 10px">
+                                <label for="status" class="form-label">{{ trans('employees.status') }}</label>
+                                <div class="input-group flex-nowrap ">
+                                    <span class="input-group-text" id="basic-addon3">{!! form_icon('select1') !!}</span>
+                                    <select class="form-select" name="status" id="status">
+                                        <option value="1" {{ old('status', 1) == 1 ? 'selected' : '' }}>{{ trans('employees.active') }}</option>
+                                        <option value="0" {{ old('status', 1) == 0 ? 'selected' : '' }}>{{ trans('employees.inactive') }}</option>
+                                    </select>
+                                </div>
+                                @error('status')<span class="invalid-feedback d-block">{{ $message }}</span>@enderror
+                            </div>
+
                         </div>
-                        <div class="col-md-12 row" style="margin-top: 10px">
-                        </div>
+
                     </div>
                     <div class="card-footer d-flex justify-content-end">
                         <button type="submit" class="btn btn-success">

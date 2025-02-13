@@ -196,22 +196,22 @@
         var isEmployee = document.getElementById('is_employee').value;
         var nameField = document.getElementById('name');
         var positionField = document.getElementById('position');
-        var emailField = document.getElementById('email');
+        // var emailField = document.getElementById('email');
         var empSelectDiv = document.getElementById('select_emp_div');
 
         if (isEmployee == '1') {
             nameField.readOnly = true;
             positionField.readOnly = true;
-            emailField.readOnly = true;
+            // emailField.readOnly = true;
             empSelectDiv.style.display = 'block';
         } else {
             nameField.readOnly = false;
             positionField.readOnly = false;
-            emailField.readOnly = false;
+            // emailField.readOnly = false;
             empSelectDiv.style.display = 'none';
             nameField.value = '';
             positionField.value = '';
-            emailField.value = '';
+            // emailField.value = '';
         }
     }
 
@@ -219,7 +219,7 @@
         var empId = document.getElementById('emp_id').value;
         var nameField = document.getElementById('name');
         var positionField = document.getElementById('position');
-        var emailField = document.getElementById('email');
+        // var emailField = document.getElementById('email');
 
         if (empId) {
             var selectedEmployees = @json($employees);
@@ -228,12 +228,12 @@
             if (employee) {
                 nameField.value = employee.first_name + ' ' + employee.last_name;
                 positionField.value = employee.position;
-                emailField.value = employee.email;
+                // emailField.value = employee.email;
             }
         } else {
             nameField.value = '';
             positionField.value = '';
-            emailField.value = '';
+            // emailField.value = '';
         }
     }
 

@@ -37,13 +37,14 @@
                     'invoices.ID',
                     'invoices.invoice_number',
                     'invoices.client',
-                    'invoices.amount',
+                    'invoices.paid_amount',
                     'invoices.remaining_amount',
-                    'invoices.enshaa_date',
                     'invoices.due_date',
+                    'invoices.paid_date',
                     'invoices.status',
                     'invoices.subscription',
                     // 'invoices.employee',
+                    'invoices.month_year',
                     'invoices.action',
                 ];
 
@@ -126,19 +127,23 @@
                         className: 'text-center'
                     },
                     {
-                        data: 'amount',
+                        data: 'paid_amount',
                         className: 'text-center'
                     },
                     {
                         data: 'remaining_amount',
                         className: 'text-center'
                     },
+                    // {
+                    //     data: 'enshaa_date',
+                    //     className: 'text-center'
+                    // },
                     {
-                        data: 'enshaa_date',
+                        data: 'due_date',
                         className: 'text-center'
                     },
                     {
-                        data: 'due_date',
+                        data: 'paid_date',
                         className: 'text-center'
                     },
                     {
@@ -153,6 +158,10 @@
                     //     data: 'employee',
                     //     className: 'text-center'
                     // },
+                    {
+                        data: 'month_year',
+                        className: 'text-center'
+                    },
                     {
                         data: 'action',
                         name: 'action',
@@ -282,8 +291,9 @@
     </script>
 
     <script>
-        function showPayModal(url) {
+        function showPayModal(url, remainingAmount) {
             $('#payInvoiceForm').attr('action', url);
+            $('#amount').val(remainingAmount);
             $('#payInvoiceModal').modal('show');
         }
 

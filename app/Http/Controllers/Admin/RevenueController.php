@@ -54,9 +54,10 @@ class RevenueController extends Controller
                     return $row->amount ?? 'N/A';
                 })
                 ->addColumn('invoice_number', function ($row) {
+                    $prefix = $row->client && $row->client->client_type == 'satellite' ? 'SA-' : 'IN-';
                     return '<a href="javascript:void(0)" onclick="invoice_details(\''. route('admin.invoice_details', $row->id) .'\')"
                             class="text-primary fw-bold" title="'. trans('invoices.view_details') .'">
-                            INV-' . ($row->invoice->invoice_number ?? 'N/A') . '
+                            ' . $prefix .($row->invoice->invoice_number ?? 'N/A') . '
                         </a>';
                 })
                 ->addColumn('client', function ($row) {

@@ -303,7 +303,7 @@
 
 
     <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js')}}"></script>
-  {{--  {!! JsValidator::formRequest('App\Http\Requests\Subscriptions\account_setting\StoreRequest', '##StorForm'); !!}
+  {{--  {!! JsValidator::formRequest('App\Http\Requests\Subscriptions\account_setting\StoreRequest', '##StorForm') !!}
 --}}
     <script src="{{asset('assets/plugins/custom/ckeditor/ckeditor-classic.bundle.js')}}"></script>
 

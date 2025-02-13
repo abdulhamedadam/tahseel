@@ -2,7 +2,7 @@
 
 @section('content')
     <!-- Modal 1-->
-    <div class="modal fade" id="exampleModal" tabindex="-1" 
+    <div class="modal fade" id="exampleModal" tabindex="-1"
     aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <form action="{{route('admin.hr.reqholiday.store')}}" method="POST" id="kt_ecommerce_add_product_form"
@@ -477,9 +477,9 @@ const subscription = linked2.subscribe(tempusDominus.Namespace.events.change, (e
 
     </script>
     <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js')}}"></script>
-  {{--  {!! JsValidator::formRequest('App\Http\Requests\EditeCityRequest', '.my-form'); !!}  --}}
+  {{--  {!! JsValidator::formRequest('App\Http\Requests\EditeCityRequest', '.my-form') !!}  --}}
 
 {{--
     <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js')}}"></script>
-    {!! JsValidator::formRequest('App\Http\Requests\EditeCarBrandRequest', '.my-form'); !!} --}}
+    {!! JsValidator::formRequest('App\Http\Requests\EditeCarBrandRequest', '.my-form') !!} --}}
 @endsection

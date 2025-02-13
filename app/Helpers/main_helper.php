@@ -9,6 +9,7 @@ use App\Models\Admin\Masrofat;
 use App\Models\Admin\Revenue;
 use App\Models\Clients;
 use App\Traits\ImageProcessing;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -257,6 +258,35 @@ if (!function_exists('count_subscriptions')) {
         $count = $query->count();
 
         return $count;
+    }
+}
+
+if (!function_exists('count_notifications_clients')) {
+    function count_notifications_clients()
+    {
+        $admin = Auth::user();
+
+        if (!$admin) {
+            return collect();
+        }
+
+        return $admin->unreadNotifications
+            ->where('type', \App\Notifications\NewClientAddedNotification::class)->count();
+    }
+}
+
+if (!function_exists('count_invoice_reminder_notifications')) {
+    function count_invoice_reminder_notifications()
+    {
+        $admin = Auth::user();
+
+        if (!$admin) {
+            return 0;
+        }
+
+        return $admin->unreadNotifications
+            ->where('type', \App\Notifications\InvoiceReminderNotification::class)
+            ->count();
     }
 }
 

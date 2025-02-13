@@ -14,6 +14,10 @@
                     <td class="class_result">{{ $all_data->client->name }}</td>
                 </tr>
                 <tr>
+                    <td class="class_label" style="width: 25%"><?= trans('invoices.client_type') ?></td>
+                    <td class="class_result">{{ trans('invoices.' . $all_data->client->client_type )}}</td>
+                </tr>
+                <tr>
                     <td class="class_label" style="width: 25%"><?= trans('invoices.subscription') ?></td>
                     <td class="class_result">{{ $all_data->subscription->name }}</td>
                 </tr>
@@ -22,12 +26,20 @@
                     <td class="class_result">{{ $all_data->amount }}</td>
                 </tr>
                 <tr>
+                    <td class="class_label" style="width: 25%"><?= trans('invoices.paid_amount') ?></td>
+                    <td class="class_result">{{ $all_data->amount - $all_data->remaining_amount }}</td>
+                </tr>
+                <tr>
                     <td class="class_label" style="width: 25%"><?= trans('invoices.remaining_amount') ?></td>
                     <td class="class_result">{{ $all_data->remaining_amount }}</td>
                 </tr>
                 <tr>
                     <td class="class_label" style="width: 25%"><?= trans('invoices.enshaa_date') ?></td>
                     <td class="class_result">{{ $all_data->enshaa_date }}</td>
+                </tr>
+                <tr>
+                    <td class="class_label" style="width: 25%"><?= trans('invoices.paid_date') ?></td>
+                    <td class="class_result">{{ $all_data->paid_date }}</td>
                 </tr>
                 <tr>
                     <td class="class_label" style="width: 25%"><?= trans('invoices.due_date') ?></td>

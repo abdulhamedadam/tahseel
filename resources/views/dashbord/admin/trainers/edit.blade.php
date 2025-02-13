@@ -224,7 +224,7 @@
                                 <input type="number" step="any" name="training_percentage" id="training_percentage" value="{{old('training_percentage',$one_data->training_percentage)}}"
                                        class="form-control mb-2" placeholder="{{trans('trainers.training_percentage')}}"/>
                             </div>
-                          
+
                             <div class="col-md-4">
                                 <label class="required form-label">{{trans('trainers.job')}}</label>
                                 <input type="text" step="any" name="job" id="job" value="{{old('job',$one_data->job)}}"
@@ -234,7 +234,7 @@
 
                         </div>
 
-                       
+
 
 
 
@@ -264,7 +264,7 @@
 
     <script src="{{asset('assets/plugins/custom/ckeditor/ckeditor-classic.bundle.js')}}"></script>
     <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js')}}"></script>
-    {{--    {!! JsValidator::formRequest('App\Http\Requests\Admin\Members\StoreRequest', '#save_form'); !!}--}}
+    {{--    {!! JsValidator::formRequest('App\Http\Requests\Admin\Members\StoreRequest', '#save_form') !!}--}}
     <script>
         var KTAppBlogSave = function () {
             const initckeditor = () => {

@@ -419,7 +419,7 @@
 @section('js')
 
     <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js')}}"></script>
-    {!! JsValidator::formRequest('App\Http\Requests\Admin\subscription\member_subscriptions\SaveMemberSubscriptions', '#save_form'); !!}
+    {!! JsValidator::formRequest('App\Http\Requests\Admin\subscription\member_subscriptions\SaveMemberSubscriptions', '#save_form') !!}
     <script src="{{asset('assets/plugins/custom/ckeditor/ckeditor-classic.bundle.js')}}"></script>
     <script src="{{asset('assets/plugins/custom/formrepeater/formrepeater.bundle.js')}}"></script>
     <script>

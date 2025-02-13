@@ -106,7 +106,7 @@
                         <span class="menu-title">{{ trans('sidebar.users') }}</span>
                     </a>
                 </div>
-                <div class="menu-item">
+                {{-- <div class="menu-item">
                     <a class="menu-link {{ request()->routeIs(['admin.invoices.index']) ? 'active' : '' }}"
                         href="{{ route('admin.invoices.index') }}">
                             <span class="svg-icon svg-icon-2" style="margin-left: 5px">
@@ -114,6 +114,78 @@
                             </span>
                         <span class="menu-title">{{ trans('sidebar.invoices') }}</span>
                     </a>
+                </div> --}}
+
+                {{-- <div class="menu-item menu-accordion {{ request()->routeIs(['admin.invoices.index', 'admin.due_monthly_invoices', 'admin.new_paid_invoices']) ? 'here show' : '' }}">
+                    <a class="menu-link menu-toggle" href="#">
+                        <span class="svg-icon svg-icon-2" style="margin-left: 5px">
+                            <i class="bi bi-file-earmark-text text-primary fs-2x"></i>
+                        </span>
+                        <span class="menu-title">{{ trans('sidebar.invoices') }}</span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="menu-sub menu-sub-accordion">
+
+                        <div class="menu-item">
+                            <a class="menu-link {{ request()->routeIs('admin.invoices.index') ? 'active' : '' }}" href="{{ route('admin.invoices.index') }}">
+                                <span class="menu-title">{{ trans('sidebar.all_invoices') }}</span>
+                            </a>
+                        </div>
+
+                        <div class="menu-item">
+                            <a class="menu-link {{ request()->routeIs('admin.due_monthly_invoices') ? 'active' : '' }}" href="{{ route('admin.due_monthly_invoices') }}">
+                                <span class="menu-title">{{ trans('sidebar.due_monthly_invoices') }}</span>
+                            </a>
+                        </div>
+
+                        <div class="menu-item">
+                            <a class="menu-link {{ request()->routeIs('admin.new_paid_invoices') ? 'active' : '' }}" href="{{ route('admin.new_paid_invoices') }}">
+                                <span class="menu-title">{{ trans('sidebar.new_paid_invoices') }}</span>
+                            </a>
+                        </div>
+                    </div>
+                </div> --}}
+
+                <div data-kt-menu-trigger="click"
+                    class="menu-item menu-accordion {{ request()->routeIs(['admin.invoices.index', 'admin.due_monthly_invoices', 'admin.new_paid_invoices']) ? 'show' : '' }}">
+                    <span class="menu-link">
+                        <span class="menu-icon">
+                            <span class="svg-icon svg-icon-2">
+                                <i class="bi bi-file-earmark-text fs-2x"></i>
+                            </span>
+                        </span>
+                        <span class="menu-title">{{ trans('sidebar.invoices') }}</span>
+                        <span class="menu-arrow"></span>
+                    </span>
+
+                    <div class="menu-sub menu-sub-accordion {{ request()->routeIs(['admin.invoices.index', 'admin.due_monthly_invoices', 'admin.new_paid_invoices']) ? 'show' : '' }}">
+                        <div class="menu-item">
+
+                            <a class="menu-link {{ request()->routeIs('admin.invoices.index') ? 'active' : '' }}"
+                                href="{{ route('admin.invoices.index') }}">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title">{{ trans('sidebar.all_invoices') }}</span>
+                            </a>
+
+                            <a class="menu-link {{ request()->routeIs('admin.due_monthly_invoices') ? 'active' : '' }}"
+                                href="{{ route('admin.due_monthly_invoices') }}">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title">{{ trans('sidebar.due_monthly_invoices') }}</span>
+                            </a>
+
+                            <a class="menu-link {{ request()->routeIs('admin.new_paid_invoices') ? 'active' : '' }}"
+                                href="{{ route('admin.new_paid_invoices') }}">
+                                <span class="menu-bullet">
+                                    <span class="bullet bullet-dot"></span>
+                                </span>
+                                <span class="menu-title">{{ trans('sidebar.new_paid_invoices') }}</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="menu-item">
@@ -133,6 +205,20 @@
                                     <i class="bi bi-cash-coin text-success fs-2x"></i>
                                 </span>
                         <span class="menu-title">{{ trans('sidebar.masrofat') }}</span>
+                    </a>
+                </div>
+
+                <div class="menu-item">
+                    <a class="menu-link {{ request()->routeIs(['admin.new_clients_notifications']) ? 'active' : '' }}"
+                       href="{{ route('admin.new_clients_notifications') }}">
+                        <span class="svg-icon svg-icon-2" style="margin-left: 5px">
+                            <i class="bi bi-bell text-warning fs-2x"></i>
+                        </span>
+                        <span class="menu-title">{{ trans('sidebar.notifications') }}</span>
+
+                        @if(auth()->user()->unreadNotifications->where('type', \App\Notifications\NewClientAddedNotification::class)->count() > 0)
+                            <span class="badge badge-danger" style="position: absolute; top: 8px; right: 10px; width: 10px; height: 10px; border-radius: 50%;"></span>
+                        @endif
                     </a>
                 </div>
 

@@ -23,6 +23,7 @@
                 <div class="card-body" style="padding-left: 0px !important;">
                     <div class="col-md-12 row">
                         <div class="col-md-8">
+                            @include('dashbord.admin.employees.employee_masrofat_form')
                             @include('dashbord.admin.employees.employee_masrofat_data')
                         </div>
                         <div class="col-md-4">

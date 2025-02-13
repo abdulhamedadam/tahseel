@@ -172,7 +172,7 @@
 
 
     <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js')}}"></script>
-    {!! JsValidator::formRequest('App\Http\Requests\Admin\Members\SaveInbodyRequest', '#save_form'); !!}
+    {!! JsValidator::formRequest('App\Http\Requests\Admin\Members\SaveInbodyRequest', '#save_form') !!}
 
 
 

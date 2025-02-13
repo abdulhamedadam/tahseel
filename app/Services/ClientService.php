@@ -5,9 +5,11 @@ namespace App\Services;
 
 
 use App\Interfaces\BasicRepositoryInterface;
+use App\Models\Admin;
 use App\Models\Admin\Invoice;
 use App\Models\Admin\Subscription;
 use App\Models\Clients;
+use App\Notifications\NewClientAddedNotification;
 use App\Traits\ImageProcessing;
 
 class ClientService
@@ -34,20 +36,29 @@ class ClientService
 
         $client = $this->ClientsRepository->create($validated_data);
 
-        $invoiceNumber = $this->InvoiceRepository->getLastFieldValue('invoice_number');
+        // $invoiceNumber = $this->InvoiceRepository->getLastFieldValue('invoice_number');
 
-        $invoice_data = [
-            'invoice_number' => $invoiceNumber,
-            'client_id' => $client->id,
-            'subscription_id' => $validated_data['subscription_id'],
-            'amount' => $validated_data['price'],
-            'remaining_amount' => $validated_data['price'],
-            'enshaa_date' => now(),
-            'due_date' => now()->addMonth(),
-            'status' => 'unpaid',
-        ];
+        // $invoice_data = [
+        //     'invoice_number' => $invoiceNumber,
+        //     'client_id' => $client->id,
+        //     'subscription_id' => $validated_data['subscription_id'],
+        //     'amount' => $validated_data['price'],
+        //     'remaining_amount' => $validated_data['price'],
+        //     'enshaa_date' => now(),
+        //     'due_date' => now()->addMonth(),
+        //     'status' => 'unpaid',
+        // ];
 
-        $this->InvoiceRepository->create($invoice_data);
+        // $this->InvoiceRepository->create($invoice_data);
+
+        $admins = Admin::where('status', '1')
+                    ->whereNull('deleted_at')
+                    ->where('id', '!=', auth()->id())
+                    ->get();
+
+        foreach ($admins as $admin) {
+            $admin->notify(new NewClientAddedNotification($client));
+        }
 
         return $client;
     }

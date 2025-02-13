@@ -102,7 +102,7 @@
                                         ?>
                                        <option></option>
                                         @foreach($select_array as $key=> $value)
-                                        <option value="{{ $key }}" 
+                                        <option value="{{ $key }}"
                                         {{ old('with', $one_data->status) == $key ? 'selected' : '' }}>
                                         {{ $value }}
                                        </option>
@@ -154,7 +154,7 @@
                                         ?>
                                         <option></option>
                                         @foreach($select_array as $key=> $value)
-                                        <option value="{{ $key }}" 
+                                        <option value="{{ $key }}"
                                         {{ old('status', $one_data->status) == $key ? 'selected' : '' }}>
                                         {{ $value }}
                                       </option>
@@ -205,7 +205,7 @@
 
 
     <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js')}}"></script>
-    {!! JsValidator::formRequest('App\Http\Requests\finance\tax_setting\TaxRequest', '#StorForm'); !!}
+    {!! JsValidator::formRequest('App\Http\Requests\finance\tax_setting\TaxRequest', '#StorForm') !!}
 
     <script src="{{asset('assets/plugins/custom/ckeditor/ckeditor-classic.bundle.js')}}"></script>
 

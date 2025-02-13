@@ -40,11 +40,13 @@ class Invoice extends Model
         if ($paymentAmount >= $this->remaining_amount) {
             $this->update([
                 'status' => 'paid',
+                'paid_date' => now()->format('Y-m-d'),
                 'remaining_amount' => 0,
             ]);
         } else {
             $this->update([
                 'status' => 'partial',
+                'paid_date' => now()->format('Y-m-d'),
                 'remaining_amount' => $this->remaining_amount - $paymentAmount,
             ]);
         }

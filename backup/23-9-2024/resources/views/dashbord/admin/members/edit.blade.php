@@ -275,7 +275,7 @@
 
     <script src="{{asset('assets/plugins/custom/ckeditor/ckeditor-classic.bundle.js')}}"></script>
     <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js')}}"></script>
-    {!! JsValidator::formRequest('App\Http\Requests\Admin\Members\UpdateRequest', '#save_form'); !!}
+    {!! JsValidator::formRequest('App\Http\Requests\Admin\Members\UpdateRequest', '#save_form') !!}
 
     <script>
         var KTAppBlogSave = function () {

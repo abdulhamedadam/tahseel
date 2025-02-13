@@ -212,7 +212,7 @@
                 <td class="class_label" style="width: 25%"><?= trans('employees.employee_code') ?></td>
                 <td class="class_result"><?php echo $all_data->emp_code; ?></td>
             </tr>
-            <tr>
+            {{-- <tr>
                 <td class="class_label" style="width: 25%"><?= trans('employees.email') ?></td>
                 <td class="class_result"><?php echo $all_data->email; ?></td>
             </tr>
@@ -223,7 +223,7 @@
             <tr>
                 <td class="class_label"><?= trans('employees.gender') ?></td>
                 <td class="class_result"><?php echo trans('employees.' . $all_data->gender); ?></td>
-            </tr>
+            </tr> --}}
             <tr>
                 <td class="class_label"><?= trans('employees.position') ?></td>
                 <td class="class_result"><?php echo $all_data->position; ?></td>

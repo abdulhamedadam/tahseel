@@ -13,6 +13,7 @@ use App\Models\Admin\Employee;
 use App\Models\Admin\EmployeeFiles;
 use App\Models\Admin\Masrofat;
 use App\Models\Admin\Revenue;
+use App\Models\Admin\SarfBand;
 use App\Traits\ImageProcessing;
 use App\Traits\ValidationMessage;
 use Illuminate\Database\Eloquent\Model;
@@ -35,6 +36,7 @@ class EmployeesController extends Controller
     protected $EmployeeFilesRepository;
     protected $MasrofatRepository;
     protected $RevenuesRepository;
+    protected $bandsRepository;
     public function __construct(BasicRepositoryInterface $basicRepository)
     {
         $this->AreasSettingRepository   = createRepository($basicRepository, new AreaSetting());
@@ -43,6 +45,7 @@ class EmployeesController extends Controller
         $this->EmployeeFilesRepository  = createRepository($basicRepository, new EmployeeFiles());
         $this->MasrofatRepository  = createRepository($basicRepository, new Masrofat());
         $this->RevenuesRepository  = createRepository($basicRepository, new Revenue());
+        $this->bandsRepository = createRepository($basicRepository, new SarfBand());
     }
 
     /************************************************************/
@@ -274,8 +277,47 @@ class EmployeesController extends Controller
     {
         $data['all_data']     =  $this->EmployeeRepository->getById($id);
         $data['masrofat_data']   =  $this->MasrofatRepository->getBywhere(array('emp_id' => $id));
+        $data['bands'] = $this->bandsRepository->getAll();
         // dd($data);
         return view('dashbord.admin.employees.employee_masrofat', $data);
+    }
+    /***********************************************************/
+    public function employee_add_masrofat(Request $request, $emp_id)
+    {
+        $request->validate([
+            'band_id' => 'required|exists:tbl_sarf_bands,id',
+            'value' => 'required|numeric|min:0',
+            'notes' => 'nullable|string|max:255',
+        ]);
+        try {
+
+            $emp = $this->EmployeeRepository->getById($emp_id);
+
+            $data['emp_id'] = $emp->id;
+            $data['band_id'] = $request->band_id;
+            $data['value'] = $request->value;
+            $data['notes'] = $request->notes;
+            $data['created_by']= auth()->user()->id;
+
+            $this->MasrofatRepository->create($data);
+
+            return redirect()->back()->with('success', trans('employees.masrofat_added'));
+        } catch (\Exception $e) {
+            test($e->getMessage());
+            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+        }
+    }
+    /***********************************************************/
+    public function employee_delete_masrofat(Request $request, $masrofat_id)
+    {
+        try {
+            $this->MasrofatRepository->delete($masrofat_id);
+
+            return redirect()->back()->with('success', trans('employees.masrofat_deleted'));
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+        }
     }
     /**********************************************************/
 

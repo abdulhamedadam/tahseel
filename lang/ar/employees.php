@@ -85,4 +85,9 @@
   'price' => 'السعر',
   'subscription_date' => 'تاريخ الاشتراك',
   'start_date' => 'تاريخ البداية',
+  'status' => 'status',
+  'active' => 'active',
+  'inactive' => 'inactive',
+  'masrofat_added' => 'masrofat_added',
+  'masrofat_deleted' => 'masrofat_deleted',
 );

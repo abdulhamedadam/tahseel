@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Admin\app_setting\NotificationController;
 use App\Http\Controllers\Admin\app_setting\DiscountController;
 use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\CompanyController;
@@ -9,6 +8,7 @@ use App\Http\Controllers\Admin\EmployeesController;
 use App\Http\Controllers\Admin\GeneralSettingsController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\MasrofatController;
+use App\Http\Controllers\Admin\NotificationsController;
 use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\RevenueController;
 use App\Http\Controllers\Admin\RolesController;
@@ -132,6 +132,8 @@ Route::group(
         Route::get('/employee_files/{id}', [EmployeesController::class, 'employee_files'])->name('employee_files');
         Route::get('/employee_details/{id}', [EmployeesController::class, 'employee_details'])->name('employee_details');
         Route::get('/employee_masrofat/{id}', [EmployeesController::class, 'employee_masrofat'])->name('employee_masrofat');
+        Route::post('/employee_add_masrofat/{id}', [EmployeesController::class, 'employee_add_masrofat'])->name('employee_add_masrofat');
+        Route::get('/employee_delete_masrofat/{id}', [EmployeesController::class, 'employee_delete_masrofat'])->name('employee_delete_masrofat');
         Route::get('/employee_revenues/{id}', [EmployeesController::class, 'employee_revenues'])->name('employee_revenues');
 
         Route::post('/employee_add_files/{id}', [EmployeesController::class, 'employee_add_files'])->name('employee_add_files');
@@ -156,6 +158,8 @@ Route::group(
         Route::get('/get_price/{id}', [ClientController::class, 'get_price'])->name('get_price');
         Route::get('/client_unpaid_invoices/{id}', [ClientController::class, 'client_unpaid_invoices'])->name('client_unpaid_invoices');
         Route::get('/client_paid_invoices/{id}', [ClientController::class, 'client_paid_invoices'])->name('client_paid_invoices');
+        Route::get('/client_invoices/{id}', [ClientController::class, 'client_invoices'])->name('client_invoices');
+        Route::get('/client_add_invoice/{id}', [ClientController::class, 'client_add_invoice'])->name('client_add_invoice');
 
         Route::resource('roles',RolesController::class);
         Route::get('role/delete/{id}',[RolesController::class,'destroy'])->name('delete_role');
@@ -167,17 +171,25 @@ Route::group(
         Route::resource('masrofat',MasrofatController::class);
         Route::get('masrofat/delete/{id}',[MasrofatController::class,'destroy'])->name('delete_masrofat');
 
-        Route::resource('invoices',InvoiceController::class);
+        Route::resource('invoices',InvoiceController::class)->except(['store', 'create', 'show', 'edit', 'update']);
         Route::get('invoice/delete/{id}',[InvoiceController::class,'destroy'])->name('delete_invoice');
         Route::post('/invoice/{id}/pay', [InvoiceController::class, 'pay_invoice'])->name('pay_invoice');
         Route::get('/invoice/{id}/details', [InvoiceController::class, 'show_details'])->name('invoice_details');
         Route::get('/invoice/{id}/print', [InvoiceController::class, 'print_invoice'])->name('print_invoice');
+        Route::get('/invoice/{id}/redo', [InvoiceController::class, 'redo_invoice'])->name('redo_invoice');
+        Route::get('/invoices/due-monthly', [InvoiceController::class, 'dueMonthlyInvoices'])->name('due_monthly_invoices');
+        Route::get('/invoices/new', [InvoiceController::class, 'newlyPaidInvoices'])->name('new_paid_invoices');
 
         Route::resource('revenues',RevenueController::class);
 
         Route::get('admin/users/{user}/permissions', [UsersController::class, 'permissions'])->name('users.permissions');
         Route::post('admin/users/{user}/permissions', [UsersController::class, 'updatePermissions'])->name('users.update_permissions');
 
+        Route::get('/notifications/new_clients', [NotificationsController::class, 'new_clients'])->name('new_clients_notifications');
+        Route::get('/get_ajax_notifications/new_clients', [NotificationsController::class, 'get_ajax_notifications'])->name('get_ajax_notifications');
+        Route::get('/notifications/unpaid_invoices', [NotificationsController::class, 'unpaid_invoices'])->name('unpaid_invoices_notifications');
+        Route::get('/get_ajax_invoice_notifications', [NotificationsController::class, 'get_ajax_invoice_notifications'])->name('get_ajax_invoice_notifications');
+        Route::get('/notifications/read/{id}', [NotificationsController::class, 'mark_notification_read'])->name('mark_notification_read');
     });
 
 

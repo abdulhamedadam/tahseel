@@ -12,6 +12,7 @@ use App\Models\Admin\Branch;
 use App\Models\Admin\Employee;
 use App\Models\Admin\EmployeeFiles;
 use App\Models\Admin\Invoice;
+use App\Models\Admin\Revenue;
 use App\Models\Admin\Subscription;
 use App\Models\Clients;
 use App\Models\ClientsCompanies;
@@ -30,15 +31,19 @@ class ClientController extends Controller
     use ValidationMessage;
 
     protected $admin_view = 'dashbord.clients';
-    protected $ClientsRepository;
+    protected $NotificationsControllerNotificationsController;
     protected $clientService;
+    protected $ClientsRepository;
     protected $SubscriptionRepository;
+    protected $InvoiceRepository;
 
     public function __construct(BasicRepositoryInterface $basicRepository, ClientService $clientService, CompanyService $companyService, ProjectsService $projectsService)
     {
         $this->SubscriptionRepository = createRepository($basicRepository, new Subscription());
         $this->ClientsRepository = createRepository($basicRepository, new Clients());
         $this->clientService = $clientService;
+        $this->InvoiceRepository   = createRepository($basicRepository, new Invoice());
+
     }
 
 
@@ -56,8 +61,17 @@ class ClientController extends Controller
                 ->addColumn('phone', function ($row) {
                     return $row->phone ?? 'N/A';
                 })
-                ->addColumn('email', function ($row) {
-                    return $row->email ?? 'N/A';
+                // ->addColumn('email', function ($row) {
+                //     return $row->email ?? 'N/A';
+                // })
+                ->addColumn('client_type', function ($row) {
+                    return $row->client_type ?? 'N/A';
+                })
+                ->addColumn('user', function ($row) {
+                    return $row->user ?? 'N/A';
+                })
+                ->addColumn('box_switch', function ($row) {
+                    return $row->box_switch ?? 'N/A';
                 })
                 ->addColumn('address1', function ($row) {
                     return $row->address1 ?? 'N/A';
@@ -70,6 +84,9 @@ class ClientController extends Controller
                 })
                 ->addColumn('subscription_date', function ($row) {
                     return $row->subscription_date ? $row->subscription_date : 'N/A';
+                })
+                ->addColumn('start_date', function ($row) {
+                    return $row->start_date ? $row->start_date : 'N/A';
                 })
                 ->addColumn('action', function ($row) {
                     return '<div class="btn-group">
@@ -98,6 +115,11 @@ class ClientController extends Controller
                             <li>
                                 <a style="font-size: 14px" class="hover-effect dropdown-item" href="' . route('admin.client_unpaid_invoices', $row->id) . '">
                                     <i class="bi bi-receipt-cutoff"></i> ' . trans('clients.client_unpaid_invoices') . '
+                                </a>
+                            </li>
+                            <li>
+                                <a style="font-size: 14px" class="hover-effect dropdown-item" href="' . route('admin.client_invoices', $row->id) . '">
+                                    <i class="bi bi-file-earmark-plus"></i> ' . trans('clients.client_add_invoice') . '
                                 </a>
                             </li>
                         </ul>
@@ -202,4 +224,69 @@ class ClientController extends Controller
                             ->get();
         return view($this->admin_view . '.client_paid_invoices', $data);
     }
+    /***********************************************/
+    public function client_invoices($id)
+    {
+        $data['all_data'] = $this->ClientsRepository->getById($id);
+        $data['unpaid_data'] = Invoice::where('client_id', $id)
+                            ->where('status', 'unpaid')
+                            ->get();
+        $data['paid_data'] = Invoice::where('client_id', $id)
+                            ->whereIn('status', ['paid', 'partial'])
+                            ->get();
+        $data['invoiceNumber'] = $this->InvoiceRepository->getLastFieldValue('invoice_number');
+        // dd($data);
+        return view($this->admin_view . '.client_invoices', $data);
+    }
+    /***********************************************/
+    public function client_add_invoice(Request $request, $id)
+    {
+        $request->validate([
+            'amount' => 'required|numeric|min:0',
+            'remaining_amount' => 'required|numeric|min:0',
+            'enshaa_date' => 'required|date',
+            'notes' => 'nullable|string|max:500',
+        ]);
+        try {
+            if ($request->remaining_amount == 0) {
+                $status = 'paid';
+            } elseif ($request->remaining_amount > 0 && $request->remaining_amount < $request->amount) {
+                $status = 'partial';
+            } else {
+                $status = 'unpaid';
+            }
+
+            $invoiceData = [
+                'invoice_number' => $request->invoice_number,
+                'client_id' => $id,
+                'amount' => $request->amount,
+                'remaining_amount' => $request->remaining_amount,
+                'enshaa_date' => now()->format('Y-m-d'),
+                'invoice_type' => 'service',
+                'notes' => $request->notes,
+                'status' => $status,
+            ];
+
+            $invoice = $this->InvoiceRepository->create($invoiceData);
+
+            if ($request->remaining_amount < $request->amount) {
+                $admin = auth('admin')->user();
+                $collectedBy = $admin && $admin->is_employee ? $admin->emp_id : auth()->user()->id;
+
+                Revenue::create([
+                    'invoice_id' => $invoice->id,
+                    'client_id' => $id,
+                    'amount' => $request->amount - $request->remaining_amount,
+                    'collected_by' => $collectedBy,
+                    'received_at' => now(),
+                ]);
+            }
+
+            return redirect()->back()->with('success', trans('clients.invoice_created_successfully.'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', trans('clients.failed_to_create_invoice.'));
+        }
+    }
+
+
 }

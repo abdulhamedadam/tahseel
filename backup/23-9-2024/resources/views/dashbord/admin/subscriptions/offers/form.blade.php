@@ -286,5 +286,5 @@
 
 
     <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js')}}"></script>
-    {!! JsValidator::formRequest('App\Http\Requests\Admin\subscription\offers\SaveOffer_R', '#save_form'); !!}
+    {!! JsValidator::formRequest('App\Http\Requests\Admin\subscription\offers\SaveOffer_R', '#save_form') !!}
 @endsection

@@ -18,8 +18,8 @@
                 <li class="breadcrumb-item">
                     <span class="bullet bg-gray-400 w-5px h-2px"></span>
                 </li>
-               
-                
+
+
                 <li class="breadcrumb-item text-muted">
                      {{trans('Toolbar.subscriptions')}}</a>
                 </li>
@@ -62,7 +62,7 @@
         <!--end::Actions-->
 
     </div>
-    <!--end::Toolbar container--> 
+    <!--end::Toolbar container-->
 
 @endsection
 @section('content')
@@ -86,8 +86,8 @@
                     @endif
                 </div>
 
-              
-              
+
+
                 <form id="StorForm" method="post"
                       action="{{route('admin.subscriptions.task_management.store')}}"
                       enctype="multipart/form-data">
@@ -111,7 +111,7 @@
                                        placeholder="{{trans('sub.title')}}"
                                        value="" required autocomplete/>
                             </div>
-                           
+
 
                             <div class="col-md-4">
                                 <label class="required form-label">{{ trans('sub.Type') }}</label>
@@ -169,7 +169,7 @@
 
                         </div>
 
-                       
+
 
                         <div class="row" style="margin-top: 10px">
                             <div class="col-md-12 col">
@@ -192,21 +192,21 @@
                         </div>
 
 
-                       
 
-                     
 
-                       
+
+
+
                 <div class="d-flex justify-content-end">
-              
+
                     <button type="reset" class="btn btn-light me-5">{{trans('forms.cancel_btn')}}</button>
-                  
+
                     <button type="submit" id="" class="btn btn-primary">
                         <span class="indicator-label">{{trans('forms.save_btn')}}</span>
                         <span class="indicator-progress">Please wait...
 						<span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
                     </button>
-                 
+
                 </div>
 
                     </div>
@@ -236,13 +236,13 @@
 
 
     <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js')}}"></script>
-    {!! JsValidator::formRequest('App\Http\Requests\Subscriptions\Task_management\StoreRequest', '##StorForm'); !!}
+    {!! JsValidator::formRequest('App\Http\Requests\Subscriptions\Task_management\StoreRequest', '##StorForm') !!}
 
     <script src="{{asset('assets/plugins/custom/ckeditor/ckeditor-classic.bundle.js')}}"></script>
 
     <script>
         var KTAppBlogSave = function () {
-        
+
   // Init daterangepicker
   const initSelectEmplyee = () => {
 
@@ -295,7 +295,7 @@
 
 
             }
-          
+
             // Public methods
             return {
                 init: function () {

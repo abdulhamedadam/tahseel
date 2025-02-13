@@ -100,4 +100,8 @@
   'users' => 'المستخدمين',
   'invoices' => 'الفواتير',
   'revenues' => 'الايرادات',
+  'notifications' => 'الاشعارات',
+  'all_invoices' => 'كل الفواتير',
+  'due_monthly_invoices' => 'الفواتير الشهرية المستحقة',
+  'new_paid_invoices' => 'الفواتير المستحدثة',
 );
