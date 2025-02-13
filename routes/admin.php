@@ -159,7 +159,7 @@ Route::group(
         Route::get('/client_unpaid_invoices/{id}', [ClientController::class, 'client_unpaid_invoices'])->name('client_unpaid_invoices');
         Route::get('/client_paid_invoices/{id}', [ClientController::class, 'client_paid_invoices'])->name('client_paid_invoices');
         Route::get('/client_invoices/{id}', [ClientController::class, 'client_invoices'])->name('client_invoices');
-        Route::get('/client_add_invoice/{id}', [ClientController::class, 'client_add_invoice'])->name('client_add_invoice');
+        Route::post('/client_add_invoice/{id}', [ClientController::class, 'client_add_invoice'])->name('client_add_invoice');
 
         Route::resource('roles',RolesController::class);
         Route::get('role/delete/{id}',[RolesController::class,'destroy'])->name('delete_role');

@@ -18,5 +18,5 @@
   'confirm_delete' => 'تأكيد الحذف',
   'edit_masrofat' => 'تعديل المصروفات',
   'update' => 'تعديل',
-  'enter_notes' => 'enter_notes',
+  'enter_notes' => 'ادخل الملاحظات',
 );

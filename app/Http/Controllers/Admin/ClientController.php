@@ -51,9 +51,13 @@ class ClientController extends Controller
     {
         if ($request->ajax()) {
             $allData = Clients::with('subscription')->select('*');
+
+            $counter = 0;
+
             return Datatables::of($allData)
-                ->addColumn('id', function ($row) {
-                    return $row->id ?? 'N/A';
+                ->addColumn('id', function () use (&$counter) {
+                    $counter++;
+                    return $counter;
                 })
                 ->addColumn('name', function ($row) {
                     return $row->name ?? 'N/A';
@@ -77,7 +81,7 @@ class ClientController extends Controller
                     return $row->address1 ?? 'N/A';
                 })
                 ->addColumn('subscription', function ($row) {
-                    return $row->subscription ? $row->subscription->name : 'N/A';
+                    return $row->subscription ? $row->subscription->name : '<span class="badge bg-success text-white px-4 py-3 rounded-pill fw-bold fs-5">' . trans('invoices.service') . '</span>';
                 })
                 ->addColumn('price', function ($row) {
                     return $row->price ?? 'N/A';
@@ -204,10 +208,12 @@ class ClientController extends Controller
 
     public function client_unpaid_invoices($id){
         $data['all_data'] = $this->ClientsRepository->getById($id);
-        $data['unpaid_data'] = Invoice::where('client_id', $id)
+        $data['unpaid_data'] = Invoice::with(['client', 'employee', 'subscription'])
+                                ->where('client_id', $id)
                                 ->where('status', 'unpaid')
                                 ->get();
-        $data['paid_data'] = Invoice::where('client_id', $id)
+        $data['paid_data'] = Invoice::with(['client', 'employee', 'subscription'])
+                            ->where('client_id', $id)
                             ->whereIn('status', ['paid', 'partial'])
                             ->get();
         // dd($data);
@@ -216,12 +222,15 @@ class ClientController extends Controller
     /***********************************************/
     public function client_paid_invoices($id){
         $data['all_data'] = $this->ClientsRepository->getById($id);
-        $data['unpaid_data'] = Invoice::where('client_id', $id)
+        $data['unpaid_data'] = Invoice::with(['client', 'employee', 'subscription'])
+                            ->where('client_id', $id)
                             ->where('status', 'unpaid')
                             ->get();
-        $data['paid_data'] = Invoice::where('client_id', $id)
+        $data['paid_data'] = Invoice::with(['client', 'employee', 'subscription'])
+                            ->where('client_id', $id)
                             ->whereIn('status', ['paid', 'partial'])
                             ->get();
+        // dd($data);
         return view($this->admin_view . '.client_paid_invoices', $data);
     }
     /***********************************************/
@@ -235,6 +244,7 @@ class ClientController extends Controller
                             ->whereIn('status', ['paid', 'partial'])
                             ->get();
         $data['invoiceNumber'] = $this->InvoiceRepository->getLastFieldValue('invoice_number');
+        $data['subscriptions'] = $this->SubscriptionRepository->getAll();
         // dd($data);
         return view($this->admin_view . '.client_invoices', $data);
     }
@@ -242,12 +252,16 @@ class ClientController extends Controller
     public function client_add_invoice(Request $request, $id)
     {
         $request->validate([
+            'invoice_number' => 'required|string|unique:tbl_invoices,invoice_number',
+            'invoice_type' => 'required|in:service,subscription',
+            'subscription_id' => 'nullable|exists:tbl_subscriptions,id',
             'amount' => 'required|numeric|min:0',
-            'remaining_amount' => 'required|numeric|min:0',
-            'enshaa_date' => 'required|date',
-            'notes' => 'nullable|string|max:500',
+            'remaining_amount' => 'nullable|numeric|min:0|max:' . $request->amount,
+            'notes' => 'nullable|string',
         ]);
+
         try {
+
             if ($request->remaining_amount == 0) {
                 $status = 'paid';
             } elseif ($request->remaining_amount > 0 && $request->remaining_amount < $request->amount) {
@@ -256,16 +270,23 @@ class ClientController extends Controller
                 $status = 'unpaid';
             }
 
+            $remainingAmount = $request->remaining_amount ?? 0;
+
             $invoiceData = [
                 'invoice_number' => $request->invoice_number,
                 'client_id' => $id,
+                'subscription_id' => $request->invoice_type === 'subscription' ? $request->subscription_id : null,
                 'amount' => $request->amount,
-                'remaining_amount' => $request->remaining_amount,
+                'remaining_amount' => $remainingAmount,
                 'enshaa_date' => now()->format('Y-m-d'),
-                'invoice_type' => 'service',
+                'invoice_type' => $request->invoice_type,
                 'notes' => $request->notes,
+                'paid_date' => now(),
+                'created_by'=> auth()->user()->id,
                 'status' => $status,
             ];
+
+            // dd($invoiceData);
 
             $invoice = $this->InvoiceRepository->create($invoiceData);
 

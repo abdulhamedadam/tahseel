@@ -61,7 +61,9 @@ class InvoiceController extends Controller
                     return $row->due_date ?? 'N/A';
                 })
                 ->addColumn('paid_date', function ($row) {
-                    return $row->paid_date ? $row->paid_date : 'N/A';
+                    return $row->paid_date
+                        ? Carbon::parse($row->paid_date)->format('Y-m-d h:i A')
+                        : 'N/A';
                 })
                 ->addColumn('status', function ($row) {
                     $status = $row->status ?? 'N/A';
@@ -73,7 +75,7 @@ class InvoiceController extends Controller
                     return '<span class="' . $class . 'px-4 py-3 rounded-pill fw-bold fs-5">' . trans('invoices.' . $status) . '</span>';
                 })
                 ->addColumn('subscription', function ($row) {
-                    return $row->subscription ? $row->subscription->name : '<span class="badge bg-info">' . trans('invoices.service') . '</span>';
+                    return $row->subscription ? $row->subscription->name : '<span class="badge bg-success text-white px-4 py-3 rounded-pill fw-bold fs-5">' . trans('invoices.service') . '</span>';
                 })
                 ->addColumn('month_year', function ($row) {
                     return $row->enshaa_date ? Carbon::parse($row->enshaa_date)->format('F Y') : 'N/A';
@@ -101,7 +103,7 @@ class InvoiceController extends Controller
                             <i class="bi bi-eye"></i>
                         </a>';
 
-                    if ($row->status == 'paid' || $row->status == 'partial') {
+                    if (($row->status == 'paid' || $row->status == 'partial') && $row->subscription_id != null) {
                         $buttons .= '
                             <a onclick="return confirm(\'' . trans('invoices.confirm_redo') . '\')"
                                 href="' . route('admin.redo_invoice', $row->id) . '"
@@ -283,7 +285,7 @@ class InvoiceController extends Controller
                     return $row->client ? $row->client->name : 'N/A';
                 })
                 ->addColumn('subscription', function ($row) {
-                    return $row->subscription ? $row->subscription->name : '<span class="badge bg-info">' . trans('invoices.service') . '</span>';
+                    return $row->subscription ? $row->subscription->name : '<span class="badge bg-success text-white px-4 py-3 rounded-pill fw-bold fs-5">' . trans('invoices.service') . '</span>';
                 })
                 ->addColumn('due_date', function($row) {
                     return $row->due_date ?? 'N/A';
@@ -328,8 +330,7 @@ class InvoiceController extends Controller
                             class="btn btn-sm btn-info" title="'. trans('invoices.view_details') .'" style="font-size: 16px;">
                             <i class="bi bi-eye"></i>
                         </a>';
-
-                    if ($row->status == 'paid' || $row->status == 'partial') {
+                    if (($row->status == 'paid' || $row->status == 'partial') && $row->subscription_id != null) {
                         $buttons .= '
                             <a onclick="return confirm(\'' . trans('invoices.confirm_redo') . '\')"
                                 href="' . route('admin.redo_invoice', $row->id) . '"
@@ -395,7 +396,7 @@ class InvoiceController extends Controller
                     return '<span class="' . $class . ' px-4 py-3 rounded-pill fw-bold fs-5">' . trans('invoices.' . $status) . '</span>';
                 })
                 ->addColumn('subscription', function ($row) {
-                    return $row->subscription ? $row->subscription->name : '<span class="badge bg-info">' . trans('invoices.service') . '</span>';
+                    return $row->subscription ? $row->subscription->name : '<span class="badge bg-success text-white px-4 py-3 rounded-pill fw-bold fs-5">' . trans('invoices.service') . '</span>';
                 })
                 // ->addColumn('month_year', function ($row) {
                 //     return $row->enshaa_date ? Carbon::parse($row->enshaa_date)->format('F Y') : 'N/A';

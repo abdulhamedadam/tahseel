@@ -244,7 +244,7 @@
                 </div>
                 <div class="info-item">
                     <span class="info-label">{{ trans('invoices.Subscription') }}</span>
-                    <span class="info-value">{{ $all_data->subscription->name }}</span>
+                    <span class="info-value">{{ $all_data->subscription ? $all_data->subscription->name : 'خدمة' }}</span>
                 </div>
                 <div class="info-item">
                     <span class="info-label">{{ trans('invoices.Status') }}</span>

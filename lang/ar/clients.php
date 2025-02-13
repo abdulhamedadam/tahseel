@@ -84,4 +84,9 @@
   'amount' => 'المبلغ',
   'remaining_amount' => 'المبلغ المتبقى',
   'enshaa_date' => 'تاريخ الانشاء',
+  'invoice_created_successfully' => 'تم انشاء الفاتورة بنجاح',
+  'invoice_type' => 'نوع الفاتورة',
+  'service' => 'خدمة',
+  'subscription_t' => 'اشتراك',
+  'enter_notes' => 'ادخل الملاحظات',
 );

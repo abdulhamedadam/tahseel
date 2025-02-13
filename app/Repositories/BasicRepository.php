@@ -109,7 +109,14 @@ class BasicRepository implements BasicRepositoryInterface
 
     public function getLastFieldValue($field)
     {
-        $lastValue = $this->model->latest()->value($field);
+        $query = $this->model;
+
+        if (in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses($this->model))) {
+            $query = $query->withTrashed();
+        }
+
+        $lastValue = $query->orderByDesc($field)->value($field);
+
         return is_null($lastValue) ? 1 : $lastValue + 1;
     }
 }

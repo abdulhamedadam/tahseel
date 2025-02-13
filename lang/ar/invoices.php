@@ -51,4 +51,5 @@
   'monthly_due_invoices_table' => 'جدول الفواتير الشهرية المستحقة',
   'new_paid_invoices' => 'الفواتير المستحدثة',
   'new_paid_invoices_table' => 'جدول الفواتير المستحدثة',
+  'service' => 'خدمة',
 );

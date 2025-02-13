@@ -8,6 +8,7 @@
                 <th>{{ trans('invoices.invoice_number') }}</th>
                 <th>{{ trans('invoices.subscription') }}</th>
                 <th>{{ trans('invoices.amount') }}</th>
+                <th>{{ trans('invoices.paid_date') }}</th>
                 <th>{{ trans('invoices.enshaa_date') }}</th>
                 <th>{{ trans('invoices.due_date') }}</th>
                 <th>{{ trans('invoices.status') }}</th>
@@ -22,10 +23,11 @@
                 <tr>
                     <td>{{ $x++ }}</td>
                     <td>{{ $invoice->invoice_number }}</td>
-                    <td>{{ $invoice->subscription->name }}</td>
+                    <td>{{ $invoice->subscription ? $invoice->subscription->name : 'خدمة' }}</td>
                     <td>{{ $invoice->amount }}</td>
-                    <td class="fnt_center_black">{{ \Illuminate\Support\Carbon::parse($invoice->enshaa_date)->format('Y-m-d') }}</td>
-                    <td class="fnt_center_black">{{ \Illuminate\Support\Carbon::parse($invoice->due_date)->format('Y-m-d') }}</td>
+                    <td class="fnt_center_black">{{ $invoice->paid_date ? \Illuminate\Support\Carbon::parse($invoice->paid_date)->format('Y-m-d h:i A') : 'N\A'}}</td>
+                    <td class="fnt_center_black">{{ $invoice->enshaa_date ? \Illuminate\Support\Carbon::parse($invoice->enshaa_date)->format('Y-m-d') : 'N\A'}}</td>
+                    <td class="fnt_center_black">{{ $invoice->due_date ? \Illuminate\Support\Carbon::parse($invoice->due_date)->format('Y-m-d') : 'N\A'}}</td>
                     <td>
                         <span class="badge
                             @if($invoice->status == 'paid') bg-success text-white

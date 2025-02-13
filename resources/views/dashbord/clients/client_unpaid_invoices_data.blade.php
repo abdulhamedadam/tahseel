@@ -21,11 +21,11 @@
                 <tr>
                     <td>{{ $x++ }}</td>
                     <td>{{ $invoice->invoice_number }}</td>
-                    <td>{{ $invoice->subscription->name }}</td>
+                    <td>{{ $invoice->subscription ? $invoice->subscription->name : 'خدمة' }}</td>
                     <td>{{ $invoice->amount }}</td>
-                    <td>{{ $invoice->user->name }}</td>
-                    <td class="fnt_center_black">{{ \Illuminate\Support\Carbon::parse($invoice->enshaa_date)->format('Y-m-d') }}</td>
-                    <td class="fnt_center_black">{{ \Illuminate\Support\Carbon::parse($invoice->due_date)->format('Y-m-d') }}</td>
+                    <td class="fnt_center_black">{{ $invoice->paid_date ? \Illuminate\Support\Carbon::parse($invoice->paid_date)->format('Y-m-d h:i A') : 'N\A'}}</td>
+                    <td class="fnt_center_black">{{ $invoice->enshaa_date ? \Illuminate\Support\Carbon::parse($invoice->enshaa_date)->format('Y-m-d') : 'N\A'}}</td>
+                    <td class="fnt_center_black">{{ $invoice->due_date ? \Illuminate\Support\Carbon::parse($invoice->due_date)->format('Y-m-d') : 'N\A'}}</td>
                     <td>
                         <div class="btn-group">
                             {{-- <a href="{{ route('admin.employee_delete_invoiceat', $invoice->id) }}" onclick="return confirm('Are You Sure To Delete?')" class="btn btn-sm btn-danger">
