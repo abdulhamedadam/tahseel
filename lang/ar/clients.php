@@ -89,4 +89,5 @@
   'service' => 'خدمة',
   'subscription_t' => 'اشتراك',
   'enter_notes' => 'ادخل الملاحظات',
+  'start_date_must_be_after_or_equal_subscription_date' => 'يجب أن يكون تاريخ بداية الاشتراك بعد أو مطابق لتاريخ الاشتراك.',
 );

@@ -209,19 +209,31 @@
                 </div>
 
                 <div class="menu-item">
-                    <a class="menu-link {{ request()->routeIs(['admin.new_clients_notifications']) ? 'active' : '' }}"
-                       href="{{ route('admin.new_clients_notifications') }}">
+                    <a class="menu-link {{ request()->routeIs('admin.new_clients_notifications') ? 'active' : '' }}"
+                        href="{{ route('admin.new_clients_notifications') }}">
                         <span class="svg-icon svg-icon-2" style="margin-left: 5px">
                             <i class="bi bi-bell text-warning fs-2x"></i>
                         </span>
                         <span class="menu-title">{{ trans('sidebar.notifications') }}</span>
 
-                        @if(auth()->user()->unreadNotifications->where('type', \App\Notifications\NewClientAddedNotification::class)->count() > 0)
-                            <span class="badge badge-danger" style="position: absolute; top: 8px; right: 10px; width: 10px; height: 10px; border-radius: 50%;"></span>
+                        @if(count_notifications_clients() > 0)
+                            <span class="badge bg-danger blinking" style="order: 1; margin-left: 5px;">
+                                {{ count_notifications_clients() }}
+                            </span>
                         @endif
+
+                        <style>
+                            @keyframes blink {
+                                0% { opacity: 1; }
+                                50% { opacity: 0.3; }
+                                100% { opacity: 1; }
+                            }
+                            .blinking {
+                                animation: blink 1s infinite;
+                            }
+                        </style>
                     </a>
                 </div>
-
             </div>
         </div>
     </div>

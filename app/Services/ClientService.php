@@ -33,9 +33,9 @@ class ClientService
             $validated_data['image'] = $dataX;
         }
         $validated_data['created_by']= auth()->user()->id;
-        dd($validated_data);
+        // dd($validated_data);
 
-        // $client = $this->ClientsRepository->create($validated_data);
+        $client = $this->ClientsRepository->create($validated_data);
 
         // $invoiceNumber = $this->InvoiceRepository->getLastFieldValue('invoice_number');
 

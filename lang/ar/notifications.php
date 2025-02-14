@@ -6,7 +6,7 @@
   'created_at' => 'تاريخ الانشاء',
   'status' => 'الحالة',
   'actions' => 'الاجراءات',
-  'unread' => 'غسر مقروءة',
+  'unread' => 'غير مقروءة',
   'mark_as_read' => 'وضع كـ مقروء',
   'client_details' => 'تفاصيل العميل',
   'invoices' => 'الفواتير',
@@ -17,4 +17,6 @@
   'remaining_amount' => 'المبلغ المتبقى',
   'due_date' => 'تاريخ الاستحقاق',
   'month_year' => 'الشهر/السنه',
+  'notification_read' => 'تم قراءة الاشعار',
+  'read' => 'مقروء',
 );

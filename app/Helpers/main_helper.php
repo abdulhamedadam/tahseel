@@ -275,6 +275,24 @@ if (!function_exists('count_notifications_clients')) {
     }
 }
 
+if (!function_exists('count_notifications_clients')) {
+    function count_notifications_clients()
+    {
+        $admin = Auth::user();
+
+        if (!$admin) {
+            return 0;
+        }
+
+        return $admin->unreadNotifications
+            ->whereIn('type', [
+                \App\Notifications\NewClientAddedNotification::class,
+                \App\Notifications\InvoiceReminderNotification::class,
+            ])->count();
+    }
+}
+
+
 if (!function_exists('count_invoice_reminder_notifications')) {
     function count_invoice_reminder_notifications()
     {

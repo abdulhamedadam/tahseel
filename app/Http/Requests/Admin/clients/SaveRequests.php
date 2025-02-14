@@ -30,7 +30,7 @@ class SaveRequests extends FormRequest
             'subscription_id'      => 'required|integer',
             'price'                => 'required',
             'subscription_date'    => 'required|date',
-            'start_date'           => 'required|date',
+            'start_date'           => 'required|date|after_or_equal:subscription_date',
             'notes'                => 'nullable|string|max:1000',
         ];
     }
@@ -48,6 +48,7 @@ class SaveRequests extends FormRequest
 //            'image.max'                     => trans('clients.image_size_invalid'),
             // 'commercial_register.numeric'   => trans('clients.commercial_register_numeric'),
             'city.exists'                => trans('clients.area_invalid'),
+            'start_date.after_or_equal' => trans('clients.start_date_must_be_after_or_equal_subscription_date'),
         ];
     }
 }
