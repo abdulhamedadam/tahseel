@@ -8,28 +8,136 @@
 @section('toolbar')
     <div id="kt_app_toolbar_container" class="app-container container-xxl d-flex flex-stack">
         @php
-            $title = trans('invoices.invoices');
+            $title = trans('reports.reports');
             $breadcrumbs = [
                 ['label' => trans('Toolbar.home'), 'link' => route('admin.dashboard')],
-                ['label' => trans('Toolbar.invoices'), 'link' => ''],
-                ['label' => trans('invoices.invoices_table'), 'link' => ''],
+                ['label' => trans('Toolbar.reports'), 'link' => ''],
+                ['label' => trans('reports.reports_table'), 'link' => ''],
             ];
 
             PageTitle($title, $breadcrumbs);
         @endphp
-
-
-        {{-- <div class="d-flex align-items-center gap-2 gap-lg-3">
-
-            {{ AddButton(route('admin.invoices.create'))}}
-
-        </div> --}}
     </div>
 
 @endsection
 @section('content')
 
     <div id="kt_app_content_container" class="app-container container-xxxl">
+
+        {{-- <form action="{{ route('admin.reports.reports') }}" method="get" enctype="multipart/form-data"> --}}
+        {{-- @csrf --}}
+        <div class="card-body">
+            <div class="col-md-12 row">
+
+                <div class="col-md-3">
+                    <label for="client_id"class="form-label">{{ trans('reports.client_id') }}</label>
+                    <div class="input-group flex-nowrap ">
+                        <span class="input-group-text" id="basic-addon3">{!! form_icon('select1') !!}</i></span>
+                        <div class="overflow-hidden flex-grow-1">
+                            <select class="form-select rounded-start-0" name="client_id" id="client_id"
+                                data-placeholder="{{ trans('reports.select') }}">
+                                <option value="">{{ trans('reports.select') }}</option>
+                                @foreach ($clients as $item)
+                                    <option value="{{ $item->id }}"
+                                        {{ old('client_id') == $item->id ? 'selected' : '' }}>{{ $item->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    @error('client_id')
+                        <span class="invalid-feedback d-block" role="alert">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="col-md-3">
+                    <label for="type" class="form-label">{{ trans('reports.type') }}</label>
+                    <div class="input-group flex-nowrap">
+                        <span class="input-group-text" id="basic-addon4">{!! form_icon('select1') !!}</span>
+                        <select class="form-select" name="type" id="type">
+                            <option value="">
+                                {{ trans('reports.select') }}
+                            </option>
+                            <option value="subscription" {{ old('type') == 'subscription' ? 'selected' : '' }}>
+                                {{ trans('reports.subscription') }}
+                            </option>
+                            <option value="service" {{ old('type') == 'service' ? 'selected' : '' }}>
+                                {{ trans('reports.service') }}
+                            </option>
+                        </select>
+                    </div>
+                    @error('type')
+                        <span class="invalid-feedback d-block">{{ $message }}</span>
+                    @enderror
+                </div>
+
+
+                <div class="col-md-3">
+                    <label for="status" class="form-label">{{ trans('reports.status') }}</label>
+                    <div class="input-group flex-nowrap">
+                        <span class="input-group-text" id="basic-addon4">{!! form_icon('select1') !!}</span>
+                        <select class="form-select" name="status" id="status">
+                            <option value="">
+                                {{ trans('reports.select') }}
+                            </option>
+                            <option value="paid" {{ old('status') == 'paid' ? 'selected' : '' }}>
+                                {{ trans('reports.paid') }}
+                            </option>
+                            <option value="partial" {{ old('status') == 'partial' ? 'selected' : '' }}>
+                                {{ trans('reports.partial') }}
+                            </option>
+                            <option value="unpaid" {{ old('status') == 'unpaid' ? 'selected' : '' }}>
+                                {{ trans('reports.unpaid') }}
+                            </option>
+                        </select>
+                    </div>
+                    @error('status')
+                        <span class="invalid-feedback d-block">{{ $message }}</span>
+                    @enderror
+                </div>
+                <div class="col-md-3">
+                    <label for="month" class="form-label">{{ trans('reports.month') }}</label>
+                    <div class="input-group flex-nowrap">
+                        <span class="input-group-text">{!! form_icon('date') !!}</span>
+                        <input type="month" class="form-control" name="month" id="month"
+                            value="{{ old('month') }}">
+                    </div>
+                    @error('month')
+                        <span class="invalid-feedback d-block">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="col-md-3 mb-3" style="margin-top: 10px">
+                    <label for="from_date" class="form-label">{{ trans('reports.from_date') }}</label>
+                    <div class="input-group flex-nowrap">
+                        <span class="input-group-text">{!! form_icon('date') !!}</span>
+                        <input type="date" class="form-control" name="from_date" id="from_date"
+                            value="{{ old('from_date') }}">
+                    </div>
+                    @error('from_date')
+                        <span class="invalid-feedback d-block">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="col-md-3 mb-3" style="margin-top: 10px;">
+                    <label for="to_date" class="form-label">{{ trans('reports.to_date') }}</label>
+                    <div class="input-group flex-nowrap">
+                        <span class="input-group-text">{!! form_icon('date') !!}</span>
+                        <input type="date" class="form-control" name="to_date" id="to_date"
+                            value="{{ old('to_date') }}">
+                    </div>
+                    @error('to_date')
+                        <span class="invalid-feedback d-block">{{ $message }}</span>
+                    @enderror
+                </div>
+                {{--
+                    <div class="col-md-3" style="margin-top: 35px">
+                        <button type="submit" class="btn btn-primary">{{ trans('reports.search') }}</button>
+                    </div> --}}
+            </div>
+        </div>
+        {{-- </form> --}}
+
 
         <div class="card shadow-sm" style="border-top: 3px solid #007bff;">
             @php
@@ -45,7 +153,7 @@
                     'invoices.subscription',
                     // 'invoices.employee',
                     'invoices.month_year',
-                    'invoices.action',
+                    // 'invoices.action',
                 ];
 
                 generateTable($headers);
@@ -66,11 +174,12 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="invoice_amount" class="form-label">{{ trans('invoices.invoice_amount') }}</label>
-                            <input type="number" class="form-control" id="invoice_amount" name="invoice_amount" required
-                                min="1">
+                            <input type="number" class="form-control" id="invoice_amount" name="invoice_amount"
+                                required min="1">
                         </div>
                         <div class="mb-3">
-                            <label for="paid_amount" class="form-label">{{ trans('invoices.invoice_paid_amount') }}</label>
+                            <label for="paid_amount"
+                                class="form-label">{{ trans('invoices.invoice_paid_amount') }}</label>
                             <input type="number" class="form-control" id="paid_amount" name="paid_amount" required
                                 min="1">
                         </div>
@@ -121,9 +230,24 @@
                 },
                 "processing": true,
                 "serverSide": true,
+                "deferRender": true,
                 "order": [],
                 "ajax": {
-                    url: "{{ route('admin.invoices.index') }}",
+                    url: "{{ route('admin.reports.index') }}",
+                    type: "POST",
+                    data: function(d) {
+                        d._token = "{{ csrf_token() }}";
+                        d.client_id = $('#client_id').val();
+                        d.type = $('#type').val();
+                        d.status = $('#status').val();
+                        d.month = $('#month').val();
+                        d.from_date = $('#from_date').val();
+                        d.to_date = $('#to_date').val();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX Error:", status, error);
+                        console.log("Response Text:", xhr.responseText);
+                    }
                 },
                 "columns": [{
                         data: 'id',
@@ -173,12 +297,12 @@
                         data: 'month_year',
                         className: 'text-center'
                     },
-                    {
-                        data: 'action',
-                        name: 'action',
-                        orderable: false,
-                        className: 'text-center no-export'
-                    },
+                    // {
+                    //     data: 'action',
+                    //     name: 'action',
+                    //     orderable: false,
+                    //     className: 'text-center no-export'
+                    // },
                 ],
                 "columnDefs": [{
                         "targets": [1, -1],
@@ -235,7 +359,9 @@
                 ],
                 "order": [],
                 "dom": '<"row align-items-center"<"col-md-3"l><"col-md-6"f><"col-md-3"B>>rt<"row align-items-center"<"col-md-6"i><"col-md-6"p>>',
-                "buttons": [{
+                "buttons": [
+                    <?php if (auth()->check() && auth()->user()->can('generate_reports')): ?>
+                    {
                         "extend": 'excel',
                         "text": '<i class="bi bi-file-earmark-excel"></i>إكسل',
                         "className": 'btn btn-dark'
@@ -245,6 +371,7 @@
                         "text": '<i class="bi bi-clipboard"></i>نسخ',
                         "className": 'btn btn-primary'
                     }
+                    <?php endif; ?>
                 ],
 
                 "language": {
@@ -267,6 +394,14 @@
                 ],
             });
 
+            $('#client_id, #type, #status, #month, #from_date, #to_date').on('change', function() {
+                table.ajax.reload();
+            });
+
+            // $('#client_id, #type, #status, #month, #from_date, #to_date').on('change', function() {
+            //     table.draw();
+            // });
+
             $("input").change(function() {
                 $(this).parent().parent().removeClass('has-error');
                 $(this).next().empty();
@@ -280,47 +415,6 @@
                 $(this).next().empty();
             });
         });
-    </script>
-
-    <script>
-        function confirmDelete(clientId) {
-            Swal.fire({
-                title: '{{ trans('employees.confirm_delete') }}',
-                text: '{{ trans('clients.delete_warning') }}',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: '{{ trans('employees.yes_delete') }}',
-                cancelButtonText: '{{ trans('employees.cancel') }}'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    document.getElementById('delete-form-' + clientId).submit();
-                }
-            });
-        }
-    </script>
-
-    <script>
-        function showPayModal(url, remainingAmount, invoiceAmount) {
-            $('#payInvoiceForm').attr('action', url);
-            $('#invoice_amount').val(invoiceAmount);
-            $('#paid_amount').val(remainingAmount);
-            $('#payInvoiceModal').modal('show');
-        }
-
-        function validateAmount() {
-            let amount = $('#paid_amount').val();
-            if (amount <= 0) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Invalid amount',
-                    text: 'Please enter a valid amount greater than 0.',
-                });
-                return false;
-            }
-            return true;
-        }
     </script>
 
     <script>

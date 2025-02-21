@@ -8,22 +8,16 @@
 @section('toolbar')
     <div id="kt_app_toolbar_container" class="app-container container-xxl d-flex flex-stack">
         @php
-            $title = trans('invoices.invoices');
+            $title = trans('invoices.new_paid_invoices');
             $breadcrumbs = [
                 ['label' => trans('Toolbar.home'), 'link' => route('admin.dashboard')],
-                ['label' => trans('Toolbar.invoices'), 'link' => ''],
-                ['label' => trans('invoices.invoices_table'), 'link' => ''],
+                ['label' => trans('Toolbar.invoices'), 'link' => route('admin.invoices.index')],
+                ['label' => trans('invoices.new_paid_invoices_table'), 'link' => ''],
             ];
 
             PageTitle($title, $breadcrumbs);
         @endphp
 
-
-        {{-- <div class="d-flex align-items-center gap-2 gap-lg-3">
-
-            {{ AddButton(route('admin.invoices.create'))}}
-
-        </div> --}}
     </div>
 
 @endsection
@@ -44,7 +38,7 @@
                     'invoices.status',
                     'invoices.subscription',
                     // 'invoices.employee',
-                    'invoices.month_year',
+                    // 'invoices.month_year',
                     'invoices.action',
                 ];
 
@@ -52,41 +46,6 @@
             @endphp
         </div>
 
-    </div>
-
-    <div class="modal fade" id="payInvoiceModal" tabindex="-1" aria-labelledby="payInvoiceModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="payInvoiceModalLabel">{{ trans('invoices.enter_payment_amount') }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form id="payInvoiceForm" method="POST" action="">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="invoice_amount" class="form-label">{{ trans('invoices.invoice_amount') }}</label>
-                            <input type="number" class="form-control" id="invoice_amount" name="invoice_amount" required
-                                min="1">
-                        </div>
-                        <div class="mb-3">
-                            <label for="paid_amount" class="form-label">{{ trans('invoices.invoice_paid_amount') }}</label>
-                            <input type="number" class="form-control" id="paid_amount" name="paid_amount" required
-                                min="1">
-                        </div>
-                        <div class="mb-3">
-                            <label for="notes" class="form-label">{{ trans('invoices.notes') }}</label>
-                            <textarea class="form-control" id="notes" name="notes" rows="2"></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary"
-                            data-bs-dismiss="modal">{{ trans('invoices.cancel') }}</button>
-                        <button type="submit" class="btn btn-primary">{{ trans('invoices.pay') }}</button>
-                    </div>
-                </form>
-            </div>
-        </div>
     </div>
 
     <div class="modal fade" tabindex="-1" id="modaldetails">
@@ -123,7 +82,7 @@
                 "serverSide": true,
                 "order": [],
                 "ajax": {
-                    url: "{{ route('admin.invoices.index') }}",
+                    url: "{{ route('admin.new_paid_invoices') }}",
                 },
                 "columns": [{
                         data: 'id',
@@ -169,10 +128,10 @@
                     //     data: 'employee',
                     //     className: 'text-center'
                     // },
-                    {
-                        data: 'month_year',
-                        className: 'text-center'
-                    },
+                    // {
+                    //     data: 'month_year',
+                    //     className: 'text-center'
+                    // },
                     {
                         data: 'action',
                         name: 'action',
@@ -266,6 +225,10 @@
                     [5, 10, 25, 50, "الكل"]
                 ],
             });
+            
+            setInterval(function() {
+                table.ajax.reload(null, false);
+            }, 5000);
 
             $("input").change(function() {
                 $(this).parent().parent().removeClass('has-error');
@@ -302,15 +265,14 @@
     </script>
 
     <script>
-        function showPayModal(url, remainingAmount, invoiceAmount) {
+        function showPayModal(url, remainingAmount) {
             $('#payInvoiceForm').attr('action', url);
-            $('#invoice_amount').val(invoiceAmount);
-            $('#paid_amount').val(remainingAmount);
+            $('#amount').val(remainingAmount);
             $('#payInvoiceModal').modal('show');
         }
 
         function validateAmount() {
-            let amount = $('#paid_amount').val();
+            let amount = $('#amount').val();
             if (amount <= 0) {
                 Swal.fire({
                     icon: 'error',

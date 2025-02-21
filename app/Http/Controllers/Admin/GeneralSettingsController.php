@@ -28,6 +28,16 @@ class GeneralSettingsController extends Controller
 
     public function __construct(BasicRepositoryInterface $basicRepository)
     {
+        $this->middleware('can:view_subscriptions')->only('subscriptions', 'get_ajax_subscriptions');
+        $this->middleware('can:add_subscription')->only('add_subscription');
+        $this->middleware('can:edit_subscription')->only('edit_subscription');
+        $this->middleware('can:delete_subscription')->only('delete_subscription');
+
+        $this->middleware('can:view_sarf_band')->only('sarf_bands', 'get_ajax_sarf_bands');
+        $this->middleware('can:add_sarf_band')->only('add_sarf_band');
+        $this->middleware('can:edit_sarf_band')->only('edit_sarf_band');
+        $this->middleware('can:delete_sarf_band')->only('delete_sarf_band');
+
         $this->SubscriptionsRepository = createRepository($basicRepository, new Subscription());
         $this->SarfBandRepository = createRepository($basicRepository, new SarfBand());
     }
@@ -59,13 +69,21 @@ class GeneralSettingsController extends Controller
                         return $row->description;
                     })
                     ->addColumn('action', function ($row) {
-                        return '<a data-bs-toggle="modal" data-bs-target="#modalsubscriptions" onclick="edit_subscription(' . $row->id . ')" class="btn btn-sm btn-warning" title="">
-                            <i class="bi bi-pencil"></i>
-                        </a>
-                        <a onclick="return confirm(\'Are You Sure To Delete?\')" href="' . route('admin.delete_subscription', $row->id) . '"  class="btn btn-sm btn-danger">
-                            <i class="bi bi-trash"></i>
-                        </a>
-                        ';
+                        $actionButtons = '';
+
+                        if (auth()->user()->can('edit_subscription')) {
+                            $actionButtons .= '<a data-bs-toggle="modal" data-bs-target="#modalsubscriptions" onclick="edit_subscription(' . $row->id . ')" class="btn btn-sm btn-warning" title="">
+                                <i class="bi bi-pencil"></i>
+                            </a>';
+                        }
+
+                        if (auth()->user()->can('delete_subscription')) {
+                            $actionButtons .= '<a onclick="return confirm(\'Are You Sure To Delete?\')" href="' . route('admin.delete_subscription', $row->id) . '"  class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash"></i>
+                            </a>';
+                        }
+
+                        return $actionButtons;
                     })
                     ->rawColumns(['action'])
                     ->make(true);
@@ -83,31 +101,27 @@ class GeneralSettingsController extends Controller
             // dd($request->all());
             $subscription_Model = new Subscription();
             $data = $subscription_Model->add_subscription_data($request);
-            if(empty($request->row_id))
-            {
+            if (empty($request->row_id)) {
                 $this->SubscriptionsRepository->create($data);
-            }else{
+            } else {
                 $this->SubscriptionsRepository->update($request->row_id, $data);
             }
             // notify()->success(trans('subscriptions_added_successfully'), '');
             $request->session()->flash('toastMessage', trans('subscriptions_added_successfully'));
             return redirect()->route('admin.subscriptions');
-
         } catch (\Exception $e) {
             test($e->getMessage());
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
-
     }
     /*****************************************************/
-    public function delete_subscription(Request $request,$id)
+    public function delete_subscription(Request $request, $id)
     {
         try {
             $subscription = $this->SubscriptionsRepository->getById($id);
             $this->SubscriptionsRepository->delete($id);
             $request->session()->flash('toastMessage', trans('subscription_deleted_successfully'));
             return redirect()->route('admin.subscriptions');
-
         } catch (\Exception $e) {
             test($e->getMessage());
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
@@ -117,7 +131,7 @@ class GeneralSettingsController extends Controller
     /****************************************************/
     public function edit_subscription($id)
     {
-        $data['all_data']=$this->SubscriptionsRepository->getById($id);
+        $data['all_data'] = $this->SubscriptionsRepository->getById($id);
         return response()->json($data);
     }
 
@@ -145,12 +159,21 @@ class GeneralSettingsController extends Controller
                         return $row->title;
                     })
                     ->addColumn('action', function ($row) {
-                        return '<a data-bs-toggle="modal" data-bs-target="#modalSarfBands" onclick="edit_sarf_band(' . $row->id . ')" class="btn btn-sm btn-warning" title="">
-                            <i class="bi bi-pencil"></i>
-                        </a>
-                        <a onclick="return confirm(\'Are You Sure To Delete?\')" href="' . route('admin.delete_sarf_band', $row->id) . '"  class="btn btn-sm btn-danger">
-                            <i class="bi bi-trash"></i>
-                        </a>';
+                        $actionButtons = '';
+
+                        if (auth()->user()->can('edit_sarf_band')) {
+                            $actionButtons .= '<a data-bs-toggle="modal" data-bs-target="#modalSarfBands" onclick="edit_sarf_band(' . $row->id . ')" class="btn btn-sm btn-warning" title="">
+                                <i class="bi bi-pencil"></i>
+                            </a>';
+                        }
+
+                        if (auth()->user()->can('delete_sarf_band')) {
+                            $actionButtons .= '<a onclick="return confirm(\'Are You Sure To Delete?\')" href="' . route('admin.delete_sarf_band', $row->id) . '"  class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash"></i>
+                            </a>';
+                        }
+
+                        return $actionButtons;
                     })
                     ->rawColumns(['action'])
                     ->make(true);
@@ -168,25 +191,21 @@ class GeneralSettingsController extends Controller
             // dd($request->all());
             $sarf_band_Model = new SarfBand();
             $data = $sarf_band_Model->add_sarf_band_data($request);
-            if(empty($request->row_id))
-            {
+            if (empty($request->row_id)) {
                 $this->SarfBandRepository->create($data);
-
-            }else{
+            } else {
                 $this->SarfBandRepository->update($request->row_id, $data);
             }
             // notify()->success(trans('sarf_band_added_successfully'), '');
             $request->session()->flash('toastMessage', trans('sarf_band_added_successfully'));
             return redirect()->route('admin.sarf_bands');
-
         } catch (\Exception $e) {
             test($e->getMessage());
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
-
     }
     /*****************************************************/
-    public function delete_sarf_band(Request $request,$id)
+    public function delete_sarf_band(Request $request, $id)
     {
         try {
             $bsarf_band = $this->SarfBandRepository->getById($id);
@@ -194,7 +213,6 @@ class GeneralSettingsController extends Controller
             // notify()->success(trans('sarf_band_deleted_successfully'), '');
             $request->session()->flash('toastMessage', trans('sarf_band_deleted_successfully'));
             return redirect()->route('admin.sarf_bands');
-
         } catch (\Exception $e) {
             test($e->getMessage());
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
@@ -204,7 +222,7 @@ class GeneralSettingsController extends Controller
     /****************************************************/
     public function edit_sarf_band($id)
     {
-        $data['all_data']=$this->SarfBandRepository->getById($id);
+        $data['all_data'] = $this->SarfBandRepository->getById($id);
         return response()->json($data);
     }
 }

@@ -12,6 +12,7 @@ use App\Traits\ImageProcessing;
 use App\Traits\ValidationMessage;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Str;
@@ -28,6 +29,10 @@ class NotificationsController extends Controller
 
     public function __construct(BasicRepositoryInterface $basicRepository)
     {
+        $this->middleware('can:view_new_clients_notifications')->only('new_clients', 'get_ajax_notifications');
+        $this->middleware('can:view_unpaid_invoices_notifications')->only('unpaid_invoices', 'get_ajax_invoice_notifications');
+        $this->middleware('can:mark_notification_read')->only('mark_notification_read');
+
         $this->ClientsRepository = createRepository($basicRepository, new Clients());
     }
     /***********************************************************/
@@ -67,9 +72,11 @@ class NotificationsController extends Controller
                     })
                     ->addColumn('action', function ($row) {
                         if (!$row->read_at) {
-                            return '<a href="' . route('admin.mark_notification_read', $row->id) . '" class="btn btn-sm btn-primary">
+                            if (Auth::user()->can('mark_notification_read')) {
+                                return '<a href="' . route('admin.mark_notification_read', $row->id) . '" class="btn btn-sm btn-primary">
                                         ' . trans('notifications.mark_as_read') . '
                                     </a>';
+                            }
                         }
                         return '<span class="badge bg-success">' . trans('notifications.read') . '</span>';
                     })
@@ -123,8 +130,8 @@ class NotificationsController extends Controller
                         $client = Clients::find($invoice->client_id);
                         $prefix = ($client && $client->client_type == 'satellite') ? 'SA-' : 'IN-';
 
-                        return '<a href="javascript:void(0)" onclick="invoice_details(\''. route('admin.invoice_details', $invoice->id) .'\')"
-                                class="text-primary fw-bold" title="'. trans('invoices.view_details') .'">
+                        return '<a href="javascript:void(0)" onclick="invoice_details(\'' . route('admin.invoice_details', $invoice->id) . '\')"
+                                class="text-primary fw-bold" title="' . trans('invoices.view_details') . '">
                                 ' . $prefix . $invoice->invoice_number . '
                             </a>';
                     })
@@ -156,9 +163,11 @@ class NotificationsController extends Controller
                     })
                     ->addColumn('action', function ($row) {
                         if (!$row->read_at) {
-                            return '<a href="' . route('admin.mark_notification_read', $row->id) . '" class="btn btn-sm btn-primary">
+                            if (Auth::user()->can('mark_notification_read')) {
+                                return '<a href="' . route('admin.mark_notification_read', $row->id) . '" class="btn btn-sm btn-primary">
                                         ' . trans('notifications.mark_as_read') . '
                                     </a>';
+                            }
                         }
                         return '<span class="badge bg-success">' . trans('notifications.read') . '</span>';
                     })

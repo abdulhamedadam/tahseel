@@ -28,6 +28,13 @@ class InvoiceController extends Controller
 
     public function __construct(BasicRepositoryInterface $basicRepository, InvoiceService $invoiceService)
     {
+        $this->middleware('can:list_invoices')->only('index', 'dueMonthlyInvoices', 'newlyPaidInvoices');
+        $this->middleware('can:delete_invoice')->only('destroy');
+        $this->middleware('can:pay_invoice')->only('pay_invoice');
+        $this->middleware('can:view_invoice_details')->only('show_details');
+        $this->middleware('can:print_invoice')->only('print_invoice');
+        $this->middleware('can:redo_invoice')->only('redo_invoice');
+
         $this->InvoiceRepository = createRepository($basicRepository, new Invoice());
         $this->SubscriptionRepository = createRepository($basicRepository, new Subscription());
         $this->ClientsRepository = createRepository($basicRepository, new Clients());
@@ -55,7 +62,8 @@ class InvoiceController extends Controller
                     return $row->remaining_amount ?? 'N/A';
                 })
                 ->addColumn('paid_amount', function ($row) {
-                    return $row->amount - $row->remaining_amount;
+                    // return $row->amount - $row->remaining_amount;
+                    return $row->paid_amount ?? 'N/A';
                 })
                 ->addColumn('due_date', function ($row) {
                     return $row->due_date ?? 'N/A';
@@ -83,27 +91,31 @@ class InvoiceController extends Controller
                 ->addColumn('action', function ($row) {
                     $buttons = '<div class="btn-group btn-group-sm">';
 
-                    if ($row->remaining_amount > 0) {
+                    if ($row->remaining_amount > 0 && auth()->user()->can('pay_invoice')) {
                         $buttons .= '
-                            <a href="javascript:void(0)" onclick="showPayModal(\''. route('admin.pay_invoice', $row->id) .'\', '. $row->remaining_amount .')"
-                                class="btn btn-sm btn-success" title="'. trans('invoices.mark_as_paid') .'" style="font-size: 16px;">
+                            <a href="javascript:void(0)" onclick="showPayModal(\'' . route('admin.pay_invoice', $row->id) . '\', ' . $row->remaining_amount . ', ' . $row->amount . ')"
+                                class="btn btn-sm btn-success" title="' . trans('invoices.mark_as_paid') . '" style="font-size: 16px;">
                                 <i class="bi bi-check-circle"></i>
                             </a>';
                     }
+                    if (auth()->user()->can('print_invoice')) {
+                        $buttons .= '
+                            <a href="javascript:void(0)" onclick="print_invoice(\'' . route('admin.print_invoice', $row->id) . '\')"
+                                class="btn btn-sm btn-warning" title="' . trans('invoices.print') . '" style="font-size: 16px;">
+                                <i class="bi bi-printer"></i>
+                            </a>';
+                    }
 
-                    $buttons .= '
-                        <a href="javascript:void(0)" onclick="print_invoice(\''. route('admin.print_invoice', $row->id) .'\')"
-                            class="btn btn-sm btn-warning" title="'. trans('invoices.print') .'" style="font-size: 16px;">
-                            <i class="bi bi-printer"></i>
-                        </a>';
+                    if (auth()->user()->can('view_invoice_details')) {
+                        $buttons .= '
+                            <a href="javascript:void(0)" onclick="invoice_details(\'' . route('admin.invoice_details', $row->id) . '\')"
+                                class="btn btn-sm btn-info" title="' . trans('invoices.view_details') . '" style="font-size: 16px;">
+                                <i class="bi bi-eye"></i>
+                            </a>';
+                    }
 
-                    $buttons .= '
-                        <a href="javascript:void(0)" onclick="invoice_details(\''. route('admin.invoice_details', $row->id) .'\')"
-                            class="btn btn-sm btn-info" title="'. trans('invoices.view_details') .'" style="font-size: 16px;">
-                            <i class="bi bi-eye"></i>
-                        </a>';
-
-                    if (($row->status == 'paid' || $row->status == 'partial') && $row->subscription_id != null) {
+                    // if (($row->status == 'paid' || $row->status == 'partial') && $row->subscription_id != null) {
+                    if (($row->status == 'paid' || $row->status == 'partial') && auth()->user()->can('redo_invoice')) {
                         $buttons .= '
                             <a onclick="return confirm(\'' . trans('invoices.confirm_redo') . '\')"
                                 href="' . route('admin.redo_invoice', $row->id) . '"
@@ -111,14 +123,14 @@ class InvoiceController extends Controller
                                 <i class="bi bi-arrow-counterclockwise"></i>
                             </a>';
                     }
-
-                    $buttons .= '
-                        <a onclick="return confirm(\'' . trans('employees.confirm_delete') . '\')"
-                            href="' . route('admin.delete_invoice', $row->id) . '"
-                            class="btn btn-sm btn-danger" title="' . trans('clients.delete') . '" style="font-size: 16px;">
-                            <i class="bi bi-trash3"></i>
-                        </a>';
-
+                    if (auth()->user()->can('delete_invoice')) {
+                        $buttons .= '
+                            <a onclick="return confirm(\'' . trans('employees.confirm_delete') . '\')"
+                                href="' . route('admin.delete_invoice', $row->id) . '"
+                                class="btn btn-sm btn-danger" title="' . trans('clients.delete') . '" style="font-size: 16px;">
+                                <i class="bi bi-trash3"></i>
+                            </a>';
+                    }
                     $buttons .= '</div>';
 
                     return $buttons;
@@ -184,7 +196,8 @@ class InvoiceController extends Controller
     public function destroy(string $id)
     {
         try {
-            $this->InvoiceRepository->delete($id);
+            $invoice = $this->InvoiceRepository->delete($id);
+            $invoice->revenues()->delete();
             toastr()->addSuccess(trans('forms.success'));
             return redirect()->route('admin.invoices.index');
         } catch (\Exception $e) {
@@ -193,26 +206,52 @@ class InvoiceController extends Controller
         }
     }
 
+    // public function pay_invoice($id, Request $request)
+    // {
+    //     $request->validate([
+    //         'invoice_amount' => 'required|numeric|min:1',
+    //         'paid_amount' => 'required|numeric',
+    //         'notes' => 'nullable|string',
+    //     ]);
+
+    //     $invoice = Invoice::findOrFail($id);
+
+    //     if ($request->paid_amount > $request->amount) {
+    //         return redirect()->back()->with('error', trans('invoices.payment_exceeds_invoice_amount'));
+    //     }
+
+    //     $invoice->amount = $request->invoice_amount;
+    //     $invoice->save();
+    //     // dd($request->all(), $invoice);
+
+    //     // if ($request->paid_amount > $invoice->amount) {
+    //     //     return redirect()->back()->with('error', trans('invoices.payment_exceeds_invoice_amount'));
+    //     // }
+    //     try {
+    //         $invoice->markAsPaid($request->paid_amount, $request->notes);
+    //         toastr()->addSuccess(trans('forms.success'));
+    //         return redirect()->route('admin.invoices.index');
+    //     } catch (\Exception $e) {
+    //         return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+    //     }
+    // }
+
     public function pay_invoice($id, Request $request)
     {
         $request->validate([
-            'amount' => 'required|numeric|min:0.01',
+            'invoice_amount' => 'required|numeric|min:1',
+            'paid_amount' => 'required|numeric|min:0',
+            'notes' => 'nullable|string',
         ]);
 
-        $amount = $request->input('amount');
-
-        $invoice = Invoice::findOrFail($id);
-
-        if ($amount > $invoice->remaining_amount) {
-            return redirect()->back()->with('error', trans('invoices.The payment amount cannot be greater than the remaining amount.'));
-        }
-
         try {
-            $invoice->markAsPaid($amount);
+            $this->invoiceService->payInvoice($id, $request);
+
             toastr()->addSuccess(trans('forms.success'));
-            return redirect()->route('admin.invoices.index');
+            return redirect()->back()->with('success', trans('forms.success'));
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+            dd($e->getMessage());
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
 
@@ -243,6 +282,7 @@ class InvoiceController extends Controller
             }
 
             $invoice->remaining_amount += $lastPayment->amount;
+            $invoice->paid_amount -= $lastPayment->amount;
 
             if ($invoice->remaining_amount == $invoice->amount) {
                 $invoice->status = 'unpaid';
@@ -254,8 +294,7 @@ class InvoiceController extends Controller
 
             $lastPayment->delete();
 
-            return redirect()->back()->with(['success' => 'تم إلغاء آخر دفعة بنجاح.']);
-
+            return redirect()->back()->with(['success' => trans('messages.redo_successfully')]);
         } catch (\Exception $e) {
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -268,33 +307,34 @@ class InvoiceController extends Controller
             $currentYear = Carbon::now()->year;
 
             $allData = Invoice::with(['client', 'employee', 'subscription'])
-                        ->whereMonth('created_at', $currentMonth)
-                        ->whereYear('created_at', $currentYear)
-                        ->where('remaining_amount', '>', 0)
-                        ->get();
+                ->whereMonth('created_at', $currentMonth)
+                ->whereYear('created_at', $currentYear)
+                ->where('remaining_amount', '>', 0)
+                ->get();
 
             return Datatables::of($allData)
-                ->addColumn('id', function($row) {
+                ->addColumn('id', function ($row) {
                     return $row->id ?? 'N/A';
                 })
                 ->addColumn('invoice_number', function ($row) {
                     $prefix = $row->client && $row->client->client_type == 'satellite' ? 'SA-' : 'IN-';
                     return $prefix . $row->invoice_number;
                 })
-                ->addColumn('client', function($row) {
+                ->addColumn('client', function ($row) {
                     return $row->client ? $row->client->name : 'N/A';
                 })
                 ->addColumn('subscription', function ($row) {
                     return $row->subscription ? $row->subscription->name : '<span class="badge bg-success text-white px-4 py-3 rounded-pill fw-bold fs-5">' . trans('invoices.service') . '</span>';
                 })
-                ->addColumn('due_date', function($row) {
+                ->addColumn('due_date', function ($row) {
                     return $row->due_date ?? 'N/A';
                 })
                 ->addColumn('paid_date', function ($row) {
                     return $row->paid_date ? $row->paid_date : 'N/A';
                 })
                 ->addColumn('paid_amount', function ($row) {
-                    return $row->amount - $row->remaining_amount;
+                    // return $row->amount - $row->remaining_amount;
+                    return $row->paid_amount ?? 'N/A';
                 })
                 ->addColumn('remaining_amount', function ($row) {
                     return $row->remaining_amount ?? 'N/A';
@@ -311,26 +351,30 @@ class InvoiceController extends Controller
                 ->addColumn('action', function ($row) {
                     $buttons = '<div class="btn-group btn-group-sm">';
 
-                    if ($row->remaining_amount > 0) {
+                    if ($row->remaining_amount > 0 && auth()->user()->can('pay_invoice')) {
                         $buttons .= '
-                            <a href="javascript:void(0)" onclick="showPayModal(\''. route('admin.pay_invoice', $row->id) .'\', '. $row->remaining_amount .')"
-                                class="btn btn-sm btn-success" title="'. trans('invoices.mark_as_paid') .'" style="font-size: 16px;">
+                            <a href="javascript:void(0)" onclick="showPayModal(\'' . route('admin.pay_invoice', $row->id) . '\', ' . $row->remaining_amount . ', ' . $row->amount . ')"
+                                class="btn btn-sm btn-success" title="' . trans('invoices.mark_as_paid') . '" style="font-size: 16px;">
                                 <i class="bi bi-check-circle"></i>
                             </a>';
                     }
+                    if (auth()->user()->can('print_invoice')) {
+                        $buttons .= '
+                            <a href="javascript:void(0)" onclick="print_invoice(\'' . route('admin.print_invoice', $row->id) . '\')"
+                                class="btn btn-sm btn-warning" title="' . trans('invoices.print') . '" style="font-size: 16px;">
+                                <i class="bi bi-printer"></i>
+                            </a>';
+                    }
 
-                    $buttons .= '
-                        <a href="javascript:void(0)" onclick="print_invoice(\''. route('admin.print_invoice', $row->id) .'\')"
-                            class="btn btn-sm btn-warning" title="'. trans('invoices.print') .'" style="font-size: 16px;">
-                            <i class="bi bi-printer"></i>
-                        </a>';
-
-                    $buttons .= '
-                        <a href="javascript:void(0)" onclick="invoice_details(\''. route('admin.invoice_details', $row->id) .'\')"
-                            class="btn btn-sm btn-info" title="'. trans('invoices.view_details') .'" style="font-size: 16px;">
-                            <i class="bi bi-eye"></i>
-                        </a>';
-                    if (($row->status == 'paid' || $row->status == 'partial') && $row->subscription_id != null) {
+                    if (auth()->user()->can('view_invoice_details')) {
+                        $buttons .= '
+                            <a href="javascript:void(0)" onclick="invoice_details(\'' . route('admin.invoice_details', $row->id) . '\')"
+                                class="btn btn-sm btn-info" title="' . trans('invoices.view_details') . '" style="font-size: 16px;">
+                                <i class="bi bi-eye"></i>
+                            </a>';
+                    }
+                    // if (($row->status == 'paid' || $row->status == 'partial') && $row->subscription_id != null) {
+                    if (($row->status == 'paid' || $row->status == 'partial') && auth()->user()->can('redo_invoice')) {
                         $buttons .= '
                             <a onclick="return confirm(\'' . trans('invoices.confirm_redo') . '\')"
                                 href="' . route('admin.redo_invoice', $row->id) . '"
@@ -339,13 +383,14 @@ class InvoiceController extends Controller
                             </a>';
                     }
 
-                    $buttons .= '
-                        <a onclick="return confirm(\'' . trans('employees.confirm_delete') . '\')"
-                            href="' . route('admin.delete_invoice', $row->id) . '"
-                            class="btn btn-sm btn-danger" title="' . trans('clients.delete') . '" style="font-size: 16px;">
-                            <i class="bi bi-trash3"></i>
-                        </a>';
-
+                    if (auth()->user()->can('delete_invoice')) {
+                        $buttons .= '
+                            <a onclick="return confirm(\'' . trans('employees.confirm_delete') . '\')"
+                                href="' . route('admin.delete_invoice', $row->id) . '"
+                                class="btn btn-sm btn-danger" title="' . trans('clients.delete') . '" style="font-size: 16px;">
+                                <i class="bi bi-trash3"></i>
+                            </a>';
+                    }
                     $buttons .= '</div>';
 
                     return $buttons;
@@ -360,8 +405,8 @@ class InvoiceController extends Controller
     {
         if ($request->ajax()) {
             $allData = Invoice::with(['client', 'employee', 'subscription'])
-                        ->whereIn('status', ['paid', 'partial'])
-                        ->whereDate('created_at', '>=', Carbon::now()->subDays(7));
+                ->whereIn('status', ['paid', 'partial'])
+                ->whereDate('created_at', '>=', Carbon::now()->subDays(10));
 
             return Datatables::of($allData)
                 ->addColumn('id', function ($row) {
@@ -375,7 +420,8 @@ class InvoiceController extends Controller
                     return $row->client ? $row->client->name : 'N/A';
                 })
                 ->addColumn('paid_amount', function ($row) {
-                    return $row->amount - $row->remaining_amount;
+                    // return $row->amount - $row->remaining_amount;
+                    return $row->paid_amount ?? 'N/A';
                 })
                 ->addColumn('remaining_amount', function ($row) {
                     return $row->remaining_amount ?? 'N/A';
@@ -402,16 +448,26 @@ class InvoiceController extends Controller
                 //     return $row->enshaa_date ? Carbon::parse($row->enshaa_date)->format('F Y') : 'N/A';
                 // })
                 ->addColumn('action', function ($row) {
-                    $buttons = '<div class="btn-group btn-group-sm">
-                        <a href="javascript:void(0)" onclick="print_invoice(\''. route('admin.print_invoice', $row->id) .'\')"
-                            class="btn btn-sm btn-warning" title="'. trans('invoices.print') .'" style="font-size: 16px;">
-                            <i class="bi bi-printer"></i>
-                        </a>
-                        <a href="javascript:void(0)" onclick="invoice_details(\''. route('admin.invoice_details', $row->id) .'\')"
-                            class="btn btn-sm btn-info" title="'. trans('invoices.view_details') .'" style="font-size: 16px;">
-                            <i class="bi bi-eye"></i>
-                        </a>
-                    </div>';
+                    $buttons = '<div class="btn-group btn-group-sm">';
+
+                    if (auth()->user()->can('print_invoice')) {
+                        $buttons .= '
+                            <a href="javascript:void(0)" onclick="print_invoice(\'' . route('admin.print_invoice', $row->id) . '\')"
+                                class="btn btn-sm btn-warning" title="' . trans('invoices.print') . '" style="font-size: 16px;">
+                                <i class="bi bi-printer"></i>
+                            </a>';
+                    }
+
+                    if (auth()->user()->can('view_invoice_details')) {
+                        $buttons .= '
+                            <a href="javascript:void(0)" onclick="invoice_details(\'' . route('admin.invoice_details', $row->id) . '\')"
+                                class="btn btn-sm btn-info" title="' . trans('invoices.view_details') . '" style="font-size: 16px;">
+                                <i class="bi bi-eye"></i>
+                            </a>';
+                    }
+
+
+                    $buttons .= '</div>';
                     return $buttons;
                 })
                 ->rawColumns(['subscription', 'action', 'status', 'invoice_number'])
@@ -420,5 +476,4 @@ class InvoiceController extends Controller
 
         return view($this->admin_view . '.new_paid_invoices');
     }
-
 }

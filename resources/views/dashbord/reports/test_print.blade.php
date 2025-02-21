@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}" dir="{{ app()->getLocale() == 'ar' ? 'rtl' : 'ltr' }}">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ trans('invoices.Invoice Details') }}</title>
+    <title>Invoice Details</title>
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -17,27 +16,20 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             margin: 0;
             padding: 2rem;
             background-color: #f7f9fc;
             color: #333;
-            direction: ltr;
-        }
-
-        [dir="rtl"] body {
-            direction: rtl;
-            text-align: right;
-            font-family: 'Tajawal', sans-serif;
         }
 
         .invoice-container {
             max-width: 1000px;
-            margin: auto;
+            margin: 0 auto;
             background: white;
             border-radius: 12px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-                0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                        0 2px 4px -1px rgba(0, 0, 0, 0.06);
             overflow: hidden;
         }
 
@@ -46,7 +38,6 @@
             color: white;
             padding: 2rem;
             position: relative;
-            text-align: left;
         }
 
         .invoice-header::after {
@@ -68,10 +59,6 @@
             gap: 0.75rem;
         }
 
-        [dir="rtl"] .invoice-header {
-            text-align: right;
-        }
-
         .invoice-content {
             padding: 2rem;
         }
@@ -83,10 +70,6 @@
             margin-bottom: 2rem;
             border-bottom: 2px solid var(--border-color);
             padding-bottom: 2rem;
-        }
-
-        [dir="rtl"] .info-grid {
-            grid-template-columns: repeat(2, 1fr);
         }
 
         .info-item {
@@ -115,30 +98,28 @@
             margin-top: 1rem;
         }
 
+        .details-table tr:nth-child(even) {
+            background-color: var(--alternate-row);
+        }
+
         .details-table th,
         .details-table td {
             padding: 1rem;
             text-align: left;
             border-bottom: 1px solid var(--border-color);
-        }
-
-        [dir="rtl"] .details-table th,
-        [dir="rtl"] .details-table td {
-            text-align: right;
-        }
-
-        .details-table tr:nth-child(even) {
-            background-color: var(--alternate-row);
+            width: 70%;
         }
 
         .details-table th {
-            background-color: var(--secondary-color);
+            background-color: #f8fafc;
             font-weight: 600;
+            /* color: var(--secondary-color); */
             color: white;
             text-transform: uppercase;
             font-size: 0.875rem;
             letter-spacing: 0.05em;
             width: 30%;
+            background-color: var(--secondary-color);
         }
 
         .status-badge {
@@ -166,90 +147,58 @@
             color: var(--danger-color);
         }
 
-        @media print {
+        .amount-value {
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
             body {
-                background-color: white !important;
-                padding: 0 !important;
+                padding: 1rem;
             }
 
-            .invoice-container {
-                box-shadow: none;
-                border: 1px solid var(--border-color);
-                width: 100%;
-                max-width: 100%;
+            .invoice-content {
+                padding: 1rem;
             }
 
-            .invoice-header {
-                background: var(--primary-color) !important;
-                color: white !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-
-            .details-table {
-                width: 100%;
-                border-collapse: collapse !important;
-                border: 1px solid var(--border-color) !important;
-            }
-
-            .details-table th,
-            .details-table td {
-                border: 1px solid var(--border-color) !important;
-                padding: 1rem !important;
-                text-align: left !important;
-                font-size: 14px !important;
-                -webkit-print-color-adjust: exact !important;
-            }
-
-            [dir="rtl"] .details-table th,
-            [dir="rtl"] .details-table td {
-                text-align: right !important;
-            }
-
-            .details-table th {
-                background-color: var(--secondary-color) !important;
-                color: white !important;
-                font-weight: bold !important;
-            }
-
-            .details-table tr:nth-child(even) {
-                background-color: var(--alternate-row) !important;
-            }
-
-            .status-badge {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
         }
     </style>
 </head>
-
 <body>
     <div class="invoice-container">
         <header class="invoice-header">
             <h1 class="invoice-title">
-                {{ trans('invoices.Invoice Details') }}
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                </svg>
+                Invoice Details
             </h1>
         </header>
 
         <div class="invoice-content">
             <div class="info-grid">
                 <div class="info-item">
-                    <span class="info-label">{{ trans('invoices.Invoice Number') }}</span>
+                    <span class="info-label">Invoice Number</span>
                     <span class="info-value">{{ $all_data->invoice_number }}</span>
                 </div>
                 <div class="info-item">
-                    <span class="info-label">{{ trans('invoices.Client') }}</span>
+                    <span class="info-label">Client</span>
                     <span class="info-value">{{ $all_data->client->name }}</span>
                 </div>
                 <div class="info-item">
-                    <span class="info-label">{{ trans('invoices.Subscription') }}</span>
-                    <span class="info-value">{{ $all_data->subscription ? $all_data->subscription->name : 'خدمة' }}</span>
+                    <span class="info-label">Subscription</span>
+                    <span class="info-value">{{ $all_data->subscription->name }}</span>
                 </div>
                 <div class="info-item">
-                    <span class="info-label">{{ trans('invoices.Status') }}</span>
-                    <span
-                        class="status-badge {{ $all_data->status == 'paid' ? 'status-paid' : ($all_data->status == 'partial' ? 'status-partial' : 'status-unpaid') }}">
+                    <span class="info-label">Status</span>
+                    <span class="status-badge {{ $all_data->status == 'paid' ? 'status-paid' : ($all_data->status == 'partial' ? 'status-partial' : 'status-unpaid') }}">
                         {{ trans('invoices.' . ($all_data->status ?? 'N/A')) }}
                     </span>
                 </div>
@@ -257,46 +206,35 @@
 
             <table class="details-table">
                 <tr>
-                    <th>{{ trans('invoices.Amount') }}</th>
-                    <td>{{ $all_data->amount }}</td>
+                    <th>Amount</th>
+                    <td class="amount-value">{{ $all_data->amount }}</td>
                 </tr>
                 <tr>
-                    <th>{{ trans('invoices.Paid Amount') }}</th>
-                    <td>{{ $all_data->paid_amount ?? 'N/A' }}</td>
+                    <th>Remaining Amount</th>
+                    <td class="amount-value">{{ $all_data->remaining_amount }}</td>
                 </tr>
                 <tr>
-                    <th>{{ trans('invoices.Remaining Amount') }}</th>
-                    <td>{{ $all_data->remaining_amount }}</td>
-                </tr>
-                <tr>
-                    <th>{{ trans('invoices.Creation Date') }}</th>
+                    <th>Creation Date</th>
                     <td>{{ $all_data->enshaa_date }}</td>
                 </tr>
                 <tr>
-                    <th>{{ trans('invoices.Due Date') }}</th>
+                    <th>Due Date</th>
                     <td>{{ $all_data->due_date }}</td>
                 </tr>
                 <tr>
-                    <th>{{ trans('invoices.Invoice Type') }}</th>
+                    <th>Invoice Type</th>
                     <td>{{ $all_data->invoice_type }}</td>
                 </tr>
                 <tr>
-                    <th>{{ trans('invoices.Employee') }}</th>
-                    <td>{{ $all_data->employee ? $all_data->employee->first_name . ' ' . $all_data->employee->last_name : 'N/A' }}
-                    </td>
+                    <th>Employee</th>
+                    <td>{{ $all_data->employee ? $all_data->employee->first_name.' '.$all_data->employee->last_name : 'N/A' }}</td>
                 </tr>
                 <tr>
-                    <th>{{ trans('invoices.Notes') }}</th>
+                    <th>Notes</th>
                     <td>{{ $all_data->notes ?? 'N/A' }}</td>
                 </tr>
             </table>
         </div>
     </div>
 </body>
-<script>
-    window.onload = function() {
-        window.print();
-    }
-</script>
-
 </html>

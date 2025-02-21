@@ -37,6 +37,8 @@ class RevenueController extends Controller
 
     public function __construct(BasicRepositoryInterface $basicRepository, InvoiceService $revenueService)
     {
+        $this->middleware('can:list_eradat')->only('index');
+
         $this->RevenueRepository = createRepository($basicRepository, new Revenue());
         $this->revenueService = $revenueService;
     }
@@ -45,7 +47,7 @@ class RevenueController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $allData = $this->RevenueRepository->getWithRelations(['client', 'invoice']);
+            $allData = $this->RevenueRepository->getWithRelations(['client', 'invoice'])->where('deleted_at', null);
             return Datatables::of($allData)
                 ->addColumn('id', function ($row) {
                     return $row->id ?? 'N/A';
@@ -55,10 +57,14 @@ class RevenueController extends Controller
                 })
                 ->addColumn('invoice_number', function ($row) {
                     $prefix = $row->client && $row->client->client_type == 'satellite' ? 'SA-' : 'IN-';
-                    return '<a href="javascript:void(0)" onclick="invoice_details(\''. route('admin.invoice_details', $row->id) .'\')"
-                            class="text-primary fw-bold" title="'. trans('invoices.view_details') .'">
-                            ' . $prefix .($row->invoice->invoice_number ?? 'N/A') . '
-                        </a>';
+                    if ($row->invoice) {
+                        return '<a href="javascript:void(0)" onclick="invoice_details(\'' . route('admin.invoice_details', $row->invoice->id) . '\')"
+                                class="text-primary fw-bold" title="' . trans('invoices.view_details') . '">
+                                ' . $prefix . ($row->invoice->invoice_number ?? 'N/A') . '
+                            </a>';
+                    }
+
+                    return 'N/A';
                 })
                 ->addColumn('client', function ($row) {
                     return $row->client ? $row->client->name : 'N/A';
@@ -84,8 +90,8 @@ class RevenueController extends Controller
                 // <a href="' . route('admin.invoices.markAsPaid', $row->id) . '" class="btn btn-sm btn-success" title="' . trans('invoices.mark_as_paid') . '" style="font-size: 16px;">
 
                 // <a href="' . route('admin.invoices.edit', $row->id) . '" class="btn btn-sm btn-primary" title="' . trans('clients.edit') . '" style="font-size: 16px;">
-                        //     <i class="bi bi-pencil-square"></i>
-                        // </a>
+                //     <i class="bi bi-pencil-square"></i>
+                // </a>
                 // })
                 ->rawColumns(['action', 'invoice_number'])
                 ->make(true);

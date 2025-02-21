@@ -5,7 +5,8 @@
   'invoices' => 'الفواتير',
   'تم تغيير الحالة بنجاح' => 'تم تغيير الحالة بنجاح',
   'employees' => 'الموظفين',
-  'تم إلغاء آخر دفعة بنجاح' => 'تم إلغاء آخر دفعة بنجاح',
-  'clients' => 'العملاء',
+  'redo_successfully' => 'تم إلغاء آخر دفعة بنجاح',
+  'clients' => 'clients',
   'notifications' => 'الاشعارات',
+  'Attempt to read property "invoice_amount" on array' => 'Attempt to read property "invoice_amount" on array',
 );

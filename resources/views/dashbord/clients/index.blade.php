@@ -21,8 +21,9 @@
 
         <div class="d-flex align-items-center gap-2 gap-lg-3">
 
-            {{ AddButton(route('admin.clients.create'))}}
-
+            @can('create_client')
+                {{ AddButton(route('admin.clients.create')) }}
+            @endcan
         </div>
     </div>
 
@@ -46,6 +47,7 @@
                        'clients.price',
                        'clients.subscription_date',
                        'clients.start_date',
+                       'clients.remaining_amount',
                        'clients.action',
 
                      ];
@@ -80,6 +82,7 @@
                 },
                 "processing": true,
                 "serverSide": true,
+                "searching" : true,
                 "order": [],
                 "ajax": {
                     url: "{{ route('admin.clients.index') }}",
@@ -97,11 +100,12 @@
                     {data: 'price', className: 'text-center'},
                     {data: 'subscription_date', className: 'text-center'},
                     {data: 'start_date', className: 'text-center'},
+                    {data: 'remaining_amount', className: 'text-center'},
                     {data: 'action', name: 'action', orderable: false, className: 'text-center no-export'},
                 ],
                 "columnDefs": [
                     {
-                        "targets": [ 1,-1 ], //last column
+                        "targets": [ -1 ], //last column
                         "orderable": false, //set not orderable
                     },
                     {

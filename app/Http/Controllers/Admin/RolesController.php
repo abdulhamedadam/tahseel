@@ -24,6 +24,11 @@ class RolesController extends Controller
 
     public function __construct(BasicRepositoryInterface $basicRepository, RoleService $roleService)
     {
+        $this->middleware('can:list_roles')->only('index');
+        $this->middleware('can:create_role')->only('create', 'store');
+        $this->middleware('can:update_role')->only('edit', 'update');
+        $this->middleware('can:delete_role')->only('destroy');
+
         $this->rolesRepository   = createRepository($basicRepository, new Role());
         $this->permissionsRepository   = createRepository($basicRepository, new Permission());
         $this->roleService   = $roleService;
@@ -38,16 +43,22 @@ class RolesController extends Controller
                     return $row->getTranslation('title', app()->getLocale()) ?? 'N/A';
                 })
                 ->addColumn('action', function ($row) {
-                    return '
-                        <div class="btn-group btn-group-sm">
-                            <a href="' . route('admin.roles.edit', $row->id) . '" class="btn btn-sm btn-primary" title="' . trans('users.edit') . '" style="font-size: 16px;">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-                            <a onclick="return confirm(\'Are You Sure To Delete?\')"  href="' . route('admin.delete_role', $row->id) . '"  class="btn btn-sm btn-danger" title="' . trans('users.delete') . '" style="font-size: 16px;" onclick="return confirm(\'' . trans('users.confirm_delete') . '\')">
-                                <i class="bi bi-trash3"></i>
-                            </a>
-                        </div>
-                    ';
+                    $actionButtons = '<div class="btn-group btn-group-sm">';
+
+                    if (auth()->user()->can('update_role')) {
+                        $actionButtons .= '<a href="' . route('admin.roles.edit', $row->id) . '" class="btn btn-sm btn-primary" title="' . trans('users.edit') . '" style="font-size: 16px;">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>';
+                    }
+
+                    if (auth()->user()->can('delete_role')) {
+                        $actionButtons .= '<a onclick="return confirm(\'Are You Sure To Delete?\')"  href="' . route('admin.delete_role', $row->id) . '"  class="btn btn-sm btn-danger" title="' . trans('users.delete') . '" style="font-size: 16px;" onclick="return confirm(\'' . trans('users.confirm_delete') . '\')">
+                                            <i class="bi bi-trash3"></i>
+                                        </a>';
+                    }
+
+                    $actionButtons .= '</div>';
+                    return $actionButtons;
                 })
                 ->rawColumns(['title', 'action'])
                 ->make(true);
@@ -97,7 +108,7 @@ class RolesController extends Controller
     {
         try {
             // dd($request->all());
-            $this->roleService->update($request,$id);
+            $this->roleService->update($request, $id);
             toastr()->addSuccess(trans('forms.success'));
             return redirect()->route('admin.roles.index');
         } catch (\Exception $e) {
@@ -123,53 +134,89 @@ class RolesController extends Controller
     public function permissions()
     {
         return [
-            'Dashboard' => Permission::whereIn('name',  ['view_dashboard'])->get(),
-            'sarf_band' => Permission::whereIn('name', [
+            'Dashboard' => permission::whereIn('name',  ['view_dashboard'])->get(),
+            'sarf_band' => permission::whereIn('name', [
                 'view_sarf_band',
                 'add_sarf_band',
                 'edit_sarf_band',
                 'delete_sarf_band',
             ])->get(),
-            'Employees' => Permission::whereIn('name', [
+            'Subscriptions' => permission::whereIn('name', [
+                'view_subscriptions',
+                'add_subscription',
+                'edit_subscription',
+                'delete_subscription',
+            ])->get(),
+            'Employees' => permission::whereIn('name', [
                 'view_employees',
                 'add_employee',
                 'edit_employee',
                 'delete_employee',
+                'view_employee_files',
+                'add_employee_files',
+                'read_employee_file',
+                'download_employee_file',
+                'delete_employee_file',
+                'view_employee_details',
+                'view_employee_masrofat',
+                'add_employee_masrofat',
+                'delete_employee_masrofat',
+                'view_employee_revenues',
             ])->get(),
-            'Roles' => Permission::whereIn('name', [
+            'Roles' => permission::whereIn('name', [
                 'list_roles',
                 'create_role',
                 'update_role',
                 'delete_role',
             ])->get(),
-            'Clients' => Permission::whereIn('name', [
+            'Clients' => permission::whereIn('name', [
                 'list_clients',
                 'create_client',
                 'update_client',
                 'delete_client',
+                'view_client_unpaid_invoices',
+                'view_client_paid_invoices',
+                'view_client_invoices',
+                'add_client_invoice',
             ])->get(),
-            'Masrofat' => Permission::whereIn('name', [
+            'Invoices' => permission::whereIn('name', [
+                'list_invoices',
+                'delete_invoice',
+                'pay_invoice',
+                'view_invoice_details',
+                'print_invoice',
+                'redo_invoice',
+            ])->get(),
+            'Reports' => permission::whereIn('name', [
+                'view_reports',
+                'generate_reports',
+            ])->get(),
+            'Masrofat' => permission::whereIn('name', [
                 'list_masrofat',
                 'create_masrofat',
                 'update_masrofat',
                 'delete_masrofat',
             ])->get(),
-            'Eradat' => Permission::whereIn('name', [
+            'Eradat' => permission::whereIn('name', [
                 'list_eradat',
                 'create_eradat',
                 'update_eradat',
                 'delete_eradat',
             ])->get(),
-            'Users' => Permission::whereIn('name', [
+            'Users' => permission::whereIn('name', [
                 'list_users',
                 'create_user',
                 'update_user',
                 'delete_user',
                 'change_user_status',
             ])->get(),
+            'Notifications' => permission::whereIn('name', [
+                'view_new_clients_notifications',
+                'view_unpaid_invoices_notifications',
+                'mark_notification_read',
+            ])->get(),
         ];
         // dd($data);
         // return view('dashbord.roles.form', $data);
     }
-
 }

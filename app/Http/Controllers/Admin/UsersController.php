@@ -29,6 +29,13 @@ class UsersController extends Controller
 
     public function __construct(BasicRepositoryInterface $basicRepository, AdminUserService $adminUserService)
     {
+        $this->middleware('can:list_users')->only('index');
+        $this->middleware('can:create_user')->only('create', 'store');
+        $this->middleware('can:update_user')->only('edit', 'update');
+        $this->middleware('can:delete_user')->only('destroy');
+        $this->middleware('can:change_user_status')->only('change_status');
+        $this->middleware('can:update_user_permissions')->only('permissions', 'updatePermissions');
+
         $this->AdminUsersRepository     = createRepository($basicRepository, new Admin());
         $this->employeesRepository   = createRepository($basicRepository, new Employee());
         $this->rolesRepository   = createRepository($basicRepository, new Role());
@@ -65,22 +72,30 @@ class UsersController extends Controller
                         $class_approved = 'danger';
                         $icon_approved = '<i class="bi bi-x-circle-fill"></i>';
                     }
-                    return '<a href="'.route('admin.change_status', [$row->id, $row->status]).'" class="btn btn-'.$class_approved.' btn-sm" onclick="return confirm(\''.trans('users.change_type_msg').'\');">'.$icon_approved.' ' . $title_approved . '</a>';
+                    if (auth()->user()->can('change_user_status')) {
+                        return '<a href="' . route('admin.change_status', [$row->id, $row->status]) . '" class="btn btn-' . $class_approved . ' btn-sm" onclick="return confirm(\'' . trans('users.change_type_msg') . '\');">' . $icon_approved . ' ' . $title_approved . '</a>';
+                    }
                 })
                 ->addColumn('action', function ($row) {
-                    return '
-                        <div class="btn-group btn-group-sm">
-                            <a href="' . route('admin.users.edit', $row->id) . '" class="btn btn-sm btn-primary" title="' . trans('users.edit') . '" style="font-size: 16px;">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-                            <a onclick="return confirm(\'Are You Sure To Delete?\')"  href="' . route('admin.delete_user', $row->id) . '"  class="btn btn-sm btn-danger" title="' . trans('users.delete') . '" style="font-size: 16px;" onclick="return confirm(\'' . trans('users.confirm_delete') . '\')">
-                                <i class="bi bi-trash3"></i>
-                            </a>
-                            </div>
-                            ';
-                            // <a href="' . route('admin.users.permissions', $row->id) . '" class="btn btn-sm btn-info" title="' . trans('users.set_permissions') . '" style="font-size: 16px;">
-                            //     <i class="bi bi-lock"></i>
-                            // </a>
+                    $actionButtons = '<div class="btn-group btn-group-sm">';
+
+                    if (auth()->user()->can('update_user')) {
+                        $actionButtons .= '<a href="' . route('admin.users.edit', $row->id) . '" class="btn btn-sm btn-primary" title="' . trans('users.edit') . '" style="font-size: 16px;">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>';
+                    }
+
+                    if (auth()->user()->can('delete_user')) {
+                        $actionButtons .= '<a onclick="return confirm(\'Are You Sure To Delete?\')"  href="' . route('admin.delete_user', $row->id) . '"  class="btn btn-sm btn-danger" title="' . trans('users.delete') . '" style="font-size: 16px;" onclick="return confirm(\'' . trans('users.confirm_delete') . '\')">
+                            <i class="bi bi-trash3"></i>
+                        </a>';
+                    }
+
+                    $actionButtons .=  '</div>';
+                    return $actionButtons;
+                    // <a href="' . route('admin.users.permissions', $row->id) . '" class="btn btn-sm btn-info" title="' . trans('users.set_permissions') . '" style="font-size: 16px;">
+                    //     <i class="bi bi-lock"></i>
+                    // </a>
                 })
                 ->rawColumns(['name', 'action', 'status', 'role'])
                 ->make(true);
@@ -131,7 +146,7 @@ class UsersController extends Controller
     {
         try {
             // dd($request->all());
-            $this->adminUserService->update($request,$id);
+            $this->adminUserService->update($request, $id);
             toastr()->addSuccess(trans('forms.success'));
             return redirect()->route('admin.users.index');
         } catch (\Exception $e) {
@@ -164,21 +179,18 @@ class UsersController extends Controller
     public function change_status($id, $status)
     {
         try {
-            $admin_user =$this->AdminUsersRepository->getById($id);
-            if($admin_user)
-            {
-                if($status=='1')
-                {
-                    $data['status']='0';
-                }elseif($status=='0'){
-                    $data['status']='1';
+            $admin_user = $this->AdminUsersRepository->getById($id);
+            if ($admin_user) {
+                if ($status == '1') {
+                    $data['status'] = '0';
+                } elseif ($status == '0') {
+                    $data['status'] = '1';
                 }
-                $this->AdminUsersRepository->update($id,$data);
+                $this->AdminUsersRepository->update($id, $data);
                 toastr()->addSuccess(trans('users.status_changed_successfully'));
                 return redirect()->route('admin.users.index');
             }
-                return redirect()->route('admin.users.index');
-
+            return redirect()->route('admin.users.index');
         } catch (\Exception $e) {
             test($e->getMessage());
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);

@@ -52,4 +52,7 @@
   'new_paid_invoices' => 'الفواتير المستحدثة',
   'new_paid_invoices_table' => 'جدول الفواتير المستحدثة',
   'service' => 'خدمة',
+  'invoice_amount' => 'قيمة الفاتورة',
+  'Paid Amount' => 'المبلغ المدفوع ',
+  'invoice_paid_amount' => 'المبلغ المطلوب دفعه',
 );

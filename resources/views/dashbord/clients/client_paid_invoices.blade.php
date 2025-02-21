@@ -1,10 +1,8 @@
 @extends('dashbord.layouts.master')
 @section('css')
-
     @notifyCss
 @endsection
 @section('content')
-
     @include('dashbord.clients.client_nav')
 
     <div id="kt_app_content" class="app-content flex-column-fluid">
@@ -13,7 +11,7 @@
 
             <div class="card shadow-sm" style="border-top: 3px solid #007bff;">
                 <div class="card-header" style="background-color: #f8f9fa;">
-                    <h3 class="card-title"></i> {{trans('clients.client_paid_invoices')}}</h3>
+                    <h3 class="card-title"></i> {{ trans('clients.client_paid_invoices') }}</h3>
                     <div class="card-toolbar">
                         <div class="text-center">
                         </div>
@@ -23,7 +21,9 @@
                 <div class="card-body" style="padding-left: 0px !important;">
                     <div class="col-md-12 row">
                         <div class="col-md-8">
-                            @include('dashbord.clients.client_paid_invoices_data')
+                            @can('view_client_paid_invoices')
+                                @include('dashbord.clients.client_paid_invoices_data')
+                            @endcan
                         </div>
                         <div class="col-md-4">
                             @include('dashbord.clients.client_details')
@@ -59,16 +59,8 @@
             </div>
         </div>
     </div>
-
-
 @endsection
 
 @section('js')
-
-
     @notifyJs
-
 @endsection
-
-
-

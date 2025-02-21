@@ -21,7 +21,9 @@
 
         <div class="d-flex align-items-center gap-2 gap-lg-3">
 
-            {{ AddButton(route('admin.users.create')) }}
+            @can('create_user')
+                {{ AddButton(route('admin.users.create')) }}
+            @endcan
 
         </div>
     </div>

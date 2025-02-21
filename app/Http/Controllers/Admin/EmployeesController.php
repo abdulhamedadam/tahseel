@@ -39,6 +39,22 @@ class EmployeesController extends Controller
     protected $bandsRepository;
     public function __construct(BasicRepositoryInterface $basicRepository)
     {
+        $this->middleware('can:view_employees')->only('index', 'get_ajax_employee');
+        $this->middleware('can:add_employee')->only('add_employee', 'save_employee');
+        $this->middleware('can:edit_employee')->only('edit_employee', 'update_employee');
+
+        $this->middleware('can:view_employee_files')->only('employee_files');
+        $this->middleware('can:add_employee_files')->only('employee_add_files');
+        $this->middleware('can:read_employee_file')->only('read_file');
+        $this->middleware('can:download_employee_file')->only('download_file');
+        $this->middleware('can:delete_employee_file')->only('delete_file');
+
+        $this->middleware('can:view_employee_details')->only('employee_details');
+        $this->middleware('can:view_employee_masrofat')->only('employee_masrofat');
+        $this->middleware('can:add_employee_masrofat')->only('employee_add_masrofat');
+        $this->middleware('can:delete_employee_masrofat')->only('employee_delete_masrofat');
+        $this->middleware('can:view_employee_revenues')->only('employee_revenues');
+
         $this->AreasSettingRepository   = createRepository($basicRepository, new AreaSetting());
         $this->BranchRepository         = createRepository($basicRepository, new Branch());
         $this->EmployeeRepository       = createRepository($basicRepository, new Employee());
@@ -91,19 +107,31 @@ class EmployeesController extends Controller
                     return  $row->salary;
                 })
                 ->addColumn('action', function ($row) {
-                    return '<div class="btn-group">
-                        <button type="button" style="font-size: 16px" class="btn btn-sm btn-secondary">' . trans('employees.actions') . '</button>
-                        <button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-icon" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span class="sr-only">Toggle Dropdown</span>
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a style="font-size: 14px" class="hover-effect dropdown-item" target="_blank" href="' . route('admin.edit_employee', $row->id) . '"><i class=" bi bi-pencil"></i> ' . trans('employees.edit_data') . '</a></li>
-                            <li><a style="font-size: 14px" class="hover-effect dropdown-item" target="_blank" href="' . route('admin.employee_files', $row->id) . '"><i class="bi bi-files"></i> ' . trans('employees.employee_file') . '</a></li>
-                            <li><a style="font-size: 14px" class="hover-effect dropdown-item" target="_blank" href="' . route('admin.employee_masrofat', $row->id) . '"><i class="bi bi-cash-stack"></i> ' . trans('employees.employee_masrofat') . '</a></li>
-                            <li><a style="font-size: 14px" class="hover-effect dropdown-item" target="_blank" href="' . route('admin.employee_revenues', $row->id) . '"><i class="bi bi-cash-coin"></i> ' . trans('employees.employee_revenues') . '</a></li>
-                        </ul>
-                    </div>
-                    ';
+                    $actionButtons = '<div class="btn-group">';
+                    $actionButtons .= '<button type="button" style="font-size: 16px" class="btn btn-sm btn-secondary">' . trans('employees.actions') . '</button>';
+                    $actionButtons .= '<button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-icon" data-bs-toggle="dropdown" aria-expanded="false"><span class="sr-only">Toggle Dropdown</span></button>';
+                    $actionButtons .= '<ul class="dropdown-menu">';
+
+                    if (auth()->user()->can('edit_employee')) {
+                        $actionButtons .=  '<li><a style="font-size: 14px" class="hover-effect dropdown-item" target="_blank" href="' . route('admin.edit_employee', $row->id) . '"><i class=" bi bi-pencil"></i> ' . trans('employees.edit_data') . '</a></li>';
+                    }
+
+
+                    if (auth()->user()->can('view_employee_files')) {
+                        $actionButtons .= '<li><a style="font-size: 14px" class="hover-effect dropdown-item" target="_blank" href="' . route('admin.employee_files', $row->id) . '"><i class="bi bi-files"></i> ' . trans('employees.employee_file') . '</a></li>';
+                    }
+
+                    if (auth()->user()->can('view_employee_masrofat')) {
+                        $actionButtons .= '<li><a style="font-size: 14px" class="hover-effect dropdown-item" target="_blank" href="' . route('admin.employee_masrofat', $row->id) . '"><i class="bi bi-cash-stack"></i> ' . trans('employees.employee_masrofat') . '</a></li>';
+                    }
+
+                    if (auth()->user()->can('view_employee_revenues')) {
+                        $actionButtons .= '<li><a style="font-size: 14px" class="hover-effect dropdown-item" target="_blank" href="' . route('admin.employee_revenues', $row->id) . '"><i class="bi bi-cash-coin"></i> ' . trans('employees.employee_revenues') . '</a></li>';
+                    }
+
+                    $actionButtons .= '</ul>';
+                    $actionButtons .= '</div>';
+                    return $actionButtons;
                 })->rawColumns(['profile_picture', 'action'])
                 ->make(true);
 
@@ -297,7 +325,7 @@ class EmployeesController extends Controller
             $data['band_id'] = $request->band_id;
             $data['value'] = $request->value;
             $data['notes'] = $request->notes;
-            $data['created_by']= auth()->user()->id;
+            $data['created_by'] = auth()->user()->id;
 
             $this->MasrofatRepository->create($data);
 
