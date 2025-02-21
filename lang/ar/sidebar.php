@@ -104,5 +104,5 @@
   'all_invoices' => 'كل الفواتير',
   'due_monthly_invoices' => 'الفواتير الشهرية المستحقة',
   'new_paid_invoices' => 'الفواتير المستحدثة',
-  'reports' => 'reports',
+  'reports' => 'التقارير',
 );

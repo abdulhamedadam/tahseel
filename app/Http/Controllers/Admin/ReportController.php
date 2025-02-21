@@ -31,7 +31,7 @@ class ReportController extends Controller
     public function __construct(BasicRepositoryInterface $basicRepository, ReportService $reportService)
     {
         $this->middleware('can:view_reports')->only('reports');
-        $this->middleware('can:generate_reports')->only('index');
+        // $this->middleware('can:generate_reports')->only('index');
 
         $this->InvoiceRepository = createRepository($basicRepository, new Invoice());
         $this->SubscriptionRepository = createRepository($basicRepository, new Subscription());
@@ -60,14 +60,21 @@ class ReportController extends Controller
                     return $prefix . $row->invoice_number;
                 })
                 ->addColumn('client', function ($row) {
-                    return $row->client ? $row->client->name : 'N/A';
+                    if ($row->client) {
+                        $url = route('admin.client_paid_invoices', $row->client->id);
+                        return '<a href="' . $url . '" class="text-primary fw-bold" style="text-decoration: underline;">' . $row->client->name . '</a>';
+                    }
+                    return 'N/A';
                 })
-                ->addColumn('remaining_amount', function ($row) {
-                    return $row->remaining_amount ?? 'N/A';
+                ->addColumn('amount', function ($row) {
+                    return $row->amount ?? 'N/A';
                 })
                 ->addColumn('paid_amount', function ($row) {
                     // return $row->amount - $row->remaining_amount;
                     return $row->paid_amount ?? 'N/A';
+                })
+                ->addColumn('remaining_amount', function ($row) {
+                    return $row->remaining_amount ?? 'N/A';
                 })
                 ->addColumn('due_date', function ($row) {
                     return $row->due_date ?? 'N/A';
@@ -92,7 +99,7 @@ class ReportController extends Controller
                 ->addColumn('month_year', function ($row) {
                     return $row->enshaa_date ? Carbon::parse($row->enshaa_date)->format('F Y') : 'N/A';
                 })
-                ->rawColumns(['subscription', 'status', 'month_year', 'invoice_number'])
+                ->rawColumns(['subscription', 'status', 'client', 'month_year', 'invoice_number'])
                 ->make(true);
         }
     }

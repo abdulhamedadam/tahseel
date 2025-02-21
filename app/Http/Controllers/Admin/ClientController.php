@@ -288,6 +288,7 @@ class ClientController extends Controller
                 'invoice_type' => $request->invoice_type,
                 'notes' => $request->notes,
                 'paid_date' => now(),
+                'due_date' => $request->invoice_type === 'subscription' ? now()->addMonth()->format('Y-m-d') : now()->format('Y-m-d'),
                 'created_by' => auth()->user()->id,
                 'status' => $status,
             ];

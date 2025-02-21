@@ -145,6 +145,7 @@
                     'invoices.ID',
                     'invoices.invoice_number',
                     'invoices.client',
+                    'invoices.amount',
                     'invoices.paid_amount',
                     'invoices.remaining_amount',
                     'invoices.due_date',
@@ -262,6 +263,10 @@
                         className: 'text-center'
                     },
                     {
+                        data: 'amount',
+                        className: 'text-center'
+                    },
+                    {
                         data: 'paid_amount',
                         className: 'text-center'
                     },
@@ -359,9 +364,7 @@
                 ],
                 "order": [],
                 "dom": '<"row align-items-center"<"col-md-3"l><"col-md-6"f><"col-md-3"B>>rt<"row align-items-center"<"col-md-6"i><"col-md-6"p>>',
-                "buttons": [
-                    <?php if (auth()->check() && auth()->user()->can('generate_reports')): ?>
-                    {
+                "buttons": [{
                         "extend": 'excel',
                         "text": '<i class="bi bi-file-earmark-excel"></i>إكسل',
                         "className": 'btn btn-dark'
@@ -371,7 +374,6 @@
                         "text": '<i class="bi bi-clipboard"></i>نسخ',
                         "className": 'btn btn-primary'
                     }
-                    <?php endif; ?>
                 ],
 
                 "language": {
@@ -389,8 +391,8 @@
                     }
                 },
                 "lengthMenu": [
-                    [5, 10, 25, 50, -1],
-                    [5, 10, 25, 50, "الكل"]
+                    [10, 5, 25, 50, -1],
+                    [10, 5, 25, 50, "الكل"]
                 ],
             });
 

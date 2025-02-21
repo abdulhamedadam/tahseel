@@ -330,11 +330,11 @@ class PermissionsSeeder extends Seeder
                 'title' => ['ar' => 'عرض التقارير', 'en' => 'view reports'],
                 'guard_name' => 'admin',
             ],
-            [
-                'name' => 'generate_reports',
-                'title' => ['ar' => 'انشاء التقارير', 'en' => 'generate reports'],
-                'guard_name' => 'admin',
-            ],
+            // [
+            //     'name' => 'generate_reports',
+            //     'title' => ['ar' => 'انشاء التقارير', 'en' => 'generate reports'],
+            //     'guard_name' => 'admin',
+            // ],
 
         ];
 

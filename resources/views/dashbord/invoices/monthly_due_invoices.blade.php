@@ -31,6 +31,7 @@
                     'invoices.ID',
                     'invoices.invoice_number',
                     'invoices.client',
+                    'invoices.amount',
                     'invoices.paid_amount',
                     'invoices.remaining_amount',
                     'invoices.due_date',
@@ -129,6 +130,10 @@
                     },
                     {
                         data: 'client',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'amount',
                         className: 'text-center'
                     },
                     {

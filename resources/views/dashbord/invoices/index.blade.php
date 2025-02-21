@@ -37,6 +37,7 @@
                     'invoices.ID',
                     'invoices.invoice_number',
                     'invoices.client',
+                    'invoices.amount',
                     'invoices.paid_amount',
                     'invoices.remaining_amount',
                     'invoices.due_date',
@@ -135,6 +136,10 @@
                     },
                     {
                         data: 'client',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'amount',
                         className: 'text-center'
                     },
                     {
@@ -262,9 +267,10 @@
                     }
                 },
                 "lengthMenu": [
-                    [5, 10, 25, 50, -1],
-                    [5, 10, 25, 50, "الكل"]
+                    [10, 25, 50, -1],
+                    [10, 25, 50, "الكل"]
                 ],
+                "pageLength": 10,
             });
 
             $("input").change(function() {

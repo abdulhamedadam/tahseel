@@ -9,4 +9,5 @@
   'clients' => 'clients',
   'notifications' => 'الاشعارات',
   'Attempt to read property "invoice_amount" on array' => 'Attempt to read property "invoice_amount" on array',
+  'تم إلغاء آخر دفعة بنجاح' => 'تم إلغاء آخر دفعة بنجاح',
 );

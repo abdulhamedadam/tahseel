@@ -275,8 +275,8 @@ if (!function_exists('count_notifications_clients')) {
     }
 }
 
-if (!function_exists('count_notifications_clients')) {
-    function count_notifications_clients()
+if (!function_exists('count_all_notifications_clients')) {
+    function count_all_notifications_clients()
     {
         $admin = Auth::user();
 

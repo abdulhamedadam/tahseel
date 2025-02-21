@@ -139,16 +139,17 @@ class NotificationsController extends Controller
                         return $row->data['message'] ?? 'تنبيه بفاتورة مستحقة';
                     })
                     ->addColumn('amount', function ($row) {
-                        return number_format($row->data['amount'], 2) . ' ' . trans('notifications.currency');
+                        return number_format($row->data['amount'], 2);
                     })
                     ->addColumn('paid_amount', function ($row) {
-                        return number_format($row->data['paid_amount'], 2) . ' ' . trans('notifications.currency');
+                        return number_format($row->data['paid_amount'], 2);
                     })
                     ->addColumn('remaining_amount', function ($row) {
-                        return number_format($row->data['remaining_amount'], 2) . ' ' . trans('notifications.currency');
+                        return number_format($row->data['remaining_amount'], 2);
                     })
                     ->addColumn('due_date', function ($row) {
-                        return $row->data['due_date'];
+                        $invoice = Invoice::find($row->invoice_id);
+                        return $invoice ? $invoice->due_date : 'N/A';
                     })
                     ->addColumn('client', function ($row) {
                         return '<a href="' . route('admin.client_unpaid_invoices', $row->data['client']) . '" class="text-primary" style="text-decoration: underline;">

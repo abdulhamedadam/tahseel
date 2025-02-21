@@ -63,7 +63,8 @@
                                     style="padding: 2px 4px; font-size: 20px; line-height: 1; margin-right: 2px;">
                                     <i class="bi bi-printer"></i>
                                 </a>
-                                @if ($invoice->remaining_amount > 0)
+                                {{-- @if ($invoice->remaining_amount > 0) --}}
+                                @if ($invoice->status == 'unpaid' || $invoice->status == 'partial')
                                     <a href="javascript:void(0)"
                                         onclick="showPayModal('{{ route('admin.pay_invoice', $invoice->id) }}', {{ $invoice->remaining_amount }}, {{ $invoice->amount }})"
                                         class="btn btn-success" title="{{ trans('invoices.mark_as_paid') }}"

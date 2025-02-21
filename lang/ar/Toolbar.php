@@ -11,5 +11,5 @@
   'roles' => 'الادوار',
   'invoices' => 'الفواتير',
   'revenues' => 'الايرادات',
-  'reports' => 'reports',
+  'reports' => 'التقارير',
 );

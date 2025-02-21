@@ -261,9 +261,9 @@
                             </span>
                             <span class="menu-title">{{ trans('sidebar.notifications') }}</span>
 
-                            @if (count_notifications_clients() > 0)
+                            @if (count_all_notifications_clients() > 0)
                                 <span class="badge bg-danger blinking" style="order: 1; margin-left: 5px;">
-                                    {{ count_notifications_clients() }}
+                                    {{ count_all_notifications_clients() }}
                                 </span>
                             @endif
 
