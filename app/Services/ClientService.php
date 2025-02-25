@@ -44,6 +44,7 @@ class ClientService
             'client_id' => $client->id,
             'subscription_id' => $validated_data['subscription_id'],
             'amount' => $validated_data['price'],
+            'remaining_amount' => $validated_data['price'],
             'enshaa_date' => now(),
             'due_date' => now()->addMonth(),
             'status' => 'unpaid',

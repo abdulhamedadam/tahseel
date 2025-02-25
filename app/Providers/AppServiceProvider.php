@@ -86,6 +86,7 @@ class AppServiceProvider extends ServiceProvider
                         'client_id' => $client->id,
                         'invoice_number' => getLastFieldValue(Invoice::class, 'invoice_number'),
                         'amount' => $client->price,
+                        'remaining_amount' => $client->price,
                         'subscription_id' => $client->subscription_id,
                         'enshaa_date' => Carbon::now()->startOfMonth(),
                         'due_date' => $dueDate,

@@ -299,7 +299,7 @@ class InvoiceController extends Controller
 
             if ($invoice->remaining_amount == $invoice->amount) {
                 $invoice->status = 'unpaid';
-                $invoice->remaining_amount = 0.0;
+                // $invoice->remaining_amount = 0.0;
                 $invoice->paid_date = null;
                 if ($invoice->invoice_type == 'subscription') {
                     $invoice->amount = $client->price;

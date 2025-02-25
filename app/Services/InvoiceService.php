@@ -69,9 +69,9 @@ class InvoiceService
                 $invoice->status = 'unpaid';
             }
 
-            $invoice->paid_date = now()->format('Y-m-d');
+            $invoice->paid_date = now();
             $invoice->notes = $request->notes ?? null;
-            
+
             $collectedBy = auth()->check() && auth()->user()->is_employee
                 ? auth()->user()->emp_id
                 : auth()->id();
