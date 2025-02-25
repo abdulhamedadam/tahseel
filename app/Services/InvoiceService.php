@@ -50,39 +50,42 @@ class InvoiceService
         $invoice->amount = $request->invoice_amount;
         // dd($invoice);
 
-        $totalPaid = $invoice->paid_amount + $request->paid_amount;
-        $remainingAmount = $invoice->amount - $totalPaid;
-        // dd($invoice, $remainingAmount, $totalPaid);
-        if ($totalPaid > $invoice->amount) {
-            return redirect()->back()->with('error', trans('invoices.payment_exceeds_invoice_amount'));
+        if ($request->paid_amount) {
+            $totalPaid = $invoice->paid_amount + $request->paid_amount;
+            $remainingAmount = $invoice->amount - $totalPaid;
+
+            // dd($invoice, $remainingAmount, $totalPaid);
+            if ($totalPaid > $invoice->amount) {
+                return redirect()->back()->with('error', trans('invoices.payment_exceeds_invoice_amount'));
+            }
+            $invoice->paid_amount = $totalPaid;
+            $invoice->remaining_amount = $remainingAmount;
+
+            if ($remainingAmount == 0) {
+                $invoice->status = 'paid';
+            } elseif ($totalPaid > 0) {
+                $invoice->status = 'partial';
+            } else {
+                $invoice->status = 'unpaid';
+            }
+
+            $invoice->paid_date = now()->format('Y-m-d');
+            $invoice->notes = $request->notes ?? null;
+            
+            $collectedBy = auth()->check() && auth()->user()->is_employee
+                ? auth()->user()->emp_id
+                : auth()->id();
+
+            Revenue::create([
+                'invoice_id' => $invoice->id,
+                'client_id' => $invoice->client_id,
+                'amount' => $request->paid_amount,
+                'collected_by' => $collectedBy,
+                'received_at' => now(),
+            ]);
         }
-
-        $invoice->paid_amount = $totalPaid;
-        $invoice->remaining_amount = $remainingAmount;
-
-        if ($remainingAmount == 0) {
-            $invoice->status = 'paid';
-        } elseif ($totalPaid > 0) {
-            $invoice->status = 'partial';
-        } else {
-            $invoice->status = 'unpaid';
-        }
-
-        $invoice->paid_date = now()->format('Y-m-d');
-        $invoice->notes = $request->notes ?? null;
         $invoice->save();
 
-        $collectedBy = auth()->check() && auth()->user()->is_employee
-            ? auth()->user()->emp_id
-            : auth()->id();
-
-        Revenue::create([
-            'invoice_id' => $invoice->id,
-            'client_id' => $invoice->client_id,
-            'amount' => $request->paid_amount,
-            'collected_by' => $collectedBy,
-            'received_at' => now(),
-        ]);
 
         return $invoice;
     }

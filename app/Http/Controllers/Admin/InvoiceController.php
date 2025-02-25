@@ -14,6 +14,7 @@ use App\Traits\ValidationMessage;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use DataTables;
+use Illuminate\Support\Facades\Log;
 
 class InvoiceController extends Controller
 {
@@ -247,7 +248,7 @@ class InvoiceController extends Controller
     {
         $request->validate([
             'invoice_amount' => 'required|numeric|min:1',
-            'paid_amount' => 'required|numeric|min:0',
+            'paid_amount' => 'nullable|numeric',
             'notes' => 'nullable|string',
         ]);
 
@@ -291,10 +292,18 @@ class InvoiceController extends Controller
             $invoice->remaining_amount += $lastPayment->amount;
             $invoice->paid_amount -= $lastPayment->amount;
 
+            $client = Clients::find($invoice->client_id);
+            if (!$client) {
+                return redirect()->back()->withErrors(['error' => 'العميل غير موجود!']);
+            }
+
             if ($invoice->remaining_amount == $invoice->amount) {
                 $invoice->status = 'unpaid';
                 $invoice->remaining_amount = 0.0;
                 $invoice->paid_date = null;
+                if ($invoice->invoice_type == 'subscription') {
+                    $invoice->amount = $client->price;
+                }
             } elseif ($invoice->remaining_amount > 0) {
                 $invoice->status = 'partial';
             }

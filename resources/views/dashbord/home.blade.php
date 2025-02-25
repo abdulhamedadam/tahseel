@@ -3259,123 +3259,125 @@
 
 @endsection --}}
 
-@extends('dashbord.layouts.master')
-@section('content')
-    {{-- <div class="container mt-4">
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card text-white bg-primary mb-3">
-                    <div class="card-header">Employees</div>
-                    <div class="card-body">
-                        <h5 class="card-title">100</h5>
+@can('view_dashboard')
+    @extends('dashbord.layouts.master')
+    @section('content')
+        {{-- <div class="container mt-4">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card text-white bg-primary mb-3">
+                        <div class="card-header">Employees</div>
+                        <div class="card-body">
+                            <h5 class="card-title">100</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-white bg-success mb-3">
+                        <div class="card-header">Clients</div>
+                        <div class="card-body">
+                            <h5 class="card-title">250</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-white bg-warning mb-3">
+                        <div class="card-header">Paid Invoices</div>
+                        <div class="card-body">
+                            <h5 class="card-title">$50,000</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-white bg-danger mb-3">
+                        <div class="card-header">Unpaid Invoices</div>
+                        <div class="card-body">
+                            <h5 class="card-title">$15,000</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-white bg-info mb-3">
+                        <div class="card-header">Revenues</div>
+                        <div class="card-body">
+                            <h5 class="card-title">$75,000</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-white mb-3" style="background-color: #44b4b0;">
+                        <div class="card-header">Masrofat</div>
+                        <div class="card-body">
+                            <h5 class="card-title">$20,000</h5>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card text-white bg-success mb-3">
-                    <div class="card-header">Clients</div>
-                    <div class="card-body">
-                        <h5 class="card-title">250</h5>
+
+        </div> --}}
+
+        @php
+        $dashboardData = get_dashboard_data();
+        @endphp
+
+        <div class="container mt-4">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card text-white bg-success mb-3">
+                        <div class="card-header">{{ trans('dashboard.clients') }}</div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ $dashboardData['clients'] }}</h5>
+                            <br>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card text-white bg-warning mb-3">
-                    <div class="card-header">Paid Invoices</div>
-                    <div class="card-body">
-                        <h5 class="card-title">$50,000</h5>
+                <div class="col-md-4">
+                    <div class="card text-white bg-warning mb-3">
+                        <div class="card-header">{{ trans('dashboard.paid_invoices') }}</div>
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                {{ $dashboardData['paid_invoices_count'] }} {{ trans('dashboard.invoices') }}
+                                <br> ${{ number_format($dashboardData['paid_invoices_total'], 2) }}
+                            </h5>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card text-white bg-danger mb-3">
-                    <div class="card-header">Unpaid Invoices</div>
-                    <div class="card-body">
-                        <h5 class="card-title">$15,000</h5>
+                <div class="col-md-4">
+                    <div class="card text-white bg-danger mb-3">
+                        <div class="card-header">{{ trans('dashboard.unpaid_invoices') }}</div>
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                {{ $dashboardData['unpaid_invoices_count'] }} {{ trans('dashboard.invoices') }}
+                                <br> ${{ number_format($dashboardData['unpaid_invoices_total'], 2) }}
+                            </h5>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card text-white bg-info mb-3">
-                    <div class="card-header">Revenues</div>
-                    <div class="card-body">
-                        <h5 class="card-title">$75,000</h5>
+                <div class="col-md-4">
+                    <div class="card text-white bg-primary mb-3">
+                        <div class="card-header">{{ trans('dashboard.employees') }}</div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ $dashboardData['employees'] }}</h5>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card text-white mb-3" style="background-color: #44b4b0;">
-                    <div class="card-header">Masrofat</div>
-                    <div class="card-body">
-                        <h5 class="card-title">$20,000</h5>
+                <div class="col-md-4">
+                    <div class="card text-white bg-info mb-3">
+                        <div class="card-header">{{ trans('dashboard.revenues') }}</div>
+                        <div class="card-body">
+                            <h5 class="card-title">${{ number_format($dashboardData['revenues'], 2) }}</h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-white mb-3" style="background-color: #44b4b0;">
+                        <div class="card-header">{{ trans('dashboard.masrofat') }}</div>
+                        <div class="card-body">
+                            <h5 class="card-title">${{ number_format($dashboardData['masrofat'], 2) }}</h5>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-
-    </div> --}}
-
-    @php
-    $dashboardData = get_dashboard_data();
-    @endphp
-
-    <div class="container mt-4">
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card text-white bg-success mb-3">
-                    <div class="card-header">{{ trans('dashboard.clients') }}</div>
-                    <div class="card-body">
-                        <h5 class="card-title">{{ $dashboardData['clients'] }}</h5>
-                        <br>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card text-white bg-warning mb-3">
-                    <div class="card-header">{{ trans('dashboard.paid_invoices') }}</div>
-                    <div class="card-body">
-                        <h5 class="card-title">
-                            {{ $dashboardData['paid_invoices_count'] }} {{ trans('dashboard.invoices') }}
-                            <br> ${{ number_format($dashboardData['paid_invoices_total'], 2) }}
-                        </h5>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card text-white bg-danger mb-3">
-                    <div class="card-header">{{ trans('dashboard.unpaid_invoices') }}</div>
-                    <div class="card-body">
-                        <h5 class="card-title">
-                            {{ $dashboardData['unpaid_invoices_count'] }} {{ trans('dashboard.invoices') }}
-                            <br> ${{ number_format($dashboardData['unpaid_invoices_total'], 2) }}
-                        </h5>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card text-white bg-primary mb-3">
-                    <div class="card-header">{{ trans('dashboard.employees') }}</div>
-                    <div class="card-body">
-                        <h5 class="card-title">{{ $dashboardData['employees'] }}</h5>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card text-white bg-info mb-3">
-                    <div class="card-header">{{ trans('dashboard.revenues') }}</div>
-                    <div class="card-body">
-                        <h5 class="card-title">${{ number_format($dashboardData['revenues'], 2) }}</h5>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card text-white mb-3" style="background-color: #44b4b0;">
-                    <div class="card-header">{{ trans('dashboard.masrofat') }}</div>
-                    <div class="card-body">
-                        <h5 class="card-title">${{ number_format($dashboardData['masrofat'], 2) }}</h5>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-@endsection
+    @endsection
+@endcan

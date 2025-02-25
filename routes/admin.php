@@ -47,7 +47,7 @@ Route::group(
         Route::group(['middleware' => ['auth:admin'], 'prefix' => 'admin', 'as' => 'admin.'], function () {
             Route::get('/dashboard', function () {
                 return view('dashbord.home');
-            })->name('dashboard')->middleware('can:view_dashboard');
+            })->name('dashboard');
 
             Route::get('/test', function () {
                 return ' test admin ';

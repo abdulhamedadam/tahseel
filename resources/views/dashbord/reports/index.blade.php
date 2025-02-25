@@ -130,10 +130,49 @@
                         <span class="invalid-feedback d-block">{{ $message }}</span>
                     @enderror
                 </div>
+                <div class="col-md-12">
+                    <div class="d-flex justify-content-end gap-3">
+                        <div class="bg-success bg-opacity-10 rounded p-3 d-inline-block">
+                            <span class="text-success fw-bold">{{ trans('reports.total_paid') }}:</span>
+                            <span class="text-success fw-bold" id="total_paid"></span>
+                        </div>
+                        <div class="bg-danger bg-opacity-10 rounded p-3 d-inline-block">
+                            <span class="text-danger fw-bold">{{ trans('reports.total_unpaid') }}:</span>
+                            <span class="text-danger fw-bold" id="total_unpaid"></span>
+                        </div>
+                    </div>
+                </div>
+                {{-- </div> --}}
                 {{--
                     <div class="col-md-3" style="margin-top: 35px">
                         <button type="submit" class="btn btn-primary">{{ trans('reports.search') }}</button>
                     </div> --}}
+                {{-- <div class="row mb-3"> --}}
+                {{-- <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div class="d-flex gap-4">
+                                <span class="badge bg-success fs-6 px-3 py-2">
+                                    {{ trans('reports.total_paid') }}: <span id="total_paid"></span>
+                                </span>
+                                <span class="badge bg-danger fs-6 px-3 py-2">
+                                    {{ trans('reports.total_unpaid') }}: <span id="total_unpaid"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div> --}}
+                {{-- <div class="col-md-3 mb-3" style="margin-top: 10px;">
+                    <span class="badge bg-success fs-6 px-3 py-2">
+                        {{ trans('reports.total_paid') }}: <span id="total_paid"></span>
+                    </span>
+                </div>
+                <div class="col-md-3 mb-3" style="margin-top: 10px;">
+                    <span class="badge bg-danger fs-6 px-3 py-2">
+                        {{ trans('reports.total_unpaid') }}: <span id="total_unpaid"></span>
+                    </span>
+                </div> --}}
+                {{-- </div> --}}
             </div>
         </div>
         {{-- </form> --}}
@@ -161,42 +200,6 @@
             @endphp
         </div>
 
-    </div>
-
-    <div class="modal fade" id="payInvoiceModal" tabindex="-1" aria-labelledby="payInvoiceModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="payInvoiceModalLabel">{{ trans('invoices.enter_payment_amount') }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form id="payInvoiceForm" method="POST" action="">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="invoice_amount" class="form-label">{{ trans('invoices.invoice_amount') }}</label>
-                            <input type="number" class="form-control" id="invoice_amount" name="invoice_amount"
-                                required min="1">
-                        </div>
-                        <div class="mb-3">
-                            <label for="paid_amount"
-                                class="form-label">{{ trans('invoices.invoice_paid_amount') }}</label>
-                            <input type="number" class="form-control" id="paid_amount" name="paid_amount" required
-                                min="1">
-                        </div>
-                        <div class="mb-3">
-                            <label for="notes" class="form-label">{{ trans('invoices.notes') }}</label>
-                            <textarea class="form-control" id="notes" name="notes" rows="2"></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary"
-                            data-bs-dismiss="modal">{{ trans('invoices.cancel') }}</button>
-                        <button type="submit" class="btn btn-primary">{{ trans('invoices.pay') }}</button>
-                    </div>
-                </form>
-            </div>
-        </div>
     </div>
 
     <div class="modal fade" tabindex="-1" id="modaldetails">
@@ -244,6 +247,12 @@
                         d.month = $('#month').val();
                         d.from_date = $('#from_date').val();
                         d.to_date = $('#to_date').val();
+                    },
+                    dataSrc: function(json) {
+                        $('#total_paid').text(json.totals.paid);
+                        $('#total_unpaid').text(json.totals.unpaid);
+
+                        return json.data;
                     },
                     error: function(xhr, status, error) {
                         console.error("AJAX Error:", status, error);
@@ -391,9 +400,10 @@
                     }
                 },
                 "lengthMenu": [
-                    [10, 5, 25, 50, -1],
-                    [10, 5, 25, 50, "الكل"]
+                    [10, 25, 50, -1],
+                    [10, 25, 50, "الكل"]
                 ],
+                "pageLength": 10,
             });
 
             $('#client_id, #type, #status, #month, #from_date, #to_date').on('change', function() {

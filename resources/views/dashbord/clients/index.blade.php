@@ -1,7 +1,7 @@
 @extends('dashbord.layouts.master')
 <style>
-
-    .btn:not(.btn-outline):not(.btn-dashed):not(.border-hover):not(.border-active):not(.btn-flush):not(.btn-icon).btn-sm, .btn-group-sm > .btn:not(.btn-outline):not(.btn-dashed):not(.border-hover):not(.border-active):not(.btn-flush):not(.btn-icon) {
+    .btn:not(.btn-outline):not(.btn-dashed):not(.border-hover):not(.border-active):not(.btn-flush):not(.btn-icon).btn-sm,
+    .btn-group-sm>.btn:not(.btn-outline):not(.btn-dashed):not(.border-hover):not(.border-active):not(.btn-flush):not(.btn-icon) {
         padding: 10px 12px !important;
     }
 </style>
@@ -9,13 +9,13 @@
     <div id="kt_app_toolbar_container" class="app-container container-xxl d-flex flex-stack">
         @php
             $title = trans('client.clients');
-         $breadcrumbs = [
-                  ['label' => trans('Toolbar.home'), 'link' => route('admin.clients.create')],
-                  ['label' => trans('Toolbar.clients'), 'link' => ''],
-                  ['label' => trans('client.clients_table'), 'link' => '']
-                  ];
+            $breadcrumbs = [
+                ['label' => trans('Toolbar.home'), 'link' => route('admin.clients.create')],
+                ['label' => trans('Toolbar.clients'), 'link' => ''],
+                ['label' => trans('client.clients_table'), 'link' => ''],
+            ];
 
-          PageTitle($title, $breadcrumbs);
+            PageTitle($title, $breadcrumbs);
         @endphp
 
 
@@ -33,27 +33,26 @@
     <div id="kt_app_content_container" class="app-container container-xxxl">
 
         <div class="card shadow-sm" style="border-top: 3px solid #007bff;">
-             @php
-             $headers=[
-                       'clients.ID',
-                       'clients.name',
-                       'clients.phone',
+            @php
+                $headers = [
+                    'clients.ID',
+                    'clients.name',
+                    'clients.phone',
                     //    'clients.email',
-                       'clients.user',
-                       'clients.box_switch',
-                       'clients.client_type',
-                       'clients.address1',
-                       'clients.subscription',
-                       'clients.price',
-                       'clients.subscription_date',
-                       'clients.start_date',
-                       'clients.remaining_amount',
-                       'clients.action',
+                    'clients.user',
+                    'clients.box_switch',
+                    'clients.client_type',
+                    'clients.address1',
+                    'clients.subscription',
+                    'clients.price',
+                    'clients.subscription_date',
+                    'clients.start_date',
+                    'clients.remaining_amount',
+                    'clients.action',
+                ];
 
-                     ];
-
-                 generateTable( $headers)
-             @endphp
+                generateTable($headers);
+            @endphp
         </div>
 
     </div>
@@ -73,7 +72,6 @@
 @section('js')
 
     <script>
-
         $(document).ready(function() {
             //datatables
             table = $('#table1').DataTable({
@@ -82,30 +80,69 @@
                 },
                 "processing": true,
                 "serverSide": true,
-                "searching" : true,
+                "searching": true,
                 "order": [],
                 "ajax": {
                     url: "{{ route('admin.clients.index') }}",
                 },
-                "columns": [
-                    {data: 'id', className: 'text-center no-export'},
-                    {data: 'name', className: 'text-center'},
-                    {data: 'phone', className: 'text-center'},
-                    // {data: 'email', className: 'text-center'},
-                    {data: 'user', className: 'text-center'},
-                    {data: 'box_switch', className: 'text-center'},
-                    {data: 'client_type', className: 'text-center'},
-                    {data: 'address1', className: 'text-center'},
-                    {data: 'subscription', className: 'text-center'},
-                    {data: 'price', className: 'text-center'},
-                    {data: 'subscription_date', className: 'text-center'},
-                    {data: 'start_date', className: 'text-center'},
-                    {data: 'remaining_amount', className: 'text-center'},
-                    {data: 'action', name: 'action', orderable: false, className: 'text-center no-export'},
-                ],
-                "columnDefs": [
+                "columns": [{
+                        data: 'id',
+                        className: 'text-center no-export'
+                    },
                     {
-                        "targets": [ -1 ], //last column
+                        data: 'name',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'phone',
+                        className: 'text-center'
+                    },
+                    // {data: 'email', className: 'text-center'},
+                    {
+                        data: 'user',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'box_switch',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'client_type',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'address1',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'subscription',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'price',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'subscription_date',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'start_date',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'remaining_amount',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
+                        className: 'text-center no-export'
+                    },
+                ],
+                "columnDefs": [{
+                        "targets": [-1], //last column
                         "orderable": false, //set not orderable
                     },
                     {
@@ -121,7 +158,7 @@
                         }
                     },
                     {
-                        "targets": [3,4],
+                        "targets": [3, 4],
                         "createdCell": function(td, cellData, rowData, row, col) {
                             $(td).css({
                                 'font-weight': '600',
@@ -143,7 +180,7 @@
                     },
 
                     {
-                        "targets": [5],
+                        "targets": [5, 11],
                         "createdCell": function(td, cellData, rowData, row, col) {
                             $(td).css({
                                 'font-weight': '600',
@@ -157,10 +194,9 @@
 
 
                 ],
-                "order" : [],
+                "order": [],
                 "dom": '<"row align-items-center"<"col-md-3"l><"col-md-6"f><"col-md-3"B>>rt<"row align-items-center"<"col-md-6"i><"col-md-6"p>>',
-                "buttons": [
-                    {
+                "buttons": [{
                         "extend": 'excel',
                         "text": '<i class="bi bi-file-earmark-excel"></i>إكسل',
                         "className": 'btn btn-dark'
@@ -186,18 +222,22 @@
                         "previous": "السابق"
                     }
                 },
-                "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "الكل"]],
+                "lengthMenu": [
+                    [10, 25, 50, -1],
+                    [10, 25, 50, "الكل"]
+                ],
+                "pageLength": 10,
             });
 
-            $("input").change(function(){
+            $("input").change(function() {
                 $(this).parent().parent().removeClass('has-error');
                 $(this).next().empty();
             });
-            $("textarea").change(function(){
+            $("textarea").change(function() {
                 $(this).parent().parent().removeClass('has-error');
                 $(this).next().empty();
             });
-            $("select").change(function(){
+            $("select").change(function() {
                 $(this).parent().parent().removeClass('has-error');
                 $(this).next().empty();
             });
@@ -207,14 +247,14 @@
     <script>
         function confirmDelete(clientId) {
             Swal.fire({
-                title: '{{ trans("employees.confirm_delete") }}',
-                text: '{{ trans("clients.delete_warning") }}',
+                title: '{{ trans('employees.confirm_delete') }}',
+                text: '{{ trans('clients.delete_warning') }}',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#3085d6',
-                confirmButtonText: '{{ trans("employees.yes_delete") }}',
-                cancelButtonText: '{{ trans("employees.cancel") }}'
+                confirmButtonText: '{{ trans('employees.yes_delete') }}',
+                cancelButtonText: '{{ trans('employees.cancel') }}'
             }).then((result) => {
                 if (result.isConfirmed) {
                     document.getElementById('delete-form-' + clientId).submit();
@@ -228,4 +268,3 @@
 
 
 @endsection
-

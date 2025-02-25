@@ -50,14 +50,26 @@ class ReportController extends Controller
     {
         if ($request->ajax()) {
             $allData = $this->reportService->getFilteredInvoices($request);
-            return Datatables::of($allData)
+            $data = $allData['invoices'];
+            $totals = $allData['totals'];
+
+            return Datatables::of($data)
                 ->addColumn('id', function ($row) {
                     return $row->id ?? 'N/A';
                 })
                 ->addColumn('invoice_number', function ($row) {
                     // return $row->invoice_number ?? 'N/A';
+                    // $prefix = $row->client && $row->client->client_type == 'satellite' ? 'SA-' : 'IN-';
+                    // return $prefix . $row->invoice_number;
                     $prefix = $row->client && $row->client->client_type == 'satellite' ? 'SA-' : 'IN-';
-                    return $prefix . $row->invoice_number;
+                    if ($row->invoice_number) {
+                        return '<a href="javascript:void(0)" onclick="invoice_details(\'' . route('admin.invoice_details', $row->id) . '\')"
+                                class="text-primary fw-bold" style="text-decoration: underline;" title="' . trans('invoices.view_details') . '">
+                                ' . $prefix . ($row->invoice_number ?? 'N/A') . '
+                            </a>';
+                    }
+
+                    return 'N/A';
                 })
                 ->addColumn('client', function ($row) {
                     if ($row->client) {
@@ -99,7 +111,54 @@ class ReportController extends Controller
                 ->addColumn('month_year', function ($row) {
                     return $row->enshaa_date ? Carbon::parse($row->enshaa_date)->format('F Y') : 'N/A';
                 })
-                ->rawColumns(['subscription', 'status', 'client', 'month_year', 'invoice_number'])
+                ->addColumn('action', function ($row) {
+                    $buttons = '<div class="btn-group btn-group-sm">';
+
+                    if (($row->status == 'unpaid' || $row->status == 'partial') && auth()->user()->can('pay_invoice')) {
+                        $buttons .= '
+                            <a href="javascript:void(0)" onclick="showPayModal(\'' . route('admin.pay_invoice', $row->id) . '\', ' . $row->remaining_amount . ', ' . $row->amount . ')"
+                                class="btn btn-sm btn-success" title="' . trans('invoices.mark_as_paid') . '" style="font-size: 16px;">
+                                <i class="bi bi-check-circle"></i>
+                            </a>';
+                    }
+                    if (auth()->user()->can('print_invoice')) {
+                        $buttons .= '
+                            <a href="javascript:void(0)" onclick="print_invoice(\'' . route('admin.print_invoice', $row->id) . '\')"
+                                class="btn btn-sm btn-warning" title="' . trans('invoices.print') . '" style="font-size: 16px;">
+                                <i class="bi bi-printer"></i>
+                            </a>';
+                    }
+
+                    if (auth()->user()->can('view_invoice_details')) {
+                        $buttons .= '
+                            <a href="javascript:void(0)" onclick="invoice_details(\'' . route('admin.invoice_details', $row->id) . '\')"
+                                class="btn btn-sm btn-info" title="' . trans('invoices.view_details') . '" style="font-size: 16px;">
+                                <i class="bi bi-eye"></i>
+                            </a>';
+                    }
+
+                    if (($row->status == 'paid' || $row->status == 'partial') && auth()->user()->can('redo_invoice')) {
+                        $buttons .= '
+                            <a onclick="return confirm(\'' . trans('invoices.confirm_redo') . '\')"
+                                href="' . route('admin.redo_invoice', $row->id) . '"
+                                class="btn btn-sm btn-secondary" title="' . trans('invoices.redo_invoice') . '" style="font-size: 16px;">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                            </a>';
+                    }
+                    if (auth()->user()->can('delete_invoice')) {
+                        $buttons .= '
+                            <a onclick="return confirm(\'' . trans('employees.confirm_delete') . '\')"
+                                href="' . route('admin.delete_invoice', $row->id) . '"
+                                class="btn btn-sm btn-danger" title="' . trans('clients.delete') . '" style="font-size: 16px;">
+                                <i class="bi bi-trash3"></i>
+                            </a>';
+                    }
+                    $buttons .= '</div>';
+
+                    return $buttons;
+                })
+                ->with('totals', $totals)
+                ->rawColumns(['subscription', 'status', 'client', 'month_year', 'invoice_number', 'action'])
                 ->make(true);
         }
     }

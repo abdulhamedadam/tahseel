@@ -81,8 +81,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="paid_amount" class="form-label">{{ trans('invoices.invoice_paid_amount') }}</label>
-                        <input type="number" class="form-control" id="paid_amount" name="paid_amount" required
-                            min="1">
+                        <input type="number" class="form-control" id="paid_amount" name="paid_amount">
                     </div>
                     <div class="mb-3">
                         <label for="notes" class="form-label">{{ trans('invoices.notes') }}</label>
@@ -104,7 +103,7 @@
         function showPayModal(url, remainingAmount, invoiceAmount) {
             $('#payInvoiceForm').attr('action', url);
             $('#invoice_amount').val(invoiceAmount);
-            $('#paid_amount').val(remainingAmount);
+            // $('#paid_amount').val(remainingAmount);
             $('#payInvoiceModal').modal('show');
         }
 

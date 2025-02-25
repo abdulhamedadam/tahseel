@@ -45,17 +45,17 @@
             <div class="menu menu-column menu-rounded menu-sub-indention fw-semibold px-3" id="#kt_app_sidebar_menu"
                 data-kt-menu="true" data-kt-menu-expand="false">
 
-                @can('view_dashboard')
-                    <div class="menu-item">
-                        <a class="menu-link {{ request()->routeIs(['admin.dashboard']) ? 'active' : '' }}"
-                            href="{{ route('admin.dashboard') }}">
-                            <span class="svg-icon svg-icon-2" style="margin-left: 5px">
-                                <i class="bi bi-speedometer2 text-primary fs-2x"></i>
-                            </span>
-                            <span class="menu-title">{{ trans('sidebar.dashboard') }}</span>
-                        </a>
-                    </div>
-                @endcan
+                {{-- @can('view_dashboard') --}}
+                <div class="menu-item">
+                    <a class="menu-link {{ request()->routeIs(['admin.dashboard']) ? 'active' : '' }}"
+                        href="{{ route('admin.dashboard') }}">
+                        <span class="svg-icon svg-icon-2" style="margin-left: 5px">
+                            <i class="bi bi-speedometer2 text-primary fs-2x"></i>
+                        </span>
+                        <span class="menu-title">{{ trans('sidebar.dashboard') }}</span>
+                    </a>
+                </div>
+                {{-- @endcan --}}
                 @php
                     $defaultSettingsLink = null;
 

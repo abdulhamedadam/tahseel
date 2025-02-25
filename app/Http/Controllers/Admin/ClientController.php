@@ -37,7 +37,7 @@ class ClientController extends Controller
         $this->middleware('can:update_client')->only('edit', 'update');
         $this->middleware('can:delete_client')->only('destroy');
         $this->middleware('can:view_client_unpaid_invoices')->only('client_unpaid_invoices');
-        $this->middleware('can:view_client_paid_invoices')->only('client_paid_invoices');
+        // $this->middleware('can:view_client_paid_invoices')->only('client_paid_invoices');
         $this->middleware('can:view_client_invoices')->only('client_invoices');
         $this->middleware('can:add_client_invoice')->only('client_add_invoice');
 
@@ -113,13 +113,13 @@ class ClientController extends Controller
                         $actionButtons .= '<li><a style="font-size: 14px" class="hover-effect dropdown-item text-danger" onclick="return confirm(\'' . trans('clients.confirm_delete') . '\')" href="' . route('admin.delete_client', $row->id) . '"><i class="bi bi-trash-fill"></i> ' . trans('clients.client_delete') . '</a></li>';
                     }
 
-                    if (auth()->user()->can('view_client_paid_invoices')) {
-                        $actionButtons .= '<li><a style="font-size: 14px" class="hover-effect dropdown-item" href="' . route('admin.client_paid_invoices', $row->id) . '"><i class="bi bi-currency-dollar"></i> ' . trans('clients.client_paid_invoices') . '</a></li>';
-                    }
+                    // if (auth()->user()->can('view_client_paid_invoices')) {
+                    $actionButtons .= '<li><a style="font-size: 14px" class="hover-effect dropdown-item" href="' . route('admin.client_paid_invoices', $row->id) . '"><i class="bi bi-currency-dollar"></i> ' . trans('clients.client_invoices') . '</a></li>';
+                    // }
 
-                    if (auth()->user()->can('view_client_unpaid_invoices')) {
-                        $actionButtons .= '<li><a style="font-size: 14px" class="hover-effect dropdown-item" href="' . route('admin.client_unpaid_invoices', $row->id) . '"><i class="bi bi-receipt-cutoff"></i> ' . trans('clients.client_unpaid_invoices') . '</a></li>';
-                    }
+                    // if (auth()->user()->can('view_client_unpaid_invoices')) {
+                    //     $actionButtons .= '<li><a style="font-size: 14px" class="hover-effect dropdown-item" href="' . route('admin.client_unpaid_invoices', $row->id) . '"><i class="bi bi-receipt-cutoff"></i> ' . trans('clients.client_unpaid_invoices') . '</a></li>';
+                    // }
 
                     if (auth()->user()->can('add_client_invoice')) {
                         $actionButtons .= '<li><a style="font-size: 14px" class="hover-effect dropdown-item" href="' . route('admin.client_invoices', $row->id) . '"><i class="bi bi-file-earmark-plus"></i> ' . trans('clients.client_add_invoice') . '</a></li>';
@@ -234,6 +234,8 @@ class ClientController extends Controller
             ->where('client_id', $id)
             ->whereIn('status', ['paid', 'partial'])
             ->get();
+        $data['total_unpaid'] = $data['unpaid_data']->sum('amount');
+        $data['total_paid'] = $data['paid_data']->sum('paid_amount');
         // dd($data);
         return view($this->admin_view . '.client_paid_invoices', $data);
     }
@@ -288,7 +290,7 @@ class ClientController extends Controller
                 'invoice_type' => $request->invoice_type,
                 'notes' => $request->notes,
                 'paid_date' => now(),
-                'due_date' => $request->invoice_type === 'subscription' ? now()->addMonth()->format('Y-m-d') : now()->format('Y-m-d'),
+                'due_date' => now()->format('Y-m-d'),
                 'created_by' => auth()->user()->id,
                 'status' => $status,
             ];

@@ -3,7 +3,7 @@
         <div class="card-body" style="padding: 10px">
             <ul class="nav nav-pills nav-pills-custom mb-3">
 
-                @can('view_client_paid_invoices')
+                {{-- @can('view_client_paid_invoices') --}}
                     <li class="nav-item mb-3 me-3 me-lg-6" st>
 
                         <a href="{{ route('admin.client_paid_invoices', $all_data->id) }}" style="background-color: linen;"
@@ -15,15 +15,15 @@
                             </div>
 
                             <span
-                                class="nav-text text-gray-800 fw-bold fs-6 lh-1">{{ trans('clients.paid_invoices') }}</span>
+                                class="nav-text text-gray-800 fw-bold fs-6 lh-1">{{ trans('clients.client_invoices') }}</span>
 
                             <span class="bullet-custom position-absolute bottom-0 w-100 h-4px bg-primary"></span>
 
                         </a>
 
                     </li>
-                @endcan
-                @can('view_client_unpaid_invoices')
+                {{-- @endcan --}}
+                {{-- @can('view_client_unpaid_invoices')
                     <li class="nav-item mb-3 me-3 me-lg-6">
 
                         <a href="{{ route('admin.client_unpaid_invoices', $all_data->id) }}"
@@ -41,7 +41,7 @@
                         </a>
 
                     </li>
-                @endcan
+                @endcan --}}
                 @can('add_client_invoice')
                     <li class="nav-item mb-3 me-3 me-lg-6">
                         <a href="{{ route('admin.client_invoices', $all_data->id) }}" style="background-color: powderblue;"

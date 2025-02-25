@@ -57,6 +57,12 @@ class ReportService
         }
         $allData = $query->get();
         // Log::info($allData);
-        return $allData;
+        return [
+            'invoices' => $allData,
+            'totals' => [
+                'paid' => $allData->whereIn('status', ['paid', 'partial'])->sum('paid_amount'),
+                'unpaid' => $allData->where('status', 'unpaid')->sum('amount'),
+            ],
+        ];
     }
 }

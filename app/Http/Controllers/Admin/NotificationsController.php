@@ -60,8 +60,12 @@ class NotificationsController extends Controller
                         return $row->data['message'] ?? 'تم إضافة عميل جديد';
                     })
                     ->addColumn('client_name', function ($row) {
-                        return '<a href="' . route('admin.client_unpaid_invoices', $row->data['client_id']) . '" class="text-primary" style="text-decoration: underline;">
-                                    ' . trans('notifications.client_details') . '
+                        // return '<a href="' . route('admin.client_paid_invoices', $row->data['client_id']) . '" class="text-primary" style="text-decoration: underline;">
+                        //             ' . trans('notifications.client_details') . '
+                        //         </a>';
+                        $client = Clients::find($row->data['client_id']);
+                        return '<a href="' . route('admin.client_paid_invoices', $row->data['client_id']) . '" class="text-primary" style="text-decoration: underline;">
+                                    '. $client->name .'
                                 </a>';
                     })
                     ->addColumn('created_at', function ($row) {
@@ -152,8 +156,12 @@ class NotificationsController extends Controller
                         return $invoice ? $invoice->due_date : 'N/A';
                     })
                     ->addColumn('client', function ($row) {
-                        return '<a href="' . route('admin.client_unpaid_invoices', $row->data['client']) . '" class="text-primary" style="text-decoration: underline;">
-                                    ' . trans('notifications.client_details') . '
+                        $invoice = Invoice::find($row->data['invoice_id']);
+                        if (!$invoice) return 'N/A';
+
+                        $client = Clients::find($invoice->client_id);
+                        return '<a href="' . route('admin.client_paid_invoices', $row->data['client']) . '" class="text-primary" style="text-decoration: underline;">
+                                    '. $client->name .'
                                 </a>';
                     })
                     ->addColumn('status', function ($row) {
