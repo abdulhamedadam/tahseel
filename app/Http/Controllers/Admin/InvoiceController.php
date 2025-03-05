@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Interfaces\BasicRepositoryInterface;
+use App\Models\Admin\FinancialTransaction;
 use App\Models\Admin\Invoice;
 use App\Models\Admin\Revenue;
 use App\Models\Admin\Subscription;
@@ -95,6 +96,9 @@ class InvoiceController extends Controller
                 })
                 ->addColumn('month_year', function ($row) {
                     return $row->enshaa_date ? Carbon::parse($row->enshaa_date)->format('F Y') : 'N/A';
+                })
+                ->addColumn('notes', function ($row) {
+                    return $row->notes ?? 'N/A';
                 })
                 ->addColumn('action', function ($row) {
                     $buttons = '<div class="btn-group btn-group-sm">';
@@ -204,15 +208,22 @@ class InvoiceController extends Controller
     public function destroy(string $id)
     {
         try {
-            $invoice = $this->InvoiceRepository->delete($id);
+            $invoice = $this->InvoiceRepository->getById($id);
+
+            if (!$invoice) {
+                return redirect()->back()->withErrors(['error' => trans('invoices.invoice_not_found')]);
+            }
+
             $invoice->revenues()->delete();
+            $this->InvoiceRepository->delete($id);
+
             toastr()->addSuccess(trans('forms.success'));
             return redirect()->route('admin.invoices.index');
         } catch (\Exception $e) {
-            // dd($e->getMessage());
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
     }
+
 
     // public function pay_invoice($id, Request $request)
     // {
@@ -301,14 +312,24 @@ class InvoiceController extends Controller
                 $invoice->status = 'unpaid';
                 // $invoice->remaining_amount = 0.0;
                 $invoice->paid_date = null;
-                if ($invoice->invoice_type == 'subscription') {
-                    $invoice->amount = $client->price;
-                }
+                // if ($invoice->invoice_type == 'subscription') {
+                //     $invoice->amount = $client->price;
+                // }
             } elseif ($invoice->remaining_amount > 0) {
                 $invoice->status = 'partial';
             }
 
             $invoice->save();
+
+            $financialTransaction = FinancialTransaction::where('account_id', auth()->user()->account_id)
+                                    ->where('amount', $lastPayment->amount)
+                                    ->where('created_by', auth()->id())
+                                    ->orderBy('created_at', 'desc')
+                                    ->first();
+
+            if ($financialTransaction) {
+                $financialTransaction->delete();
+            }
 
             $lastPayment->delete();
 
@@ -363,6 +384,9 @@ class InvoiceController extends Controller
                 })
                 ->addColumn('remaining_amount', function ($row) {
                     return $row->remaining_amount ?? 'N/A';
+                })
+                ->addColumn('notes', function ($row) {
+                    return $row->notes ?? 'N/A';
                 })
                 ->addColumn('status', function ($row) {
                     $status = $row->status ?? 'N/A';
@@ -464,6 +488,9 @@ class InvoiceController extends Controller
                 })
                 ->addColumn('paid_date', function ($row) {
                     return $row->paid_date ? $row->paid_date : 'N/A';
+                })
+                ->addColumn('notes', function ($row) {
+                    return $row->notes ?? 'N/A';
                 })
                 ->addColumn('status', function ($row) {
                     $status = $row->status;

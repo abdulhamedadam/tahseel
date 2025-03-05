@@ -45,7 +45,7 @@ class UsersController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $allData = Admin::with(['roles', 'employee'])->get();
+            $allData = Admin::with(['roles', 'employee'])->withSum('financialTransactions', 'amount')->get();
             return DataTables::of($allData)
                 ->editColumn('name', function ($row) {
                     return $row->name ?? 'N/A';
@@ -75,6 +75,9 @@ class UsersController extends Controller
                     if (auth()->user()->can('change_user_status')) {
                         return '<a href="' . route('admin.change_status', [$row->id, $row->status]) . '" class="btn btn-' . $class_approved . ' btn-sm" onclick="return confirm(\'' . trans('users.change_type_msg') . '\');">' . $icon_approved . ' ' . $title_approved . '</a>';
                     }
+                })
+                ->editColumn('collected_amount', function ($row) {
+                    return number_format($row->financial_transactions_sum_amount, 2);
                 })
                 ->addColumn('action', function ($row) {
                     $actionButtons = '<div class="btn-group btn-group-sm">';

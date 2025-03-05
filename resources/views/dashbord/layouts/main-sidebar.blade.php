@@ -242,6 +242,47 @@
                         </a>
                     </div>
                 @endcan
+                <div class="menu-item">
+                    <a class="menu-link {{ request()->routeIs(['admin.accounts']) ? 'active' : '' }}"
+                        href="{{ route('admin.accounts') }}">
+                        <span class="svg-icon svg-icon-2" style="margin-left: 5px">
+                            <i class="bi bi-wallet text-primary fs-2x"></i>
+                        </span>
+                        <span class="menu-title">{{ trans('sidebar.accounts') }}</span>
+                    </a>
+                </div>
+
+                <div class="menu-item">
+                    <a class="menu-link {{ request()->routeIs(['admin.account_settings']) ? 'active' : '' }}"
+                        href="{{ route('admin.account_settings') }}">
+                        <span class="svg-icon svg-icon-2" style="margin-left: 5px">
+                            <i class="bi bi-gear text-primary fs-2x"></i>
+                        </span>
+                        <span class="menu-title">{{ trans('sidebar.account_settings') }}</span>
+                    </a>
+                </div>
+
+                <div class="menu-item">
+                    <a class="menu-link {{ request()->routeIs(['admin.financial_transactions.index']) ? 'active' : '' }}"
+                        href="{{ route('admin.financial_transactions.index') }}">
+                        <span class="svg-icon svg-icon-2" style="margin-left: 5px">
+                            <i class="bi bi-cash-coin text-primary fs-2x"></i>
+                        </span>
+                        <span class="menu-title">{{ trans('sidebar.financial_transactions') }}</span>
+                    </a>
+                </div>
+
+                <div class="menu-item">
+                    <a class="menu-link {{ request()->routeIs(['admin.account_transfers']) ? 'active' : '' }}"
+                        href="{{ route('admin.account_transfers') }}">
+                        <span class="svg-icon svg-icon-2" style="margin-left: 5px">
+                            <i class="bi bi-arrow-left-right text-primary fs-2x"></i>
+                        </span>
+                        <span class="menu-title">{{ trans('sidebar.account_transfers') }}</span>
+                    </a>
+                </div>
+
+
                 @php
                     $defaultNotificationLink = null;
 

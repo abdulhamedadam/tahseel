@@ -1,10 +1,13 @@
 <?php
 
+use App\Http\Controllers\Admin\AccountTransferController;
+use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\app_setting\DiscountController;
 use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\EmployeesController;
 
+use App\Http\Controllers\Admin\FinancialTransactionsController;
 use App\Http\Controllers\Admin\GeneralSettingsController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\MasrofatController;
@@ -126,6 +129,28 @@ Route::group(
             Route::get('/notifications/unpaid_invoices', [NotificationsController::class, 'unpaid_invoices'])->name('unpaid_invoices_notifications');
             Route::get('/get_ajax_invoice_notifications', [NotificationsController::class, 'get_ajax_invoice_notifications'])->name('get_ajax_invoice_notifications');
             Route::get('/notifications/read/{id}', [NotificationsController::class, 'mark_notification_read'])->name('mark_notification_read');
+
+
+            Route::get('/accounts', [AccountController::class, 'accounts'])->name('accounts');
+            Route::post('/account/create', [AccountController::class, 'add_account'])->name('add_account');
+            Route::get('/edit/account/{id}', [AccountController::class, 'edit_account'])->name('edit_account');
+            Route::get('delete/account/{id}', [AccountController::class, 'destroy'])->name('delete_account');
+            Route::get('/get_ajax_accounts', [AccountController::class, 'get_ajax_accounts'])->name('get_ajax_accounts');
+
+
+            Route::get('account-settings', [AccountController::class, 'account_setting'])->name('account_settings');
+            Route::post('save-account-settings', [AccountController::class, 'save_account_setting'])->name('save_account_setting');
+
+            Route::get('financial-transactions', [FinancialTransactionsController::class, 'index'])->name('financial_transactions.index');
+            Route::get('/account-balance/{id}', [FinancialTransactionsController::class, 'getAccountBalance'])->name('get_account_balance');
+
+
+            Route::get('/account_transfers', [AccountTransferController::class, 'account_transfers'])->name('account_transfers');
+            Route::post('/account_transfers/create', [AccountTransferController::class, 'add_account_transfer'])->name('add_account_transfer');
+            Route::get('/edit/account_transfers/{id}', [AccountTransferController::class, 'edit_account_transfer'])->name('edit_account_transfer');
+            Route::get('delete/account_transfers/{id}', [AccountTransferController::class, 'destroy'])->name('delete_account_transfer');
+            Route::get('/get_ajax_account_transfers', [AccountTransferController::class, 'get_ajax_account_transfers'])->name('get_ajax_account_transfers');
+            Route::post('redo_account_transfer/{id}', [AccountTransferController::class, 'redo_account_transfer'])->name('redo_account_transfer');
         });
     }
 );

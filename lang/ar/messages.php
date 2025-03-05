@@ -10,4 +10,9 @@
   'notifications' => 'الاشعارات',
   'Attempt to read property "invoice_amount" on array' => 'Attempt to read property "invoice_amount" on array',
   'تم إلغاء آخر دفعة بنجاح' => 'تم إلغاء آخر دفعة بنجاح',
+  'accounts' => 'accounts',
+  'تمت إضافة الحساب بنجاح' => 'تمت إضافة الحساب بنجاح',
+  'account_transfers' => 'account_transfers',
+  'تم التحويل بنجاح' => 'تم التحويل بنجاح',
+  'تم استرجاع التحويل بنجاح' => 'تم استرجاع التحويل بنجاح',
 );

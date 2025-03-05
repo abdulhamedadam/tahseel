@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Models\Admin\Account;
 use App\Models\Admin\Employee;
+use App\Models\Admin\FinancialTransaction;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -80,5 +82,15 @@ class Admin extends Authenticatable
     public function user()
     {
         return $this->belongsTo(Admin::class, 'created_by');
+    }
+
+    public function account()
+    {
+        return $this->belongsTo(Account::class, 'account_id');
+    }
+
+    public function financialTransactions()
+    {
+        return $this->hasMany(FinancialTransaction::class, 'account_id', 'account_id');
     }
 }

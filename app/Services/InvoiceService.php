@@ -5,6 +5,7 @@ namespace App\Services;
 
 
 use App\Interfaces\BasicRepositoryInterface;
+use App\Models\Admin\FinancialTransaction;
 use App\Models\Admin\Invoice;
 use App\Models\Admin\Revenue;
 use App\Models\Admin\Subscription;
@@ -47,8 +48,12 @@ class InvoiceService
     public function payInvoice($id, $request)
     {
         $invoice = $this->InvoiceRepository->getById($id);
-        $invoice->amount = $request->invoice_amount;
+        // $invoice->amount = $request->invoice_amount;
         // dd($invoice);
+        if (!$request->paid_amount && isset($request->invoice_amount) && $request->invoice_amount != $invoice->amount) {
+            $invoice->amount = $request->invoice_amount;
+            $invoice->remaining_amount = max($invoice->amount - $invoice->paid_amount, 0);
+        }
 
         if ($request->paid_amount) {
             $totalPaid = $invoice->paid_amount + $request->paid_amount;
@@ -82,6 +87,24 @@ class InvoiceService
                 'amount' => $request->paid_amount,
                 'collected_by' => $collectedBy,
                 'received_at' => now(),
+            ]);
+
+            $accountId = auth()->user()->account_id ?? null;
+
+            if (!$accountId) {
+                return redirect()->back()->with('error', trans('invoices.no_account_found'));
+            }
+
+            FinancialTransaction::create([
+                'account_id'    => $accountId,
+                'amount'        => $request->paid_amount,
+                'date'          => now()->toDateString(),
+                'time'          => now()->toTimeString(),
+                'month'         => now()->month,
+                'year'          => now()->year,
+                'notes'         => 'سداد مستحقات الفاتورة رقم ' . $invoice->id,
+                'type'          => 'qapd',
+                'created_by'    => auth()->id(),
             ]);
         }
         $invoice->save();

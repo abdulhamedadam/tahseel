@@ -8,16 +8,26 @@
 @section('toolbar')
     <div id="kt_app_toolbar_container" class="app-container container-xxl d-flex flex-stack">
         @php
-            $title = trans('invoices.monthly_due_invoices');
+            $title = trans('accounts.accounts');
             $breadcrumbs = [
-                ['label' => trans('Toolbar.home'), 'link' => route('admin.dashboard')],
-                ['label' => trans('Toolbar.invoices'), 'link' => route('admin.invoices.index')],
-                ['label' => trans('invoices.monthly_due_invoices_table'), 'link' => ''],
+                ['label' => trans('Toolbar.home'), 'link' => ''],
+                ['label' => trans('Toolbar.accounts'), 'link' => ''],
+                ['label' => trans('accounts.accounts_table'), 'link' => ''],
             ];
 
             PageTitle($title, $breadcrumbs);
         @endphp
 
+
+        <div class="d-flex align-items-center gap-2 gap-lg-3">
+
+            {{-- @can('create_account') --}}
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAccounts">
+                {{ trans('accounts.add_account') }}
+            </button>
+            {{-- @endcan --}}
+
+        </div>
     </div>
 
 @endsection
@@ -28,20 +38,13 @@
         <div class="card shadow-sm" style="border-top: 3px solid #007bff;">
             @php
                 $headers = [
-                    'invoices.ID',
-                    'invoices.invoice_number',
-                    'invoices.client',
-                    'invoices.amount',
-                    'invoices.paid_amount',
-                    'invoices.remaining_amount',
-                    'invoices.due_date',
-                    'invoices.paid_date',
-                    'invoices.status',
-                    'invoices.subscription',
-                    'invoices.notes',
-                    // 'invoices.employee',
-                    // 'invoices.month_year',
-                    'invoices.action',
+                    'accounts.ID',
+                    'accounts.account_name',
+                    'accounts.parent',
+                    'accounts.level',
+                    'accounts.assigned_user',
+                    'accounts.created_by',
+                    'accounts.actions',
                 ];
 
                 generateTable($headers);
@@ -50,60 +53,50 @@
 
     </div>
 
-    <div class="modal fade" id="payInvoiceModal" tabindex="-1" aria-labelledby="payInvoiceModalLabel" aria-hidden="true">
+    <div class="modal fade" tabindex="-1" id="modalAccounts">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="payInvoiceModalLabel">{{ trans('invoices.enter_payment_amount') }}</h5>
+                    <h3 class="modal-title">{{ trans('accounts.add_account') }}</h3>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="payInvoiceForm" method="POST" action="">
+                <form method="post" action="{{ route('admin.add_account') }}" enctype="multipart/form-data"
+                    id="accountForm">
                     @csrf
+                    <input type="hidden" name="row_id" id="row_id" value="">
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="invoice_amount" class="form-label">{{ trans('invoices.invoice_amount') }}</label>
-                            <input type="number" class="form-control" id="invoice_amount" name="invoice_amount" required
-                                min="1">
+                            <label for="name" class="form-label">{{ trans('accounts.account_name') }}</label>
+                            <input type="text" class="form-control" name="name" id="name" required>
                         </div>
                         <div class="mb-3">
-                            <label for="paid_amount" class="form-label">{{ trans('invoices.invoice_paid_amount') }}</label>
-                            <input type="number" class="form-control" id="paid_amount" name="paid_amount">
+                            <label for="parent_id" class="form-label">{{ trans('accounts.parent') }}</label>
+                            <select name="parent_id" id="parent_id" class="form-control">
+                                <option value="">{{ trans('accounts.select_account') }}</option>
+                                @foreach ($accounts as $account)
+                                    <option value="{{ $account->id }}">{{ $account->name }}</option>
+                                @endforeach
+                            </select>
                         </div>
-                        <div class="mb-3">
-                            <label for="notes" class="form-label">{{ trans('invoices.notes') }}</label>
-                            <textarea class="form-control" id="notes" name="notes" rows="2"></textarea>
-                        </div>
+                        {{-- <div class="mb-3">
+                            <label for="user_id" class="form-label">{{ trans('accounts.assigned_user') }}</label>
+                            <select name="user_id" id="user_id" class="form-control">
+                                <option value="">{{ trans('accounts.select_user') }}</option>
+                                @foreach ($users as $user)
+                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                @endforeach
+                            </select>
+                        </div> --}}
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary"
-                            data-bs-dismiss="modal">{{ trans('invoices.cancel') }}</button>
-                        <button type="submit" class="btn btn-primary">{{ trans('invoices.pay') }}</button>
+                        <button type="submit" class="btn btn-primary">{{ trans('accounts.save') }}</button>
+                        <button type="button" class="btn btn-light"
+                            data-bs-dismiss="modal">{{ trans('accounts.cancel') }}</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-
-    <div class="modal fade" tabindex="-1" id="modaldetails">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 class="modal-title"><?= trans('invoices.invoice_details') ?></h3>
-                    <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal"
-                        aria-label="Close">
-                        <i class="ki-duotone ki-cross fs-1">&times;</i>
-                    </div>
-
-                </div>
-
-                <div id="result_info">
-
-                </div>
-
-            </div>
-        </div>
-    </div>
-
 @stop
 @section('js')
 
@@ -118,64 +111,33 @@
                 "serverSide": true,
                 "order": [],
                 "ajax": {
-                    url: "{{ route('admin.due_monthly_invoices') }}",
+                    url: "{{ route('admin.get_ajax_accounts') }}",
+                    type: 'GET'
                 },
                 "columns": [{
                         data: 'id',
-                        className: 'text-center no-export'
-                    },
-                    {
-                        data: 'invoice_number',
                         className: 'text-center'
                     },
                     {
-                        data: 'client',
+                        data: 'name',
                         className: 'text-center'
                     },
                     {
-                        data: 'amount',
+                        data: 'parent_account',
                         className: 'text-center'
                     },
                     {
-                        data: 'paid_amount',
+                        data: 'level',
                         className: 'text-center'
                     },
                     {
-                        data: 'remaining_amount',
-                        className: 'text-center'
-                    },
-                    // {
-                    //     data: 'enshaa_date',
-                    //     className: 'text-center'
-                    // },
-                    {
-                        data: 'due_date',
+                        data: 'assigned_user',
                         className: 'text-center'
                     },
                     {
-                        data: 'paid_date',
+                        data: 'created_by',
                         className: 'text-center'
                     },
-                    {
-                        data: 'status',
-                        className: 'text-center'
-                    },
-                    {
-                        data: 'subscription',
-                        className: 'text-center'
-                    },
-                    {
-                        data: 'notes',
-                        className: 'text-center'
-                    },
-                    // {
-                    //     data: 'employee',
-                    //     className: 'text-center'
-                    // },
-                    // {
-                    //     data: 'month_year',
-                    //     className: 'text-center'
-                    // },
                     {
                         data: 'action',
                         name: 'action',
@@ -184,8 +146,8 @@
                     },
                 ],
                 "columnDefs": [{
-                        "targets": [1, -1],
-                        "orderable": false,
+                        "targets": [1, -1], //last column
+                        "orderable": false, //set not orderable
                     },
                     {
                         "targets": [1],
@@ -302,41 +264,24 @@
                 }
             });
         }
-    </script>
 
-    <script>
-        function showPayModal(url, remainingAmount, invoiceAmount) {
-            $('#payInvoiceForm').attr('action', url);
-            $('#invoice_amount').val(invoiceAmount);
-            // $('#paid_amount').val(remainingAmount);
-            $('#payInvoiceModal').modal('show');
-        }
-
-        function validateAmount() {
-            let amount = $('#paid_amount').val();
-            if (amount <= 0) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Invalid amount',
-                    text: 'Please enter a valid amount greater than 0.',
-                });
-                return false;
-            }
-            return true;
-        }
-    </script>
-
-    <script>
-        function invoice_details(url) {
-            $.get(url, function(data) {
-                $('#result_info').html(data);
-                $('#modaldetails').modal('show');
+        function edit_account(id) {
+            $.ajax({
+                url: "{{ route('admin.edit_account', ['id' => '__id__']) }}".replace('__id__', id),
+                type: "get",
+                dataType: "json",
+                success: function(data) {
+                    // console.log(data);
+                    var allData = data.all_data;
+                    $('#row_id').val(allData.id);
+                    $('#name').val(allData.name);
+                    $('#parent_id').val(allData.parent_id);
+                    // $('#user_id').val(allData.account_id);
+                    // $('#user_id').val(data.account_id).trigger('change');
+                },
             });
         }
-
-        function print_invoice(url) {
-            var printWindow = window.open(url, '_blank');
-            printWindow.focus();
-        }
     </script>
+    <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js') }}"></script>
+    {!! JsValidator::formRequest('App\Http\Requests\Admin\account\SaveRequest', '#accountForm') !!}
 @endsection

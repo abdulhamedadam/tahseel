@@ -85,7 +85,8 @@ class ClientController extends Controller
                     return $row->address1 ?? 'N/A';
                 })
                 ->addColumn('subscription', function ($row) {
-                    return $row->subscription ? $row->subscription->name : '<span class="badge bg-success text-white px-4 py-3 rounded-pill fw-bold fs-5">' . trans('invoices.service') . '</span>';
+                    // return $row->subscription ? $row->subscription->name : '<span class="badge bg-success text-white px-4 py-3 rounded-pill fw-bold fs-5">' . trans('invoices.service') . '</span>';
+                    return $row->subscription ? $row->subscription->name : 'N\A';
                 })
                 ->addColumn('price', function ($row) {
                     return $row->price ?? 'N/A';
@@ -249,7 +250,8 @@ class ClientController extends Controller
         $data['paid_data'] = Invoice::where('client_id', $id)
             ->whereIn('status', ['paid', 'partial'])
             ->get();
-        $data['invoiceNumber'] = $this->InvoiceRepository->getLastFieldValue('invoice_number');
+        // $data['invoiceNumber'] = $this->InvoiceRepository->getLastFieldValue('invoice_number');
+        $data['invoiceNumber'] = getLastFieldValue(Invoice::class, 'invoice_number');
         $data['subscriptions'] = $this->SubscriptionRepository->getAll();
         // dd($data);
         return view($this->admin_view . '.client_invoices', $data);
@@ -261,56 +263,57 @@ class ClientController extends Controller
             'invoice_number' => 'required|string|unique:tbl_invoices,invoice_number',
             'invoice_type' => 'required|in:service,subscription',
             'subscription_id' => 'nullable|exists:tbl_subscriptions,id',
-            'amount' => 'required|numeric|min:0',
-            'remaining_amount' => 'nullable|numeric|min:0|max:' . $request->amount,
+            'amount' => 'required|numeric|min:1',
+            // 'remaining_amount' => 'nullable|numeric|min:0|max:' . $request->amount,
             'notes' => 'nullable|string',
         ]);
 
         try {
 
-            if ($request->remaining_amount == 0) {
-                $status = 'paid';
-            } elseif ($request->remaining_amount > 0 && $request->remaining_amount < $request->amount) {
-                $status = 'partial';
-            } else {
-                $status = 'unpaid';
-            }
+            // if ($request->remaining_amount == 0) {
+            //     $status = 'paid';
+            // } elseif ($request->remaining_amount > 0 && $request->remaining_amount < $request->amount) {
+            //     $status = 'partial';
+            // } else {
+            //     $status = 'unpaid';
+            // }
 
-            $remainingAmount = $request->remaining_amount ?? 0;
-            $paidAmount = $request->amount - $remainingAmount;
+            // $remainingAmount = $request->remaining_amount ?? 0;
+            // $paidAmount = $request->amount - $remainingAmount;
 
             $invoiceData = [
                 'invoice_number' => $request->invoice_number,
                 'client_id' => $id,
                 'subscription_id' => $request->invoice_type === 'subscription' ? $request->subscription_id : null,
                 'amount' => $request->amount,
-                'remaining_amount' => $remainingAmount,
-                'paid_amount' => $paidAmount,
+                // 'remaining_amount' => $remainingAmount,
+                'paid_amount' => $request->amount,
                 'enshaa_date' => now()->format('Y-m-d'),
                 'invoice_type' => $request->invoice_type,
                 'notes' => $request->notes,
                 'paid_date' => now(),
                 'due_date' => now()->format('Y-m-d'),
                 'created_by' => auth()->user()->id,
-                'status' => $status,
+                'status' => 'paid',
             ];
 
             // dd($invoiceData);
 
             $invoice = $this->InvoiceRepository->create($invoiceData);
 
-            if ($request->remaining_amount < $request->amount) {
-                $admin = auth()->user();
-                $collectedBy = $admin && $admin->is_employee ? $admin->emp_id : auth()->user()->id;
+            // if ($request->remaining_amount < $request->amount) {
+            $admin = auth()->user();
+            $collectedBy = $admin && $admin->is_employee ? $admin->emp_id : auth()->user()->id;
 
-                Revenue::create([
-                    'invoice_id' => $invoice->id,
-                    'client_id' => $id,
-                    'amount' => $paidAmount,
-                    'collected_by' => $collectedBy,
-                    'received_at' => now(),
-                ]);
-            }
+            Revenue::create([
+                'invoice_id' => $invoice->id,
+                'client_id' => $id,
+                // 'amount' => $paidAmount,
+                'amount' => $request->amount,
+                'collected_by' => $collectedBy,
+                'received_at' => now(),
+            ]);
+            // }
 
             return redirect()->back()->with('success', trans('clients.invoice_created_successfully.'));
         } catch (\Exception $e) {

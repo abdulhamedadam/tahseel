@@ -119,6 +119,10 @@ class GeneralSettingsController extends Controller
     {
         try {
             $subscription = $this->SubscriptionsRepository->getById($id);
+            if ($subscription->clients()->exists()) {
+                toastr()->addError(trans('settings.subscription_cannot_be_deleted_has_clients'));
+                return redirect()->back();
+            }
             $this->SubscriptionsRepository->delete($id);
             $request->session()->flash('toastMessage', trans('subscription_deleted_successfully'));
             return redirect()->route('admin.subscriptions');
@@ -208,7 +212,11 @@ class GeneralSettingsController extends Controller
     public function delete_sarf_band(Request $request, $id)
     {
         try {
-            $bsarf_band = $this->SarfBandRepository->getById($id);
+            $sarf_band = $this->SarfBandRepository->getById($id);
+            if ($sarf_band->masrofat()->exists()) {
+                toastr()->addError(trans('settings.sarf_band_cannot_be_deleted_has_masrofat'));
+                return redirect()->back();
+            }
             $this->SarfBandRepository->delete($id);
             // notify()->success(trans('sarf_band_deleted_successfully'), '');
             $request->session()->flash('toastMessage', trans('sarf_band_deleted_successfully'));

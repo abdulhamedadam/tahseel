@@ -55,4 +55,5 @@
     'invoice_amount' => 'قيمة الفاتورة',
     'Paid Amount' => 'المبلغ المدفوع ',
     'invoice_paid_amount' => 'المبلغ التى يتم دفعه',
+    'invoice_not_found' => 'الفاتورة ليست موجوده'
 );

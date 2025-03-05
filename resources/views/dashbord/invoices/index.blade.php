@@ -44,6 +44,7 @@
                     'invoices.paid_date',
                     'invoices.status',
                     'invoices.subscription',
+                    'invoices.notes',
                     // 'invoices.employee',
                     // 'invoices.month_year',
                     'invoices.action',
@@ -167,6 +168,10 @@
                     },
                     {
                         data: 'subscription',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'notes',
                         className: 'text-center'
                     },
                     // {

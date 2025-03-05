@@ -43,6 +43,7 @@
                     'users.position',
                     'users.created_by',
                     'users.status',
+                    'users.collected_amount',
                     'users.actions',
                 ];
 
@@ -70,8 +71,7 @@
                     url: "{{ route('admin.users.index') }}",
                     type: 'GET'
                 },
-                "columns": [
-                    {
+                "columns": [{
                         data: 'id',
                         className: 'text-center no-export'
                     },
@@ -97,6 +97,10 @@
                     },
                     {
                         data: 'status',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'collected_amount',
                         className: 'text-center'
                     },
                     {
