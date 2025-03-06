@@ -31,12 +31,14 @@
                     'invoices.ID',
                     'invoices.invoice_number',
                     'invoices.client',
+                    'invoices.amount',
                     'invoices.paid_amount',
                     'invoices.remaining_amount',
                     'invoices.due_date',
                     'invoices.paid_date',
                     'invoices.status',
                     'invoices.subscription',
+                    'invoices.notes',
                     // 'invoices.employee',
                     // 'invoices.month_year',
                     'invoices.action',
@@ -55,16 +57,26 @@
                     <h5 class="modal-title" id="payInvoiceModalLabel">{{ trans('invoices.enter_payment_amount') }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="payInvoiceForm" method="POST" action="" onsubmit="return validateAmount()">
+                <form id="payInvoiceForm" method="POST" action="">
                     @csrf
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="amount" class="form-label">{{ trans('invoices.amount') }}</label>
-                            <input type="number" class="form-control" id="amount" name="amount" required min="1">
+                            <label for="invoice_amount" class="form-label">{{ trans('invoices.invoice_amount') }}</label>
+                            <input type="number" class="form-control" id="invoice_amount" name="invoice_amount" required
+                                min="1">
+                        </div>
+                        <div class="mb-3">
+                            <label for="paid_amount" class="form-label">{{ trans('invoices.invoice_paid_amount') }}</label>
+                            <input type="number" class="form-control" id="paid_amount" name="paid_amount">
+                        </div>
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">{{ trans('invoices.notes') }}</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="2"></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ trans('invoices.cancel') }}</button>
+                        <button type="button" class="btn btn-secondary"
+                            data-bs-dismiss="modal">{{ trans('invoices.cancel') }}</button>
                         <button type="submit" class="btn btn-primary">{{ trans('invoices.pay') }}</button>
                     </div>
                 </form>
@@ -121,6 +133,10 @@
                         className: 'text-center'
                     },
                     {
+                        data: 'amount',
+                        className: 'text-center'
+                    },
+                    {
                         data: 'paid_amount',
                         className: 'text-center'
                     },
@@ -146,6 +162,10 @@
                     },
                     {
                         data: 'subscription',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'notes',
                         className: 'text-center'
                     },
                     // {
@@ -285,14 +305,15 @@
     </script>
 
     <script>
-        function showPayModal(url, remainingAmount) {
+        function showPayModal(url, remainingAmount, invoiceAmount) {
             $('#payInvoiceForm').attr('action', url);
-            $('#amount').val(remainingAmount);
+            $('#invoice_amount').val(invoiceAmount);
+            // $('#paid_amount').val(remainingAmount);
             $('#payInvoiceModal').modal('show');
         }
 
         function validateAmount() {
-            let amount = $('#amount').val();
+            let amount = $('#paid_amount').val();
             if (amount <= 0) {
                 Swal.fire({
                     icon: 'error',

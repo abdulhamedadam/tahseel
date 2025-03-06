@@ -39,7 +39,9 @@ class CreateAdminUserSeeder extends Seeder
                 'group_name'=>$role->id,
             ]);
 
+            $permissions = Permission::where('guard_name', 'admin')->get();
 
+            $role->syncPermissions($permissions);
 
 // Assign the role to the user
             $user->assignRole($role);

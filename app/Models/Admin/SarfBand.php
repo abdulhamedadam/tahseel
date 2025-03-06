@@ -18,4 +18,9 @@ class SarfBand extends Model
 
         return $data;
     }
+
+    public function masrofat()
+    {
+        return $this->hasMany(Masrofat::class, 'band_id');
+    }
 }

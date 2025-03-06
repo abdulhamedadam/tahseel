@@ -24,7 +24,9 @@
                     <div class="col-md-12 row">
                         <div class="col-md-8">
                             {{-- @include('dashbord.clients.client_unpaid_invoices_data') --}}
-                            @include('dashbord.clients.client_invoices_form')
+                            @can('add_client_invoice')
+                                @include('dashbord.clients.client_invoices_form')
+                            @endcan
                         </div>
                         <div class="col-md-4">
                             @include('dashbord.clients.client_details')

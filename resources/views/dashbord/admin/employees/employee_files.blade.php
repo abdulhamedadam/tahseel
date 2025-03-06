@@ -23,9 +23,13 @@
                 <div class="card-body" style="padding-left: 0px !important;">
                     <div class="col-md-12 row">
                         <div class="col-md-8">
-                            @include('dashbord.admin.employees.employee_files_form')
+                            @can('add_employee_files')
+                                @include('dashbord.admin.employees.employee_files_form')
+                            @endcan
 
-                            @include('dashbord.admin.employees.employee_files_data')
+                            @can('view_employee_files')
+                                @include('dashbord.admin.employees.employee_files_data')
+                            @endcan
                         </div>
                         <div class="col-md-4">
                             @include('dashbord.admin.employees.load_employee_data')

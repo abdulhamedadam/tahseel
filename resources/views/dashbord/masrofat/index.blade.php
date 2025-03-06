@@ -21,7 +21,9 @@
 
         <div class="d-flex align-items-center gap-2 gap-lg-3">
 
-            {{ AddButton(route('admin.masrofat.create')) }}
+            @can('create_masrofat')
+                {{ AddButton(route('admin.masrofat.create')) }}
+            @endcan
 
         </div>
     </div>

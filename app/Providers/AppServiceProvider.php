@@ -68,8 +68,6 @@ class AppServiceProvider extends ServiceProvider
             // dd(Carbon::now()->day);
             $clients = Clients::whereNull('deleted_at')->get();
             foreach ($clients as $client) {
-                $currentMonth = Carbon::now()->format('Y-m');
-
                 $existingInvoice = Invoice::where('client_id', $client->id)
                     ->whereYear('created_at', Carbon::now()->year)
                     ->whereMonth('created_at', Carbon::now()->month)

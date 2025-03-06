@@ -17,31 +17,42 @@
                         <nav class="mt-2" style="background-color: #fff4f0 !important; border-radius: 5px;">
                             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
                                 data-accordion="false">
-                                <li class="nav-item">
-                                    <a href="{{ route('admin.subscriptions') }}" class="nav-link @if (Route::is('admin.subscriptions')) active @endif" style=" width: 100%;">
-                            <span style="display: flex; justify-content: space-between; align-items: center;">
-                                <span>
-                                    <i class="far fa-circle nav-icon text-warning"></i>
-                                    {{trans('settings.subscriptions')}}
-                                </span>
-                                <span class="badge badge-danger" style="order: 1; margin-left: 5px;">{{count_subscriptions()}}</span>
-                            </span>
-                                    </a>
-                                </li>
-                                <hr class="nav-separator">
-                                <li class="nav-item">
-                                    <a href="{{ route('admin.sarf_bands') }}" class="nav-link @if (Route::is('admin.sarf_bands')) active @endif" style=" width: 100%;">
-                            <span style="display: flex; justify-content: space-between; align-items: center;">
-                                <span>
-                                    <i class="far fa-circle nav-icon text-warning"></i>
-                                    {{trans('settings.sarf_band')}}
-                                </span>
-                                <span class="badge badge-danger" style="order: 1; margin-left: 5px;">{{count_sarf_band()}}</span>
-                            </span>
-                                    </a>
-                                </li>
-                                <hr class="nav-separator">
-
+                                @can('view_subscriptions')
+                                    <li class="nav-item">
+                                        <a href="{{ route('admin.subscriptions') }}"
+                                            class="nav-link @if (Route::is('admin.subscriptions')) active @endif"
+                                            style=" width: 100%;">
+                                            <span
+                                                style="display: flex; justify-content: space-between; align-items: center;">
+                                                <span>
+                                                    <i class="far fa-circle nav-icon text-warning"></i>
+                                                    {{ trans('settings.subscriptions') }}
+                                                </span>
+                                                <span class="badge badge-danger"
+                                                    style="order: 1; margin-left: 5px;">{{ count_subscriptions() }}</span>
+                                            </span>
+                                        </a>
+                                    </li>
+                                    <hr class="nav-separator">
+                                @endcan
+                                @can('view_sarf_band')
+                                    <li class="nav-item">
+                                        <a href="{{ route('admin.sarf_bands') }}"
+                                            class="nav-link @if (Route::is('admin.sarf_bands')) active @endif"
+                                            style=" width: 100%;">
+                                            <span
+                                                style="display: flex; justify-content: space-between; align-items: center;">
+                                                <span>
+                                                    <i class="far fa-circle nav-icon text-warning"></i>
+                                                    {{ trans('settings.sarf_band') }}
+                                                </span>
+                                                <span class="badge badge-danger"
+                                                    style="order: 1; margin-left: 5px;">{{ count_sarf_band() }}</span>
+                                            </span>
+                                        </a>
+                                    </li>
+                                    <hr class="nav-separator">
+                                @endcan
                             </ul>
                         </nav>
                     </div>

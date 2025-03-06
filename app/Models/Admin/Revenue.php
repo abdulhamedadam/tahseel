@@ -6,10 +6,11 @@ use App\Models\Admin as AdminModel;
 use App\Models\Clients;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Revenue extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     public $table = 'tbl_revenues';
     protected $guarded = [];

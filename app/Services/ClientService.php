@@ -37,20 +37,20 @@ class ClientService
 
         $client = $this->ClientsRepository->create($validated_data);
 
-        // $invoiceNumber = $this->InvoiceRepository->getLastFieldValue('invoice_number');
+        $invoiceNumber = $this->InvoiceRepository->getLastFieldValue('invoice_number');
 
-        // $invoice_data = [
-        //     'invoice_number' => $invoiceNumber,
-        //     'client_id' => $client->id,
-        //     'subscription_id' => $validated_data['subscription_id'],
-        //     'amount' => $validated_data['price'],
-        //     'remaining_amount' => $validated_data['price'],
-        //     'enshaa_date' => now(),
-        //     'due_date' => now()->addMonth(),
-        //     'status' => 'unpaid',
-        // ];
+        $invoice_data = [
+            'invoice_number' => $invoiceNumber,
+            'client_id' => $client->id,
+            'subscription_id' => $validated_data['subscription_id'],
+            'amount' => $validated_data['price'],
+            'remaining_amount' => $validated_data['price'],
+            'enshaa_date' => now(),
+            'due_date' => now()->addMonth(),
+            'status' => 'unpaid',
+        ];
 
-        // $this->InvoiceRepository->create($invoice_data);
+        $this->InvoiceRepository->create($invoice_data);
 
         $admins = Admin::where('status', '1')
                     ->whereNull('deleted_at')
@@ -82,6 +82,7 @@ class ClientService
         return $this->ClientsRepository->update($id,$validated_data);
     }
     /**************************************************/
+
 
 
 

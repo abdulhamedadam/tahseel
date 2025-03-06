@@ -27,7 +27,8 @@
                 </tr>
                 <tr>
                     <td class="class_label" style="width: 25%"><?= trans('invoices.paid_amount') ?></td>
-                    <td class="class_result">{{ $all_data->amount - $all_data->remaining_amount }}</td>
+                    {{-- <td class="class_result">{{ $all_data->amount - $all_data->remaining_amount }}</td> --}}
+                    <td class="class_result">{{ $all_data->paid_amount ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <td class="class_label" style="width: 25%"><?= trans('invoices.remaining_amount') ?></td>

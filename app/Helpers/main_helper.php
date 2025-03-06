@@ -3,7 +3,9 @@
 
 
 use App\Interfaces\BasicRepositoryInterface;
+use App\Models\Admin\AccountSettings;
 use App\Models\Admin\Employee;
+use App\Models\Admin\FinancialTransaction;
 use App\Models\Admin\Invoice;
 use App\Models\Admin\Masrofat;
 use App\Models\Admin\Revenue;
@@ -32,7 +34,7 @@ if (!function_exists('getDefultImage')) {
 
 if (!function_exists('extractVideoId')) {
 
-     function extractVideoId($videoLink)
+    function extractVideoId($videoLink)
     {
         // Extract video ID from the YouTube link
         $pattern = '/(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/';
@@ -98,8 +100,6 @@ if (!function_exists('getFirstLetters')) {
 
         return $firstLetters;
     }
-
-
 }
 
 if (!function_exists('generateUniqueRandomCode')) {
@@ -118,30 +118,29 @@ if (!function_exists('generateUniqueRandomCode')) {
 
 
 /*************************************************************/
-function get_session_attendance($member_id,$additional_sub_id)
+function get_session_attendance($member_id, $additional_sub_id)
 {
-    if ($member_id && $additional_sub_id){
-        $session_num=\App\Models\MembersAttendance::where('member_id',$member_id)->where('additional_subscription_id',$additional_sub_id)->count();
+    if ($member_id && $additional_sub_id) {
+        $session_num = \App\Models\MembersAttendance::where('member_id', $member_id)->where('additional_subscription_id', $additional_sub_id)->count();
         return $session_num;
-    }
-    else{
+    } else {
         return 0;
     }
-
 }
 
 /**************************************************************/
-function get_app_config_data($key){
-    $data=\App\Models\AppConfig::where('key',$key)->first();
+function get_app_config_data($key)
+{
+    $data = \App\Models\AppConfig::where('key', $key)->first();
     return $data->value;
 }
 
 /***************************************************************/
 function AddButton($route)
 {
-     $button='
+    $button = '
             <div class="d-flex">
-                <a href="'.$route.'" class="btn btn-icon btn-sm btn-primary flex-shrink-0 ms-4">
+                <a href="' . $route . '" class="btn btn-icon btn-sm btn-primary flex-shrink-0 ms-4">
                     <span class="svg-icon svg-icon-2">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <rect opacity="0.5" x="11.364" y="20.364" width="16" height="2" rx="1" transform="rotate(-90 11.364 20.364)" fill="currentColor"/>
@@ -152,15 +151,15 @@ function AddButton($route)
                 </a>
             </div>';
 
-     echo $button;
+    echo $button;
 }
 
 /****************************************************************/
 function BackButton($route)
 {
-    $button='
+    $button = '
             <div class="d-flex">
-                <a href="'.$route.'" class="btn btn-icon btn-sm btn-primary flex-shrink-0 ms-4">
+                <a href="' . $route . '" class="btn btn-icon btn-sm btn-primary flex-shrink-0 ms-4">
                     <span class="svg-icon svg-icon-2">
                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
@@ -181,9 +180,9 @@ function PageTitle($title, $breadcrumbs)
     $breadcrumbItems = '';
     foreach ($breadcrumbs as $breadcrumb) {
         if (isset($breadcrumb['link']) && $breadcrumb['link'] !== '') {
-            $breadcrumbItems .= '<li class="breadcrumb-item text-muted"><a href="'.$breadcrumb['link'].'" class="text-muted text-hover-primary">'.$breadcrumb['label'].'</a></li>';
+            $breadcrumbItems .= '<li class="breadcrumb-item text-muted"><a href="' . $breadcrumb['link'] . '" class="text-muted text-hover-primary">' . $breadcrumb['label'] . '</a></li>';
         } else {
-            $breadcrumbItems .= '<li class="breadcrumb-item text-muted">'.$breadcrumb['label'].'</li>';
+            $breadcrumbItems .= '<li class="breadcrumb-item text-muted">' . $breadcrumb['label'] . '</li>';
         }
         $breadcrumbItems .= '<li class="breadcrumb-item"><span class="bullet bg-gray-400 w-5px h-2px"></span></li>';
     }
@@ -191,9 +190,9 @@ function PageTitle($title, $breadcrumbs)
 
     $pageTitle = '
     <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
-        <h1 class="page-heading d-flex text-dark fw-bold fs-3 flex-column justify-content-center my-0">'.$title.'</h1>
+        <h1 class="page-heading d-flex text-dark fw-bold fs-3 flex-column justify-content-center my-0">' . $title . '</h1>
         <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
-            '.$breadcrumbItems.'
+            ' . $breadcrumbItems . '
         </ul>
     </div>';
 
@@ -223,7 +222,6 @@ function generateTable(array $headers)
         </div>';
 
     echo $table;
-
 }
 
 
@@ -275,8 +273,8 @@ if (!function_exists('count_notifications_clients')) {
     }
 }
 
-if (!function_exists('count_notifications_clients')) {
-    function count_notifications_clients()
+if (!function_exists('count_all_notifications_clients')) {
+    function count_all_notifications_clients()
     {
         $admin = Auth::user();
 
@@ -345,22 +343,21 @@ if (!function_exists('test')) {
 /************************************************/
 /**********************************************/
 if (!function_exists('generateCardHeader')) {
-    function generateCardHeader($card_title,$route,$add_button_title)
+    function generateCardHeader($card_title, $route, $add_button_title)
     {
-        if ($add_button_title != ' ')
-        {
-            $button='<a class="btn btn-primary" href="'. route($route) .'">
-                                <i class="bi bi-plus fs-1"></i>'. htmlspecialchars(trans($add_button_title)).'
+        if ($add_button_title != ' ') {
+            $button = '<a class="btn btn-primary" href="' . route($route) . '">
+                                <i class="bi bi-plus fs-1"></i>' . htmlspecialchars(trans($add_button_title)) . '
                             </a>';
-        }else{
-            $button='';
+        } else {
+            $button = '';
         }
         $header = '
          <div class="card-header">
-                    <h3 class="card-title">'. htmlspecialchars(trans($card_title)).'</h3>
+                    <h3 class="card-title">' . htmlspecialchars(trans($card_title)) . '</h3>
                     <div class="card-toolbar">
                         <div class="text-center">
-                          '.$button.'
+                          ' . $button . '
                         </div>
                     </div>
                 </div>
@@ -399,7 +396,7 @@ if (!function_exists('form_icon')) {
     if (! function_exists('getLastFieldValue')) {
         function getLastFieldValue($model, $field)
         {
-            $lastValue = $model::latest()->value($field);
+            $lastValue = $model::withTrashed()->latest()->value($field);
             return is_null($lastValue) ? 1 : $lastValue + 1;
         }
     }
@@ -407,6 +404,8 @@ if (!function_exists('form_icon')) {
     if (!function_exists('get_dashboard_data')) {
         function get_dashboard_data()
         {
+            $accountSettings = AccountSettings::first();
+            $generalAccountId = $accountSettings ? $accountSettings->general_account_id : null;
             return [
                 'employees' => Employee::count(),
                 'clients' => Clients::count(),
@@ -419,8 +418,9 @@ if (!function_exists('form_icon')) {
 
                 'revenues' => Revenue::sum('amount'),
                 'masrofat' => Masrofat::sum('value'),
+
+                'general_account' => FinancialTransaction::where('account_id', $generalAccountId)->sum('amount'),
             ];
         }
     }
 }
-

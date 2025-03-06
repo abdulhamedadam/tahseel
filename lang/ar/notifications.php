@@ -19,4 +19,5 @@
   'month_year' => 'الشهر/السنه',
   'notification_read' => 'تم قراءة الاشعار',
   'read' => 'مقروء',
+  'currency' => 'currency',
 );

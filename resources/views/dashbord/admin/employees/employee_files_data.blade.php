@@ -117,18 +117,22 @@
                     <td class="fnt_center_black">{{ \Illuminate\Support\Carbon::parse($morfaq->created_at)->format('Y-m-d') }}</td>
                     <td class="fnt_center_red">{{ \Illuminate\Support\Carbon::parse($morfaq->created_at)->format('H:i:s') }}</td>
 
-
-                    <td>
-                        <div class="btn-group">
-                            <a href="{{ route('admin.employee_download_file', $morfaq->id) }}" class="btn btn-sm btn-primary" title="{{ trans('employees.download') }}">
-                                <i class="bi bi-download"></i>
-                            </a>
-                            <a href="{{ route('admin.employee_delete_file', $morfaq->id) }}" onclick="return confirm('Are You Sure To Delete?')" class="btn btn-sm btn-danger">
-                                <i class="bi bi-trash"></i>
-                            </a>
-                        </div>
-
-                    </td>
+                    @if(auth()->user()->can('download_employee_file') || auth()->user()->can('delete_employee_file'))
+                        <td>
+                            <div class="btn-group">
+                                @can('download_employee_file')
+                                    <a href="{{ route('admin.employee_download_file', $morfaq->id) }}" class="btn btn-sm btn-primary" title="{{ trans('employees.download') }}">
+                                        <i class="bi bi-download"></i>
+                                    </a>
+                                @endcan
+                                @can('delete_employee_file')
+                                    <a href="{{ route('admin.employee_delete_file', $morfaq->id) }}" onclick="return confirm('Are You Sure To Delete?')" class="btn btn-sm btn-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                @endcan
+                            </div>
+                        </td>
+                    @endif
                 </tr>
             @endforeach
             </tbody>

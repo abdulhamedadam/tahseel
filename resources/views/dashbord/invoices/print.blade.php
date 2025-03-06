@@ -261,6 +261,10 @@
                     <td>{{ $all_data->amount }}</td>
                 </tr>
                 <tr>
+                    <th>{{ trans('invoices.Paid Amount') }}</th>
+                    <td>{{ $all_data->paid_amount ?? 'N/A' }}</td>
+                </tr>
+                <tr>
                     <th>{{ trans('invoices.Remaining Amount') }}</th>
                     <td>{{ $all_data->remaining_amount }}</td>
                 </tr>

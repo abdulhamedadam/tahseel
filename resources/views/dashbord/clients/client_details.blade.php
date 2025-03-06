@@ -223,6 +223,10 @@
                 <td class="class_result">{{ $all_data->email }}</td>
             </tr>
             <tr>
+                <td class="class_label" style="width: 25%"><?= trans('clients.client_type') ?></td>
+                <td class="class_result">{{ isset($all_data->client_type) ? trans('clients.'.$all_data->client_type) : '' }}</td>
+            </tr>
+            <tr>
                 <td class="class_label" style="width: 25%"><?= trans('clients.phone') ?></td>
                 <td class="class_result">{{ $all_data->phone }}</td>
             </tr>

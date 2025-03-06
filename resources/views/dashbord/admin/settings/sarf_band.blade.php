@@ -16,9 +16,11 @@
                                 <h3 class="card-title">{{ trans('settings.sarf_band') }}</h3>
                                 <div class="card-toolbar">
                                     <div class="text-center">
-                                        <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalSarfBands" >
-                                            <i class="bi bi-plus fs-1"></i> {{ trans('settings.add') }}
-                                        </a>
+                                        @can('add_sarf_band')
+                                            <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalSarfBands" >
+                                                <i class="bi bi-plus fs-1"></i> {{ trans('settings.add') }}
+                                            </a>
+                                        @endcan
                                     </div>
                                 </div>
                             </div>

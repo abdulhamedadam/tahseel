@@ -31,37 +31,49 @@ class Invoice extends Model
         return $this->belongsTo(Subscription::class);
     }
 
-    public function markAsPaid($paymentAmount)
+    public function revenues()
     {
-        if ($paymentAmount > $this->remaining_amount) {
-            throw new \Exception(trans('invoices.The payment amount cannot be greater than the remaining amount.'));
-        }
-
-        if ($paymentAmount >= $this->remaining_amount) {
-            $this->update([
-                'status' => 'paid',
-                'paid_date' => now()->format('Y-m-d'),
-                'remaining_amount' => 0,
-            ]);
-        } else {
-            $this->update([
-                'status' => 'partial',
-                'paid_date' => now()->format('Y-m-d'),
-                'remaining_amount' => $this->remaining_amount - $paymentAmount,
-            ]);
-        }
-
-        $admin = auth('admin')->user();
-        $collectedBy = $admin && $admin->is_employee ? $admin->emp_id : auth()->user()->id;
-
-        Revenue::create([
-            'invoice_id' => $this->id,
-            'client_id' => $this->client_id,
-            'amount' => $paymentAmount,
-            'collected_by' => $collectedBy,
-            'received_at' => now(),
-        ]);
+        return $this->hasMany(Revenue::class, 'invoice_id');
     }
+
+    // public function markAsPaid($paymentAmount, $notes = null)
+    // {
+    //     if ($paymentAmount > $this->amount) {
+    //         throw new \Exception(trans('invoices.payment_exceeds_invoice_amount'));
+    //     }
+
+    //     $remainingAmount = $this->amount - $paymentAmount;
+
+    //     if ($remainingAmount <= 0) {
+    //         $this->update([
+    //             'status' => 'paid',
+    //             'paid_amount' => $paymentAmount,
+    //             'remaining_amount' => 0,
+    //             'paid_date' => now()->format('Y-m-d'),
+    //             'notes' => $notes,
+    //         ]);
+    //     } else {
+    //         $this->update([
+    //             'status' => 'partial',
+    //             'paid_amount' => $paymentAmount,
+    //             'remaining_amount' => $remainingAmount,
+    //             'paid_date' => now()->format('Y-m-d'),
+    //             'notes' => $notes,
+    //         ]);
+    //     }
+
+    //     $admin = auth()->user();
+    //     $collectedBy = $admin && $admin->is_employee ? $admin->emp_id : auth()->user()->id;
+
+    //     Revenue::create([
+    //         'invoice_id' => $this->id,
+    //         'client_id' => $this->client_id,
+    //         'amount' => $paymentAmount,
+    //         'collected_by' => $collectedBy,
+    //         'received_at' => now(),
+    //     ]);
+    // }
+
 
     // public function markAsPaid()
     // {

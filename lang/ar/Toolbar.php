@@ -11,4 +11,9 @@
   'roles' => 'الادوار',
   'invoices' => 'الفواتير',
   'revenues' => 'الايرادات',
+  'reports' => 'التقارير',
+  'accounts' => 'الحسابات',
+  'account_settings' => 'اعدادات الحسابات',
+  'financial_transactions' => 'الحركات المالية',
+  'account_transfers' => 'التحويلات',
 );
