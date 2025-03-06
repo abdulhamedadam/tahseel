@@ -45,8 +45,8 @@ Route::group(
     Route::group(['middleware' => ['auth:admin'], 'prefix' => 'admin', 'as' => 'admin.'], function () {
         Route::get('/dashboard', function () {
             return view('dashbord.home');
-        })->name('dashboard')->middleware('can:view_dashboard');
-
+        })->name('dashboard');
+     //   ->middleware('can:view_dashboard')
         Route::get('/test', function () {
             return ' test admin ';
         });
@@ -172,6 +172,7 @@ Route::group(
         Route::post('/invoice/{id}/pay', [InvoiceController::class, 'pay_invoice'])->name('pay_invoice');
         Route::get('/invoice/{id}/details', [InvoiceController::class, 'show_details'])->name('invoice_details');
         Route::get('/invoice/{id}/print', [InvoiceController::class, 'print_invoice'])->name('print_invoice');
+        Route::get('/invoice/outstanding', [InvoiceController::class, 'outstanding_invoice'])->name('outstanding_invoice');
 
         Route::resource('revenues',RevenueController::class);
 

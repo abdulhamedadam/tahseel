@@ -10,7 +10,7 @@
   'array' => 'يجب أن يكون الحقل :attribute ًمصفوفة',
   'before' => 'يجب على الحقل :attribute أن يكون تاريخًا سابقًا للتاريخ :date.',
   'before_or_equal' => 'الحقل :attribute يجب أن يكون تاريخا سابقا أو مطابقا للتاريخ :date',
-  'between' =>
+  'between' => 
   array (
     'array' => 'يجب أن يحتوي :attribute على عدد من العناصر بين :min و :max',
     'file' => 'يجب أن يكون حجم الملف :attribute بين :min و :max كيلوبايت.',
@@ -38,14 +38,14 @@
   'exists' => 'الحقل :attribute لاغٍ',
   'file' => 'الـ :attribute يجب أن يكون من ملفا.',
   'filled' => 'الحقل :attribute إجباري',
-  'gt' =>
+  'gt' => 
   array (
     'array' => 'الـ :attribute يجب ان يحتوي علي اكثر من :value عناصر/عنصر.',
     'file' => 'الـ :attribute يجب ان يكون اكبر من :value كيلو بايت.',
     'numeric' => 'الـ :attribute يجب ان يكون اكبر من :value.',
     'string' => 'الـ :attribute يجب ان يكون اكبر من :value حروفٍ/حرفًا.',
   ),
-  'gte' =>
+  'gte' => 
   array (
     'array' => 'الـ :attribute يجب ان يحتوي علي :value عناصر/عنصر او اكثر.',
     'file' => 'الـ :attribute يجب ان يكون اكبر من او يساوي :value كيلو بايت.',
@@ -61,14 +61,14 @@
   'ipv6' => 'يجب أن يكون الحقل :attribute عنوان IPv6 ذا بنية صحيحة.',
   'json' => 'يجب أن يكون الحقل :attribute نصا من نوع JSON.',
   'lowercase' => 'الحقل :attribute يجب ان يتكون من حروف صغيرة',
-  'lt' =>
+  'lt' => 
   array (
     'array' => 'الـ :attribute يجب ان يحتوي علي اقل من :value عناصر/عنصر.',
     'file' => 'الـ :attribute يجب ان يكون اقل من :value كيلو بايت.',
     'numeric' => 'الـ :attribute يجب ان يكون اقل من :value.',
     'string' => 'الـ :attribute يجب ان يكون اقل من :value حروفٍ/حرفًا.',
   ),
-  'lte' =>
+  'lte' => 
   array (
     'array' => 'الـ :attribute يجب ان يحتوي علي اكثر من :value عناصر/عنصر.',
     'file' => 'الـ :attribute يجب ان يكون اقل من او يساوي :value كيلو بايت.',
@@ -76,7 +76,7 @@
     'string' => 'الـ :attribute يجب ان يكون اقل من او يساوي :value حروفٍ/حرفًا.',
   ),
   'mac_address' => 'يجب أن يكون الحقل :attribute عنوان MAC ذا بنية صحيحة.',
-  'max' =>
+  'max' => 
   array (
     'array' => 'يجب أن لا يحتوي الحقل :attribute على أكثر من :max عناصر/عنصر.',
     'file' => 'يجب أن لا يتجاوز حجم الملف :attribute :max كيلوبايت',
@@ -86,7 +86,7 @@
   'max_digits' => 'الحقل :attribute يجب ألا يحتوي أكثر من :max أرقام.',
   'mimes' => 'يجب أن يكون الحقل ملفًا من نوع : :values.',
   'mimetypes' => 'يجب أن يكون الحقل ملفًا من نوع : :values.',
-  'min' =>
+  'min' => 
   array (
     'array' => 'يجب أن يحتوي الحقل :attribute على الأقل على :min عُنصرًا/عناصر',
     'file' => 'يجب أن يكون حجم الملف :attribute على الأقل :min كيلوبايت',
@@ -98,7 +98,7 @@
   'not_in' => 'الحقل :attribute لاغٍ',
   'not_regex' => 'الحقل :attribute نوعه لاغٍ',
   'numeric' => 'يجب على الحقل :attribute أن يكون رقمًا',
-  'password' =>
+  'password' => 
   array (
     'letters' => 'يجب ان يشمل حقل :attribute على حرف واحد على الاقل.',
     'mixed' => 'يجب ان يشمل حقل :attribute على حرف واحد بصيغة كبيرة على الاقل وحرف اخر بصيغة صغيرة.',
@@ -122,7 +122,7 @@
   'required_without' => 'الحقل :attribute إذا لم يتوفّر :values.',
   'required_without_all' => 'الحقل :attribute إذا لم يتوفّر :values.',
   'same' => 'يجب أن يتطابق الحقل :attribute مع :other',
-  'size' =>
+  'size' => 
   array (
     'array' => 'يجب أن يحتوي الحقل :attribute على :size عنصرٍ/عناصر بالظبط',
     'file' => 'يجب أن يكون حجم الملف :attribute :size كيلوبايت',
@@ -138,7 +138,7 @@
   'url' => 'صيغة الرابط :attribute غير صحيحة',
   'uuid' => 'الحقل :attribute يجب ان ايكون رقم UUID صحيح.',
   'custom' => 'custom',
-  'attributes' =>
+  'attributes' => 
   array (
     'name' => 'الاسم',
     'username' => 'اسم المُستخدم',

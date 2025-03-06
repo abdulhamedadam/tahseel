@@ -16,25 +16,26 @@ class RolesSeeder extends Seeder
         $roles = [
             [
                 'guard_name' => 'admin',
-                'title' => ['ar' => 'مدير عام', 'en' => 'Super-Admin'],
+                'title' => json_encode(['ar' => 'مدير عام', 'en' => 'Super-Admin'], JSON_UNESCAPED_UNICODE),
                 'name' => 'super_admin',
             ],
             [
                 'guard_name' => 'admin',
-                'title' => ['ar' => 'مدير', 'en' => 'Admin'],
+                'title' => json_encode(['ar' => 'مدير', 'en' => 'Admin'], JSON_UNESCAPED_UNICODE),
                 'name' => 'admin',
             ],
             [
                 'guard_name' => 'admin',
-                'title' => ['ar' => 'محصل', 'en' => 'Collector'],
+                'title' => json_encode(['ar' => 'محصل', 'en' => 'Collector'], JSON_UNESCAPED_UNICODE),
                 'name' => 'collector',
             ],
             [
                 'guard_name' => 'admin',
-                'title' => ['ar' => 'محاسب', 'en' => 'Accountant'],
+                'title' => json_encode(['ar' => 'محاسب', 'en' => 'Accountant'], JSON_UNESCAPED_UNICODE),
                 'name' => 'accountant',
             ],
         ];
+
 
         foreach ($roles as $role) {
             Role::firstOrCreate(

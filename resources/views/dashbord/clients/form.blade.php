@@ -150,7 +150,7 @@
                             <label for="price" class="form-label">{{ trans('clients.price') }}</label>
                             <div class="input-group flex-nowrap">
                                 <span class="input-group-text" id="basic-addon3">{!! form_icon('price') !!}</span>
-                                <input type="text" class="form-control" id="price" name="price" readonly>
+                                <input type="text" class="form-control" id="price" name="price" >
                             </div>
                         </div>
                         <div class="col-md-3">

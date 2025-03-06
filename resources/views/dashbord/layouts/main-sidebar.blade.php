@@ -45,7 +45,7 @@
             <div class="menu menu-column menu-rounded menu-sub-indention fw-semibold px-3" id="#kt_app_sidebar_menu"
                  data-kt-menu="true" data-kt-menu-expand="false">
 
-                 @can('view_dashboard')
+{{--                 @can('view_dashboard')--}}
                     <div class="menu-item">
                         <a class="menu-link {{ request()->routeIs(['admin.dashboard']) ? 'active' : '' }}"
                         href="{{ route('admin.dashboard') }}">
@@ -55,7 +55,7 @@
                             <span class="menu-title">{{ trans('sidebar.dashboard') }}</span>
                         </a>
                     </div>
-                @endcan
+{{--                @endcan--}}
 
 
                 <div class="menu-item">
@@ -108,13 +108,24 @@
                 </div>
                 <div class="menu-item">
                     <a class="menu-link {{ request()->routeIs(['admin.invoices.index']) ? 'active' : '' }}"
-                        href="{{ route('admin.invoices.index') }}">
-                            <span class="svg-icon svg-icon-2" style="margin-left: 5px">
-                                <i class="bi bi-file-earmark-text text-primary fs-2x"></i>
-                            </span>
+                       href="{{ route('admin.invoices.index') }}">
+        <span class="svg-icon svg-icon-2" style="margin-left: 5px">
+            <i class="bi bi-receipt text-primary fs-2x"></i>
+        </span>
                         <span class="menu-title">{{ trans('sidebar.invoices') }}</span>
                     </a>
                 </div>
+
+                <div class="menu-item">
+                    <a class="menu-link {{ request()->routeIs(['admin.outstanding_invoice']) ? 'active' : '' }}"
+                       href="{{ route('admin.outstanding_invoice') }}">
+        <span class="svg-icon svg-icon-2" style="margin-left: 5px">
+            <i class="bi bi-receipt-cutoff text-primary fs-2x"></i>
+        </span>
+                        <span class="menu-title">{{ trans('sidebar.outstanding_invoice') }}</span>
+                    </a>
+                </div>
+
 
                 <div class="menu-item">
                     <a class="menu-link {{ request()->routeIs(['admin.revenues.index']) ? 'active' : '' }}"
