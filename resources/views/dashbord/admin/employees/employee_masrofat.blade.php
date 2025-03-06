@@ -23,7 +23,12 @@
                 <div class="card-body" style="padding-left: 0px !important;">
                     <div class="col-md-12 row">
                         <div class="col-md-8">
-                            @include('dashbord.admin.employees.employee_masrofat_data')
+                            @can('add_employee_masrofat')
+                                @include('dashbord.admin.employees.employee_masrofat_form')
+                            @endcan
+                            @can('view_employee_masrofat')
+                                @include('dashbord.admin.employees.employee_masrofat_data')
+                            @endcan
                         </div>
                         <div class="col-md-4">
                             @include('dashbord.admin.employees.load_employee_data')

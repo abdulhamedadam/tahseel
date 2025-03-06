@@ -40,7 +40,7 @@
                                 <th style="width: 5%">{{trans('employees.m')}}</th>
                                 <th style="text-align: center">{{trans('employees.image')}}</th>
                                 <th style="text-align: center"> {{trans('employees.name')}}</th>
-                                <th style="text-align: center"> {{trans('employees.email')}}</th>
+                                {{-- <th style="text-align: center"> {{trans('employees.email')}}</th> --}}
                                 <th style="text-align: center"> {{trans('employees.address')}}</th>
                                 <th style="text-align: center"> {{trans('employees.position')}}</th>
                                 <th style="text-align: center"> {{trans('employees.salary')}}</th>
@@ -82,7 +82,7 @@
                     { data: 'id', className: 'text-center' },
                     { data: 'profile_picture', className: 'text-center' },
                     { data: 'name', className: 'text-center' },
-                    { data: 'email', className: 'text-center' },
+                    // { data: 'email', className: 'text-center' },
                     { data: 'address', className: 'text-center' },
                     { data: 'position', className: 'text-center' },
                     { data: 'salary', className: 'text-center' },

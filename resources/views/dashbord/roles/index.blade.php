@@ -21,7 +21,9 @@
 
         <div class="d-flex align-items-center gap-2 gap-lg-3">
 
-            {{ AddButton(route('admin.roles.create')) }}
+            @can('create_role')
+                {{ AddButton(route('admin.roles.create')) }}
+            @endcan
 
         </div>
     </div>

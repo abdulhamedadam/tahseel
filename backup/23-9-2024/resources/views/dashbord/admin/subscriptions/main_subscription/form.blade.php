@@ -208,7 +208,7 @@
 
 
     <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js')}}"></script>
-    {!! JsValidator::formRequest('App\Http\Requests\Admin\subscription\main_subscription\SaveMainSubsacription_R', '#save_form'); !!}
+    {!! JsValidator::formRequest('App\Http\Requests\Admin\subscription\main_subscription\SaveMainSubsacription_R', '#save_form') !!}
     <script src="{{asset('assets/plugins/custom/ckeditor/ckeditor-classic.bundle.js')}}"></script>
 
     <script>

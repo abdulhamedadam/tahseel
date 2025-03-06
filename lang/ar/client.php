@@ -22,4 +22,8 @@
   'status' => 'الحالة',
   'employee' => 'الموظف',
   'remaining_amount' => 'القيمة المتبقية',
+  'user' => 'user',
+  'box_switch' => 'box_switch',
+  'client_type' => 'client_type',
+  'start_date' => 'start_date',
 );

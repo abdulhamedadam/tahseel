@@ -212,7 +212,7 @@
                 <td class="class_label" style="width: 25%"><?= trans('employees.employee_code') ?></td>
                 <td class="class_result"><?php echo $all_data->emp_code; ?></td>
             </tr>
-            <tr>
+            {{-- <tr>
                 <td class="class_label" style="width: 25%"><?= trans('employees.email') ?></td>
                 <td class="class_result"><?php echo $all_data->email; ?></td>
             </tr>
@@ -223,7 +223,7 @@
             <tr>
                 <td class="class_label"><?= trans('employees.gender') ?></td>
                 <td class="class_result"><?php echo trans('employees.' . $all_data->gender); ?></td>
-            </tr>
+            </tr> --}}
             <tr>
                 <td class="class_label"><?= trans('employees.position') ?></td>
                 <td class="class_result"><?php echo $all_data->position; ?></td>
@@ -232,12 +232,14 @@
                 <td class="class_label"><?= trans('employees.salary') ?></td>
                 <td class="class_result"><?php echo $all_data->salary; ?></td>
             </tr>
-            <tr>
-                <td class="class_label"><?= trans('employees.details') ?></td>
-                <td class="class_result"><a class="btn btn-primary" role="button" data-bs-toggle="modal"
-                        data-bs-target="#modaldetails" onclick="employee_details({{ $all_data->id }})"><i
-                            class="fa-solid fa-list"></i>{{ trans('employees.detail_employee') }}</a></td>
-            </tr>
+            @can('view_employee_details')
+                <tr>
+                    <td class="class_label"><?= trans('employees.details') ?></td>
+                    <td class="class_result"><a class="btn btn-primary" role="button" data-bs-toggle="modal"
+                            data-bs-target="#modaldetails" onclick="employee_details({{ $all_data->id }})"><i
+                                class="fa-solid fa-list"></i>{{ trans('employees.detail_employee') }}</a></td>
+                </tr>
+            @endcan
 
         </tbody>
     </table>

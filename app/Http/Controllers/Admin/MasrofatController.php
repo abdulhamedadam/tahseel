@@ -24,14 +24,17 @@ class MasrofatController extends Controller
     protected $employeesRepository;
     protected $masrofatRepository;
 
-    public function __construct(BasicRepositoryInterface $basicRepository,MasrofatService $masrofatService)
+    public function __construct(BasicRepositoryInterface $basicRepository, MasrofatService $masrofatService)
     {
+        $this->middleware('can:list_masrofat')->only('index');
+        $this->middleware('can:create_masrofat')->only('create', 'store');
+        $this->middleware('can:update_masrofat')->only('edit', 'update');
+        $this->middleware('can:delete_masrofat')->only('destroy');
+
         $this->bandsRepository = createRepository($basicRepository, new SarfBand());
         $this->employeesRepository   = createRepository($basicRepository, new Employee());
         $this->masrofatRepository   = createRepository($basicRepository, new Masrofat());
         $this->masrofatService   = $masrofatService;
-
-
     }
 
     public function index(Request $request)
@@ -40,7 +43,7 @@ class MasrofatController extends Controller
             $allData = Masrofat::with(['employee', 'sarf_band', 'user'])->get();
             return DataTables::of($allData)
                 ->editColumn('emp_id', function ($row) {
-                    return $row->employee ? $row->employee->first_name .' '. $row->employee->last_name : 'N/A';
+                    return $row->employee ? $row->employee->first_name . ' ' . $row->employee->last_name : 'N/A';
                 })
                 ->editColumn('band_id', function ($row) {
                     return $row->sarf_band ? $row->sarf_band->title : 'N/A';
@@ -55,16 +58,24 @@ class MasrofatController extends Controller
                     return $row->user ? $row->user->name : 'N/A';
                 })
                 ->addColumn('action', function ($row) {
-                    return '
-                        <div class="btn-group btn-group-sm">
-                            <a href="' . route('admin.masrofat.edit', $row->id) . '" class="btn btn-sm btn-primary" title="' . trans('masrofat.edit') . '" style="font-size: 16px;">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-                            <a onclick="return confirm(\'Are You Sure To Delete?\')"  href="' . route('admin.delete_masrofat', $row->id) . '"  class="btn btn-sm btn-danger" title="' . trans('masrofat.delete') . '" style="font-size: 16px;" onclick="return confirm(\'' . trans('masrofat.confirm_delete') . '\')">
-                                <i class="bi bi-trash3"></i>
-                            </a>
-                        </div>
-                    ';
+                    $actionButtons = '<div class="btn-group btn-group-sm">';
+
+                    if (auth()->user()->can('update_masrofat')) {
+                        $actionButtons .=  '<a href="' . route('admin.masrofat.edit', $row->id) . '" class="btn btn-sm btn-primary" title="' . trans('masrofat.edit') . '" style="font-size: 16px;">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>';
+                    }
+
+                    if (auth()->user()->can('delete_masrofat')) {
+                        $actionButtons .= '<a onclick="return confirm(\'Are You Sure To Delete?\')"  href="' . route('admin.delete_masrofat', $row->id) . '"  class="btn btn-sm btn-danger" title="' . trans('masrofat.delete') . '" style="font-size: 16px;" onclick="return confirm(\'' . trans('masrofat.confirm_delete') . '\')">
+                                        <i class="bi bi-trash3"></i>
+                                    </a>';
+                    }
+
+
+                    $actionButtons .= '</div>';
+
+                    return $actionButtons;
                 })
                 ->rawColumns(['action'])
                 ->make(true);
@@ -113,7 +124,7 @@ class MasrofatController extends Controller
     public function update(SaveRequest $request, string $id)
     {
         try {
-            $this->masrofatService->update($request,$id);
+            $this->masrofatService->update($request, $id);
             toastr()->addSuccess(trans('forms.success'));
             return redirect()->route('admin.masrofat.index');
         } catch (\Exception $e) {
@@ -135,5 +146,4 @@ class MasrofatController extends Controller
         }
     }
     /********************************************/
-
 }

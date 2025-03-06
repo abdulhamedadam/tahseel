@@ -57,4 +57,8 @@
   'subscriptions' => 'الاشتراكات',
   'price' => 'السعر',
   'add_subscription' => 'اضافة اشتراك',
+  'unnpaid_invoice_notifications' => 'unnpaid_invoice_notifications',
+  'unpaid_invoice' => 'الفواتير المستحقة',
+  'subscription_cannot_be_deleted_has_clients' => 'لا يمكن حذف هذا الاشتراك لارتباطه بعملاء',
+  'sarf_band_cannot_be_deleted_has_masrofat' => 'لا يمكن حذف صرف البند لارتباطه بمصروفات',
 );

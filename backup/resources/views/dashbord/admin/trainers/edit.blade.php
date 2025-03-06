@@ -138,7 +138,7 @@
 
 
     <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js')}}"></script>
-    {!! JsValidator::formRequest('App\Http\Requests\Admin\trainers\SaveTrainerRequest', '#save_form'); !!}
+    {!! JsValidator::formRequest('App\Http\Requests\Admin\trainers\SaveTrainerRequest', '#save_form') !!}
     <script src="{{asset('assets/plugins/custom/ckeditor/ckeditor-classic.bundle.js')}}"></script>
 
     <script>

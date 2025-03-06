@@ -83,7 +83,7 @@
                                       name="account_id"  id="account_id">
                                     <option>- {{trans('forms.select')}} -</option>
                                     @foreach($account_id as $row)
-                                    <option value="{{ $row->id }}" 
+                                    <option value="{{ $row->id }}"
                                         {{ old('account_id', $one_data->account_id ?? '') == $row->id ? 'selected' : '' }}>
                                         {{ $row->name }}
                                     </option>
@@ -107,7 +107,7 @@
                                       ?>
                                      <option></option>
                                       @foreach($select_array as $key=> $value)
-                                      <option value="{{ $key }}" 
+                                      <option value="{{ $key }}"
                                       {{ old('type', $one_data->type) == $key ? 'selected' : '' }}>
                                       {{ $value }}
                                      </option>
@@ -160,7 +160,7 @@
                 ?>
                 <option></option>
                 @foreach($select_array as $key=> $value)
-                <option value="{{ $key }}" 
+                <option value="{{ $key }}"
                 {{ old('status', $one_data->status) == $key ? 'selected' : '' }}>
                 {{ $value }}
               </option>
@@ -216,7 +216,7 @@
 
 
     <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js')}}"></script>
-  {{--  {!! JsValidator::formRequest('App\Http\Requests\Subscriptions\tax_setting\StoreRequest', '##StorForm'); !!}
+  {{--  {!! JsValidator::formRequest('App\Http\Requests\Subscriptions\tax_setting\StoreRequest', '##StorForm') !!}
 --}}
     <script src="{{asset('assets/plugins/custom/ckeditor/ckeditor-classic.bundle.js')}}"></script>
 

@@ -1,5 +1,5 @@
 <?php return array (
- 'roles' => 'الأدوار',
+  'roles' => 'الأدوار',
   'roles_table' => 'جدول الأدوار',
   'ID' => 'المعرف',
   'title' => 'العنوان',
@@ -20,4 +20,8 @@
   'role_title_en' => 'عنوان الدور بالإنجليزية',
   'role_title_ar' => 'عنوان الدور بالعربية',
   'edit_role' => 'تعديل الدور',
+  'Subscriptions' => 'الاشتراكات',
+  'Invoices' => 'الفواتير',
+  'Reports' => 'التقارير',
+  'Notifications' => 'الاشعارات',
 );

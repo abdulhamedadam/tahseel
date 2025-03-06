@@ -73,21 +73,21 @@
                                     @endforeach
                                 </select>
                             </div>
-                            
+
                             <div class="col-md-6">
                                 <label class="required form-label">{{ trans('schedule.classes') }}</label>
                                 <select class="form-select" data-control="select2" data-placeholder="Select an option"
                                         name="class_id" id="class_id">
                                     <option value="">{{ trans('schedule.select') }}</option>
-                              
+
                                     @foreach($exercise as $key)
                                         <option
                                             value="{{ $key->id }}" {{ old('class_id') == $key->id ? 'selected' : '' }}>{{ $key->exercise_type }}</option>
                                     @endforeach
-                                  
+
                                 </select>
                             </div>
-                        
+
                         </div>
               <!----------------------------------------------------------------->
 
@@ -104,7 +104,7 @@
                                     class="fv-plugins-message-container invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-                            
+
                             <div class="col">
                                 <label
                                     class="required fs-6 fw-semibold mb-2">{{trans('schedule.time')}}</label>
@@ -118,7 +118,7 @@
                                     class="fv-plugins-message-container invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-                          
+
                         </div>
              <!----------------------------------------------------------------->
 
@@ -160,7 +160,7 @@
 
 
     <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js')}}"></script>
-    {!! JsValidator::formRequest('App\Http\Requests\Admin\schedule\scheduleRequest', '#save_form'); !!}
+    {!! JsValidator::formRequest('App\Http\Requests\Admin\schedule\scheduleRequest', '#save_form') !!}
     <script src="{{asset('assets/plugins/custom/ckeditor/ckeditor-classic.bundle.js')}}"></script>
 
     <script>
@@ -186,7 +186,7 @@
                 new Tagify(input2);
 
             };
-         
+
             const initckeditor = () => {
 
                 const elements_en = [

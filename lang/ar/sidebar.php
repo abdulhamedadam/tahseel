@@ -100,5 +100,12 @@
   'users' => 'المستخدمين',
   'invoices' => 'الفواتير',
   'revenues' => 'الايرادات',
-  'outstanding_invoice' => 'الفواتير المستحقة',
+  'notifications' => 'الاشعارات',
+  'all_invoices' => 'كل الفواتير',
+  'due_monthly_invoices' => 'الفواتير الشهرية المستحقة',
+  'new_paid_invoices' => 'الفواتير المستحدثة',
+  'reports' => 'التقارير',
+  'account_settings' => 'اعدادات الحساب',
+  'financial_transactions' => 'الحركات المالية',
+  'account_transfers' => 'التحويلات',
 );

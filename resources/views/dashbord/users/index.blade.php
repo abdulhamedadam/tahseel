@@ -21,7 +21,9 @@
 
         <div class="d-flex align-items-center gap-2 gap-lg-3">
 
-            {{ AddButton(route('admin.users.create')) }}
+            @can('create_user')
+                {{ AddButton(route('admin.users.create')) }}
+            @endcan
 
         </div>
     </div>
@@ -41,6 +43,7 @@
                     'users.position',
                     'users.created_by',
                     'users.status',
+                    'users.collected_amount',
                     'users.actions',
                 ];
 
@@ -68,8 +71,7 @@
                     url: "{{ route('admin.users.index') }}",
                     type: 'GET'
                 },
-                "columns": [
-                    {
+                "columns": [{
                         data: 'id',
                         className: 'text-center no-export'
                     },
@@ -95,6 +97,10 @@
                     },
                     {
                         data: 'status',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'collected_amount',
                         className: 'text-center'
                     },
                     {

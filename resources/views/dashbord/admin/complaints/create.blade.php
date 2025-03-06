@@ -61,12 +61,12 @@
 
                         @endif
                         <div class="row">
-                           
+
                             <div class="col-md-6">
                                 <label class="required form-label">{{trans('complaints.name')}}
                                     (<span
                                     class="text-muted">{{trans('forms.lable_en')}}</span>)</label>
-                               
+
                                 <input type="text" name="name_en" id="name_en" class="form-control mb-2"
                                        placeholder="{{trans('complaints.name')}}" value="" required
                                        autocomplete/>
@@ -95,7 +95,7 @@
                                     class="fv-plugins-message-container invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-                           
+
                             <div class="col-md-6">
                                 <label class="required form-label">{{ trans('complaints.type') }}</label>
                                 <select class="form-select" data-control="select2" data-placeholder="Select an option"
@@ -123,7 +123,7 @@
                                     $select_array = array('memeber',
                                         'trainer',
                                         'employee')
-                                    
+
                                     ?>
                                     @foreach($select_array as $value)
                                         <option value="{{ $value }}">{{ $value }}</option>
@@ -149,7 +149,7 @@
 
 
                         </div>
-                        
+
                             <div class="d-flex justify-content-end" style="margin-top: 20px">
                                 <button type="submit" id="" class="btn btn-primary">
                                     <span class="indicator-label">{{trans('forms.save_btn')}}</span>
@@ -188,13 +188,13 @@
 
 
 <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js')}}"></script>
-   {!! JsValidator::formRequest('App\Http\Requests\Admin\ComplaintsRequest', '#save_form'); !!}
- 
+   {!! JsValidator::formRequest('App\Http\Requests\Admin\ComplaintsRequest', '#save_form') !!}
+
  <script src="{{asset('assets/plugins/custom/ckeditor/ckeditor-classic.bundle.js')}}"></script>
 
     <script>
         var KTAppBlogSave = function () {
-            
+
 
             const initDaterangepicker = () => {
 
@@ -206,10 +206,10 @@ maxYear: parseInt(moment().format("YYYY"), 12)
 }
 );
 }
-                 
+
             return {
                 init: function () {
-                 
+
                     initDaterangepicker();
                 }
             };

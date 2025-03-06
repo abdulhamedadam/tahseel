@@ -6,26 +6,26 @@
         <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
             <!--begin::Title-->
             <h1 class="page-heading d-flex text-dark fw-bold fs-3 flex-column justify-content-center my-0">
-                {{trans('about.create')}}</h1>
+                {{ trans('about.create') }}</h1>
             <!--end::Title-->
             <!--begin::Breadcrumb-->
             <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
 
                 <li class="breadcrumb-item text-muted">
                     <a href="{{ route('admin.dashboard') }}" class="text-muted text-hover-primary">
-                        {{trans('Toolbar.home')}}</a>
+                        {{ trans('Toolbar.home') }}</a>
                 </li>
                 <li class="breadcrumb-item">
                     <span class="bullet bg-gray-400 w-5px h-2px"></span>
                 </li>
                 <li class="breadcrumb-item text-muted">
-                    {{trans('Toolbar.hr')}}
+                    {{ trans('Toolbar.hr') }}
                 </li>
                 <li class="breadcrumb-item">
                     <span class="bullet bg-gray-400 w-5px h-2px"></span>
                 </li>
                 <li class="breadcrumb-item text-muted">
-                    {{trans('Toolbar.setting')}}
+                    {{ trans('Toolbar.setting') }}
                 </li>
 
 
@@ -37,18 +37,16 @@
             <!--begin::Filter menu-->
             <div class="d-flex">
                 <button type="button" data-bs-toggle="modal" data-bs-target="#exampleModal"
-                        class="btn btn-icon btn-sm btn-success flex-shrink-0 ms-4">
+                    class="btn btn-icon btn-sm btn-success flex-shrink-0 ms-4">
                     <!--begin::Svg Icon | path: icons/duotune/arrows/arr075.svg-->
                     <span class="svg-icon svg-icon-2">
-													<svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                                         xmlns="http://www.w3.org/2000/svg">
-														<rect opacity="0.5" x="11.364" y="20.364" width="16" height="2"
-                                                              rx="1" transform="rotate(-90 11.364 20.364)"
-                                                              fill="currentColor"/>
-														<rect x="4.36396" y="11.364" width="16" height="2" rx="1"
-                                                              fill="currentColor"/>
-													</svg>
-												</span>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <rect opacity="0.5" x="11.364" y="20.364" width="16" height="2" rx="1"
+                                transform="rotate(-90 11.364 20.364)" fill="currentColor" />
+                            <rect x="4.36396" y="11.364" width="16" height="2" rx="1" fill="currentColor" />
+                        </svg>
+                    </span>
                     <!--end::Svg Icon-->
                 </button>
             </div>
@@ -64,17 +62,16 @@
 @endsection
 @section('content')
     <!-- Modal 1-->
-    <div class="modal fade" id="exampleModal" tabindex="-1"
-     aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <form action="{{route('admin.hr.typesetting.store')}}" method="POST" id="kt_ecommerce_add_product_form"
-                  class="form d-flex flex-column flex-lg-row my-form" enctype="multipart/form-data">
-                {{csrf_field()}}
+            <form action="{{ route('admin.hr.typesetting.store') }}" method="POST" id="kt_ecommerce_add_product_form"
+                class="form d-flex flex-column flex-lg-row my-form" enctype="multipart/form-data">
+                {{ csrf_field() }}
                 <input type="hidden" name="id" value="0">
 
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">{{trans('Hr_setting.Add')}}</h5>
+                        <h5 class="modal-title" id="exampleModalLabel">{{ trans('Hr_setting.Add') }}</h5>
                     </div>
                     <!--begin::Formmmmm-->
 
@@ -83,37 +80,37 @@
 
 
                             <div class="row">
-                                <label class="required form-label">{{trans('Hr_setting.Name')}}(<span
-                                        class="text-gray-600">{{trans('forms.lable_en')}}</span>)</label>
+                                <label class="required form-label">{{ trans('Hr_setting.Name') }}(<span
+                                        class="text-gray-600">{{ trans('forms.lable_en') }}</span>)</label>
 
-                                <input type="text" name="name_en" class="form-control mb-2"
-                                       placeholder="name" value="" required autocomplete/>
+                                <input type="text" name="name_en" class="form-control mb-2" placeholder="name"
+                                    value="" required autocomplete />
                             </div>
                             <div class="row">
-                                <label class="required form-label">{{trans('Hr_setting.Name')}}(<span
-                                        class="text-gray-600">{{trans('forms.lable_ar')}}</span>)</label>
+                                <label class="required form-label">{{ trans('Hr_setting.Name') }}(<span
+                                        class="text-gray-600">{{ trans('forms.lable_ar') }}</span>)</label>
 
-                                <input type="text" name="name_ar" class="form-control mb-2"
-                                       placeholder="الاسم " value="" required autocomplete/>
+                                <input type="text" name="name_ar" class="form-control mb-2" placeholder="الاسم "
+                                    value="" required autocomplete />
                             </div>
                             <div class="row">
-                                <label class="required form-label">{{trans('Hr_setting.Code')}}(<span
-                                        class="text-gray-600">{{trans('forms.lable_en')}}</span>)</label>
+                                <label class="required form-label">{{ trans('Hr_setting.Code') }}(<span
+                                        class="text-gray-600">{{ trans('forms.lable_en') }}</span>)</label>
 
-                                <input type="text" name="code" class="form-control mb-2"
-                                       value="" required autocomplete/>
+                                <input type="text" name="code" class="form-control mb-2" value="" required
+                                    autocomplete />
                             </div>
                             <!--end::Main column-->
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary">
-                            <span class="indicator-label">{{trans('settings.Save Changes')}}</span>
+                            <span class="indicator-label">{{ trans('settings.Save Changes') }}</span>
                             <span class="indicator-progress">Please wait...
-            <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
+                                <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
                         </button>
                         <button type="button" class="btn btn-secondary"
-                                data-bs-dismiss="modal">{{trans('settings.Close')}}</button>
+                            data-bs-dismiss="modal">{{ trans('settings.Close') }}</button>
 
                     </div>
 
@@ -149,117 +146,109 @@
 
             <div class="card-body pt-0">
                 <!--begin::Table-->
-                <table id="kt_datatable_zero_configuration"
-                       class="table align-middle table-row-dashed fs-6 gy-3">
+                <table id="kt_datatable_zero_configuration" class="table align-middle table-row-dashed fs-6 gy-3">
                     <!--begin::Table head-->
                     <thead>
 
-                    <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
-                        <th class="min-w-250px">#</th>
+                        <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
+                            <th class="min-w-250px">#</th>
 
-                        <th class="min-w-250px">{{trans('Hr_setting.Name')}}</th>
-                        <th class="min-w-250px">{{trans('Hr_setting.Code')}}</th>
-                        <th class="text-end min-w-70px">{{trans('Hr_setting.Action')}}</th>
-                    </tr>
-                    <!--end::Table row-->
+                            <th class="min-w-250px">{{ trans('Hr_setting.Name') }}</th>
+                            <th class="min-w-250px">{{ trans('Hr_setting.Code') }}</th>
+                            <th class="text-end min-w-70px">{{ trans('Hr_setting.Action') }}</th>
+                        </tr>
+                        <!--end::Table row-->
                     </thead>
                     <!--end::Table head-->
                     <!--begin::Table body-->
                     <tbody class="fw-semibold text-gray-600">
-                    <!--begin::Table row-->
-                    @php
-                        $i=1;
-                    @endphp
-                    @foreach  ($obj as $x)
-                        <tr>
-                            <td>{{$i++}}</td>
+                        <!--begin::Table row-->
+                        @php
+                            $i = 1;
+                        @endphp
+                        @foreach ($obj as $x)
+                            <tr>
+                                <td>{{ $i++ }}</td>
 
-                            <td>{{$x->title}}</td>
+                                <td>{{ $x->title }}</td>
 
-                            <td>{{$x->code}}</td>
+                                <td>{{ $x->code }}</td>
 
-                            <!--begin::Action=-->
+                                <!--begin::Action=-->
 
-                            <td class="text-end">
+                                <td class="text-end">
 
-                                <div class="btn-group" role="group" aria-label="Basic example">
-                                    <a href="{{route('admin.hr.typesetting.edit', $x->id)}}"
+                                    <div class="btn-group" role="group" aria-label="Basic example">
+                                        <a href="{{ route('admin.hr.typesetting.edit', $x->id) }}" data-bs-toggle="modal"
+                                            data-bs-target="#exampleModal{{ $x->id }}"
+                                            class="btn btn-sm btn-light-warning  btn-icon-warning btn-text-warning"><i
+                                                class="fas fa-pencil"></i></a>
+                                        </a>
 
-                                       data-bs-toggle="modal" data-bs-target="#exampleModal{{$x->id}}"
-                                       class="btn btn-sm btn-light-warning  btn-icon-warning btn-text-warning"><i
-                                            class="fas fa-pencil"></i></a>
-                                    </a>
+                                        <a href="{{ route('admin.hr.typesetting.delete', $x->id) }}"
+                                            class="btn btn-sm btn-light-danger   btn-text-danger btn-icon-danger"><i
+                                                class="fas fa-trash"></i></a>
 
-                                    <a href="{{route('admin.hr.typesetting.delete', $x->id)}}"
-                                       class="btn btn-sm btn-light-danger   btn-text-danger btn-icon-danger"><i
-                                            class="fas fa-trash"></i></a>
-
-                                </div>
-                            </td>
-                            <!--end::Action=-->
-                        </tr>
-
-                    @endforeach
+                                    </div>
+                                </td>
+                                <!--end::Action=-->
+                            </tr>
+                        @endforeach
 
                     </tbody>
 
                 </table>
                 <!--end::Table-->
 
-            @foreach  ($obj as $x)
-                <!-- Modal 1-->
-                    <div class="modal fade" id="exampleModal{{$x->id}}" tabindex="-1"
-                         aria-labelledby="exampleModalLabel" aria-hidden="true">
+                @foreach ($obj as $x)
+                    <!-- Modal 1-->
+                    <div class="modal fade" id="exampleModal{{ $x->id }}" tabindex="-1"
+                        aria-labelledby="exampleModalLabel" aria-hidden="true">
                         <div class="modal-dialog">
                             <!--begin::Formmmmm-->
-                            <form action="{{route('admin.hr.typesetting.update',$x->id)}}" method="POST"
-                                  id="kt_ecommerce_add_product_form "
-                                  class="form d-flex flex-column flex-lg-row my-form"
-                                  enctype="multipart/form-data">
+                            <form action="{{ route('admin.hr.typesetting.update', $x->id) }}" method="POST"
+                                id="kt_ecommerce_add_product_form " class="form d-flex flex-column flex-lg-row my-form"
+                                enctype="multipart/form-data">
                                 @method('PUT')
-                                {{csrf_field()}}
+                                {{ csrf_field() }}
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="exampleModalLabel">
-                                            {{trans('Hr_setting.Update')}}</h5>
+                                            {{ trans('Hr_setting.Update') }}</h5>
                                     </div>
 
 
                                     <div class="modal-body">
                                         <div class="container-fluid">
 
-                                            <input type="hidden" name="id" value="{{$x->id}}">
+                                            <input type="hidden" name="id" value="{{ $x->id }}">
                                             @php
-                                                $name=$x->getTranslations('title'); //return local lang
+                                                $name = $x->getTranslations('title'); //return local lang
                                             @endphp
                                             <div class="row">
-                                                <label
-                                                    class="required form-label">{{trans('Hr_setting.Name')}}
-                                                    (<span
-                                                        class="text-gray-600">{{trans('forms.lable_en')}}</span>)</label>
+                                                <label class="required form-label">{{ trans('Hr_setting.Name') }}
+                                                    (<span class="text-gray-600">{{ trans('forms.lable_en') }}</span>)
+                                                </label>
 
                                                 <input type="text" name="name_en" class="form-control mb-2"
-                                                       placeholder="Name" value="{{$name['en']}}"
-                                                       required autocomplete/>
+                                                    placeholder="Name" value="{{ $name['en'] }}" required
+                                                    autocomplete />
                                             </div>
                                             <div class="row">
-                                                <label
-                                                    class="required form-label">{{trans('Hr_setting.Name')}}
+                                                <label class="required form-label">{{ trans('Hr_setting.Name') }}
                                                     (<span
-                                                        class="text-gray-600">{{trans('forms.lable_ar')}}</span>)</label>
+                                                        class="text-gray-600">{{ trans('forms.lable_ar') }}</span>)</label>
 
                                                 <input type="text" name="name_ar" class="form-control mb-2"
-                                                       placeholder="الاسم" value="{{$name['ar']}}"
-                                                       required autocomplete/>
+                                                    placeholder="الاسم" value="{{ $name['ar'] }}" required
+                                                    autocomplete />
                                             </div>
                                             <div class="row">
-                                                <label
-                                                    class="required form-label">{{trans('Hr_setting.Code')}}
+                                                <label class="required form-label">{{ trans('Hr_setting.Code') }}
                                                 </label>
 
                                                 <input type="text" name="code" class="form-control mb-2"
-                                                       placeholder="" value="{{$x->code}}"
-                                                       required autocomplete/>
+                                                    placeholder="" value="{{ $x->code }}" required autocomplete />
                                             </div>
 
 
@@ -269,14 +258,13 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="submit" class="btn btn-primary">
-                                                    <span
-                                                        class="indicator-label">{{trans('settings.Save Changes')}}</span>
+                                                <span class="indicator-label">{{ trans('settings.Save Changes') }}</span>
                                                 <span class="indicator-progress">Please wait...
-                                    <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
+                                                    <span
+                                                        class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
                                             </button>
-                                            <button type="button" class="btn btn-secondary"
-                                                    data-bs-dismiss="modal">
-                                                {{trans('settings.Close')}}</button>
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                {{ trans('settings.Close') }}</button>
 
                                         </div>
 
@@ -298,15 +286,14 @@
 @section('js')
     <script>
         /*
-                $("#kt_datatable_zero_configuration").DataTable();
-        */
+                        $("#kt_datatable_zero_configuration").DataTable();
+                */
 
         $("#kt_datatable_zero_configuration").DataTable({
             "language": {
                 "lengthMenu": "Show _MENU_",
             },
-            "dom":
-                "<'row'" +
+            "dom": "<'row'" +
                 "<'col-sm-6 d-flex align-items-center justify-conten-start'l>" +
                 "<'col-sm-6 d-flex align-items-center justify-content-end'f>" +
                 ">" +
@@ -318,12 +305,12 @@
                 "<'col-sm-12 col-md-7 d-flex align-items-center justify-content-center justify-content-md-end'p>" +
                 ">"
         });
-
     </script>
-    <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js')}}"></script>
-    {!! JsValidator::formRequest('App\Http\Requests\hr\setting\type_settingRequest', '.my-form'); !!}
+    <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js') }}"></script>
+    {!! JsValidator::formRequest('App\Http\Requests\hr\setting\type_settingRequest', '.my-form') !!}
 
     {{--
         <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js')}}"></script>
-        {!! JsValidator::formRequest('App\Http\Requests\EditeCarBrandRequest', '.my-form'); !!} --}}
+        {!! JsValidator::formRequest('App\Http\Requests\EditeCarBrandRequest', '.my-form') !!} --}}
 @endsection
+!!}

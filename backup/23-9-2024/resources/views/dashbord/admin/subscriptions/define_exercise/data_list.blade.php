@@ -74,5 +74,5 @@
 
 
     <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js')}}"></script>
-    {!! JsValidator::formRequest('App\Http\Requests\Admin\subscription\settings\Save_R', '#sub_setting_form'); !!}
+    {!! JsValidator::formRequest('App\Http\Requests\Admin\subscription\settings\Save_R', '#sub_setting_form') !!}
 @endsection

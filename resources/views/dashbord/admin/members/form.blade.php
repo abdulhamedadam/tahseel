@@ -8,33 +8,32 @@
 
     <div id="kt_app_toolbar_container" class="app-container container-xxl d-flex flex-stack">
         <div class="page-title d-flex flex-column justify-content-center flex-wrap me-3">
-            <h1 class="page-heading d-flex text-dark fw-bold fs-3 flex-column justify-content-center my-0">{{trans('members.members')}}</h1>
+            <h1 class="page-heading d-flex text-dark fw-bold fs-3 flex-column justify-content-center my-0">
+                {{ trans('members.members') }}</h1>
             <ul class="breadcrumb breadcrumb-separatorless fw-semibold fs-7 my-0 pt-1">
                 <li class="breadcrumb-item text-muted"><a href="{{ route('admin.dashboard') }}"
-                                                          class="text-muted text-hover-primary">{{trans('Toolbar.home')}}</a>
+                        class="text-muted text-hover-primary">{{ trans('Toolbar.home') }}</a>
                 </li>
                 <li class="breadcrumb-item"><span class="bullet bg-gray-400 w-5px h-2px"></span></li>
-                <li class="breadcrumb-item text-muted">{{trans('Toolbar.members')}}</li>
+                <li class="breadcrumb-item text-muted">{{ trans('Toolbar.members') }}</li>
                 <li class="breadcrumb-item"><span class="bullet bg-gray-400 w-5px h-2px"></span></li>
-                <li class="breadcrumb-item text-muted">{{trans('members.members')}}</li>
+                <li class="breadcrumb-item text-muted">{{ trans('members.members') }}</li>
                 <li class="breadcrumb-item"><span class="bullet bg-gray-400 w-5px h-2px"></span></li>
-                <li class="breadcrumb-item text-muted">{{trans('members.members_table')}}</li>
+                <li class="breadcrumb-item text-muted">{{ trans('members.members_table') }}</li>
             </ul>
         </div>
 
 
         <div class="d-flex align-items-center gap-2 gap-lg-3">
             <div class="d-flex">
-                <a href="{{route('admin.Members.index')}}"
-                   class="btn btn-icon btn-sm btn-success flex-shrink-0 ms-4">
+                <a href="{{ route('admin.Members.index') }}" class="btn btn-icon btn-sm btn-success flex-shrink-0 ms-4">
                     <!--begin::Svg Icon | path: icons/duotune/arrows/arr075.svg-->
                     <span class="svg-icon svg-icon-2">
-                                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                       <path
-                                           d="M17.6 4L9.6 12L17.6 20H13.6L6.3 12.7C5.9 12.3 5.9 11.7 6.3 11.3L13.6 4H17.6Z"
-                                           fill="currentColor"/>
-                                   </svg>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17.6 4L9.6 12L17.6 20H13.6L6.3 12.7C5.9 12.3 5.9 11.7 6.3 11.3L13.6 4H17.6Z"
+                                fill="currentColor" />
+                        </svg>
                     </span>
 
                 </a>
@@ -57,65 +56,60 @@
                 </ul>
             </div>
         @endif
-        <form id="save_form" class="form d-flex flex-column flex-lg-row "
-              action="{{route('admin.Members.store')}}" method="post" enctype="multipart/form-data">
+        <form id="save_form" class="form d-flex flex-column flex-lg-row " action="{{ route('admin.Members.store') }}"
+            method="post" enctype="multipart/form-data">
             @csrf
 
             <div class="d-flex flex-column gap-7 gap-lg-10 w-100 w-lg-300px mb-7 me-lg-10">
                 <div class="card card-flush py-4">
                     <div class="card-header">
                         <div class="card-title">
-                            <h2>{{trans('members.member_image')}}</h2>
+                            <h2>{{ trans('members.member_image') }}</h2>
                         </div>
                     </div>
 
                     <div class="card-body text-center pt-0">
 
-                        <style>.image-input-placeholder {
-                                background-image: url('{{asset('assets/media/svg/files/blank-image.svg')}}');
+                        <style>
+                            .image-input-placeholder {
+                                background-image: url('{{ asset('assets/media/svg/files/blank-image.svg') }}');
                             }
 
                             [data-bs-theme="dark"] .image-input-placeholder {
-                                background-image: url('{{asset('assets/media/svg/files/blank-image-dark.svg')}}');
-                            }</style>
+                                background-image: url('{{ asset('assets/media/svg/files/blank-image-dark.svg') }}');
+                            }
+                        </style>
                         <!--end::Image input placeholder-->
                         <div class="mb-7">
                             <!--begin::Image input-->
-                            <div
-                                class="image-input image-input-empty image-input-outline image-input-placeholder mb-3"
+                            <div class="image-input image-input-empty image-input-outline image-input-placeholder mb-3"
                                 data-kt-image-input="true">
                                 <!--begin::Preview existing avatar-->
                                 <div class="image-input-wrapper w-150px h-150px"></div>
                                 <!--end::Preview existing avatar-->
                                 <!--begin::Label-->
-                                <label
-                                    class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow"
-                                    data-kt-image-input-action="change" data-bs-toggle="tooltip"
-                                    title="Change avatar">
+                                <label class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow"
+                                    data-kt-image-input-action="change" data-bs-toggle="tooltip" title="Change avatar">
                                     <!--begin::Icon-->
                                     <i class="bi bi-pencil-fill fs-7"></i>
                                     <!--end::Icon-->
                                     <!--begin::Inputs-->
-                                    <input type="file" name="member_image" accept=".png, .jpg, .jpeg"/>
-                                    <input type="hidden" name="member_image"/>
+                                    <input type="file" name="member_image" accept=".png, .jpg, .jpeg" />
+                                    <input type="hidden" name="member_image" />
                                     <!--end::Inputs-->
                                 </label>
                                 <!--end::Label-->
                                 <!--begin::Cancel-->
-                                <span
-                                    class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow"
-                                    data-kt-image-input-action="cancel" data-bs-toggle="tooltip"
-                                    title="Cancel avatar">
-															<i class="bi bi-x fs-2"></i>
-														</span>
+                                <span class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow"
+                                    data-kt-image-input-action="cancel" data-bs-toggle="tooltip" title="Cancel avatar">
+                                    <i class="bi bi-x fs-2"></i>
+                                </span>
                                 <!--end::Cancel-->
                                 <!--begin::Remove-->
-                                <span
-                                    class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow"
-                                    data-kt-image-input-action="remove" data-bs-toggle="tooltip"
-                                    title="Remove avatar">
-															<i class="bi bi-x fs-2"></i>
-														</span>
+                                <span class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow"
+                                    data-kt-image-input-action="remove" data-bs-toggle="tooltip" title="Remove avatar">
+                                    <i class="bi bi-x fs-2"></i>
+                                </span>
                                 <!--end::Remove-->
                             </div>
 
@@ -129,7 +123,7 @@
                         </div>
 
                         @error('member_image')
-                        <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
 
@@ -140,7 +134,7 @@
                     <!--begin::Card header-->
                     <div class="card-header">
                         <div class="card-title">
-                            <h2>{{trans('members.mainData')}}</h2>
+                            <h2>{{ trans('members.mainData') }}</h2>
                         </div>
                     </div>
                     <!--end::Card header-->
@@ -149,48 +143,46 @@
 
                         <div class="row">
                             <div class="col-md-4">
-                                <label class="required form-label">{{trans('members.member_name')}}</label>
+                                <label class="required form-label">{{ trans('members.member_name') }}</label>
                                 <!--end::Label-->
                                 <!--begin::Input-->
                                 <input type="text" name="member_name"
-                                       class="form-control mb-2  @error('member_name') is-invalid @enderror"
-                                       placeholder="{{trans('members.member_name')}}" value="{{old('member_name')}}"/>
+                                    class="form-control mb-2  @error('member_name') is-invalid @enderror"
+                                    placeholder="{{ trans('members.member_name') }}" value="{{ old('member_name') }}" />
                                 <!--end::Input-->
                                 @error('member_name')
-                                <div class="fv-plugins-message-container invalid-feedback">{{ $message }}</div>
+                                    <div class="fv-plugins-message-container invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
                             <div class="col-md-4">
-                                <label for="goal_id" class="form-label">{{trans('members.goals')}}</label>
+                                <label for="goal_id" class="form-label">{{ trans('members.goals') }}</label>
                                 <select name="goal_id[]" id="goal_id" class="form-select form-select-solid is-valid"
-                                        data-control="select2" data-placeholder="{{trans('members.select')}}"
-                                        data-allow-clear="true" multiple="multiple">
+                                    data-control="select2" data-placeholder="{{ trans('members.select') }}"
+                                    data-allow-clear="true" multiple="multiple">
                                     <option></option>
-                                    @foreach($goals as $goal)
-                                        <option value="{{$goal->id}}">{{$goal->title}}</option>
+                                    @foreach ($goals as $goal)
+                                        <option value="{{ $goal->id }}">{{ $goal->title }}</option>
                                     @endforeach
                                 </select>
                                 @error('goal_id')
-                                <div class="fv-plugins-message-container invalid-feedback">{{ $message }}</div>
+                                    <div class="fv-plugins-message-container invalid-feedback">{{ $message }}</div>
                                 @enderror
-                                @foreach($errors->get('goal_id.*') as $message)
+                                @foreach ($errors->get('goal_id.*') as $message)
                                     <div class="fv-plugins-message-container invalid-feedback">{{ $message }}</div>
                                 @endforeach
                             </div>
 
                             <div class="col-md-4">
                                 <div class="mb-10">
-                                    <label
-                                        class="required fs-6 fw-semibold mb-2">{{trans('members.birth_date')}}</label>
+                                    <label class="required fs-6 fw-semibold mb-2">{{ trans('members.birth_date') }}</label>
                                     <input
                                         class="form-control form-control-solid @error('birth_date') is-invalid @enderror"
-                                        value="{{old('birth_date')}}" name="birth_date"
-                                        placeholder="Pick date rage" id="birth_date"/>
+                                        value="{{ old('birth_date') }}" name="birth_date" placeholder="Pick date rage"
+                                        id="birth_date" />
                                     <!--end::Input-->
                                     @error('birth_date')
-                                    <div
-                                        class="fv-plugins-message-container invalid-feedback">{{ $message }}</div>
+                                        <div class="fv-plugins-message-container invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
@@ -200,50 +192,49 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <!--begin::Label-->
-                                <label class="required form-label">{{trans('members.email')}}</label>
+                                <label class="required form-label">{{ trans('members.email') }}</label>
                                 <!--end::Label-->
                                 <!--begin::Input-->
                                 <input type="text" name="email"
-                                       class="form-control mb-2  @error('email') is-invalid @enderror"
-                                       placeholder="{{trans('members.email')}}" value="{{old('email')}}"/>
+                                    class="form-control mb-2  @error('email') is-invalid @enderror"
+                                    placeholder="{{ trans('members.email') }}" value="{{ old('email') }}" />
                                 <!--end::Input-->
                                 @error('email')
-                                <div class="fv-plugins-message-container invalid-feedback">{{ $message }}</div>
+                                    <div class="fv-plugins-message-container invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
                             <div class="col-md-4">
                                 <input type="hidden" name="phone_full">
                                 <input type="hidden" name="country_code">
-                                <label class="required form-label">{{trans('members.phone')}}</label>
+                                <label class="required form-label">{{ trans('members.phone') }}</label>
                                 <!--end::Label-->
                                 <!--begin::Input-->
                                 <input type="text" name="phone" id="phone"
-                                       class="form-control mb-2  @error('phone') is-invalid @enderror"
-                                       placeholder="{{trans('members.phone')}}" value="{{old('phone')}}"/>
+                                    class="form-control mb-2  @error('phone') is-invalid @enderror"
+                                    placeholder="{{ trans('members.phone') }}" value="{{ old('phone') }}" />
                                 <!--end::Input-->
                                 @error('phone')
-                                <div class="fv-plugins-message-container invalid-feedback">{{ $message }}</div>
+                                    <div class="fv-plugins-message-container invalid-feedback">{{ $message }}</div>
                                 @enderror
                                 <div class="fv-plugins-message-container invalid-feedback" id="output"></div>
 
                             </div>
 
                             <div class="col-md-4">
-                                <label for="goal_id" class="form-label">{{trans('members.health_status')}}</label>
+                                <label for="goal_id" class="form-label">{{ trans('members.health_status') }}</label>
                                 <select name="health_status_id" id="health_status_id"
-                                        class="form-select form-select-solid is-valid"
-                                        data-control="select2" data-placeholder="{{trans('members.select')}}"
-                                        data-allow-clear="true">
+                                    class="form-select form-select-solid is-valid" data-control="select2"
+                                    data-placeholder="{{ trans('members.select') }}" data-allow-clear="true">
                                     <option></option>
-                                    @foreach( $health_status as $item )
-                                        <option
-                                            value="{{$item->id}}" {{old($item->id=='health_status_id')}}>{{$item->title}}</option>
+                                    @foreach ($health_status as $item)
+                                        <option value="{{ $item->id }}" {{ old($item->id == 'health_status_id') }}>
+                                            {{ $item->title }}</option>
                                     @endforeach
 
                                 </select>
                                 @error('health_status_id')
-                                <div class="fv-plugins-message-container invalid-feedback">{{ $message }}</div>
+                                    <div class="fv-plugins-message-container invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
@@ -259,9 +250,9 @@
 
                 <div class="d-flex justify-content-end">
                     <button type="submit" id="" class="btn btn-primary">
-                        <span class="indicator-label">{{trans('forms.save_btn')}}</span>
+                        <span class="indicator-label">{{ trans('forms.save_btn') }}</span>
                         <span class="indicator-progress">Please wait...
-							<span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                            <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
                         </span>
                     </button>
                 </div>
@@ -274,11 +265,11 @@
 @section('js')
 
 
-    <script src="{{asset('assets/plugins/custom/ckeditor/ckeditor-classic.bundle.js')}}"></script>
-    <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js')}}"></script>
-    {!! JsValidator::formRequest('App\Http\Requests\Admin\Members\StoreRequest', '#save_form'); !!}
+    <script src="{{ asset('assets/plugins/custom/ckeditor/ckeditor-classic.bundle.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js') }}"></script>
+    {!! JsValidator::formRequest('App\Http\Requests\Admin\Members\StoreRequest', '#save_form') !!}
     <script>
-        var KTAppBlogSave = function () {
+        var KTAppBlogSave = function() {
             const initckeditor = () => {
 
                 const elements_en = [
@@ -309,13 +300,32 @@
                                 ]
                             },
                             heading: {
-                                options: [
-                                    {model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph'},
-                                    {model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1'},
-                                    {model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2'},
-                                    {model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3'}
+                                options: [{
+                                        model: 'paragraph',
+                                        title: 'Paragraph',
+                                        class: 'ck-heading_paragraph'
+                                    },
+                                    {
+                                        model: 'heading1',
+                                        view: 'h1',
+                                        title: 'Heading 1',
+                                        class: 'ck-heading_heading1'
+                                    },
+                                    {
+                                        model: 'heading2',
+                                        view: 'h2',
+                                        title: 'Heading 2',
+                                        class: 'ck-heading_heading2'
+                                    },
+                                    {
+                                        model: 'heading3',
+                                        view: 'h3',
+                                        title: 'Heading 3',
+                                        class: 'ck-heading_heading3'
+                                    }
                                 ]
-                            }, language: 'en'
+                            },
+                            language: 'en'
                         })
                         .then(editor => {
                             console.log(editor);
@@ -338,25 +348,24 @@
             const initDaterangepicker = () => {
 
                 $("#birth_date").daterangepicker({
-                        singleDatePicker: true,
-                        showDropdowns: true,
-                        minYear: 2000,
-                        maxYear: parseInt(moment().format("YYYY"), 12)
-                    }
-                );
+                    singleDatePicker: true,
+                    showDropdowns: true,
+                    minYear: 2000,
+                    maxYear: parseInt(moment().format("YYYY"), 12)
+                });
             }
 
 
             // Public methods
             return {
-                init: function () {
+                init: function() {
                     initDaterangepicker();
                     initckeditor();
                 }
             };
         }();
         // On document ready
-        KTUtil.onDOMContentLoaded(function () {
+        KTUtil.onDOMContentLoaded(function() {
             KTAppBlogSave.init();
         });
     </script>
@@ -364,7 +373,7 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23.7.0/build/js/intlTelInput.min.js"></script>
-{{--  @if(app()->getLocale() =='ar')
+    {{--  @if (app()->getLocale() == 'ar')
             i18n: ar,
             @else
             i18n: en,
@@ -379,7 +388,7 @@
             separateDialCode: true,
             initialCountry: "sa",
             nationalMode: true,
-            hiddenInput: function (telInputName) {
+            hiddenInput: function(telInputName) {
                 return {
                     phone: "phone_full",
                     country: "country_code"

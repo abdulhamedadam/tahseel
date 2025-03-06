@@ -10,7 +10,7 @@
                 <th>{{ trans('employees.notes') }}</th>
                 <th>{{ trans('employees.created_by') }}</th>
                 <th>{{ trans('employees.created_at') }}</th>
-                {{-- <th>{{ trans('employees.actions') }}</th> --}}
+                <th>{{ trans('employees.actions') }}</th>
             </tr>
             </thead>
             <tbody>
@@ -25,13 +25,13 @@
                     <td>{{ $masrof->notes }}</td>
                     <td>{{ $masrof->user->name }}</td>
                     <td class="fnt_center_black">{{ \Illuminate\Support\Carbon::parse($masrof->created_at)->format('Y-m-d') }}</td>
-                    {{-- <td>
+                    <td>
                         <div class="btn-group">
                             <a href="{{ route('admin.employee_delete_masrofat', $masrof->id) }}" onclick="return confirm('Are You Sure To Delete?')" class="btn btn-sm btn-danger">
                                 <i class="bi bi-trash"></i>
                             </a>
                         </div>
-                    </td> --}}
+                    </td>
                 </tr>
             @endforeach
             </tbody>

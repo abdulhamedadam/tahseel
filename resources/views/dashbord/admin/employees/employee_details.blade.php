@@ -19,7 +19,7 @@
                 <td class="class_label" style="width: 25%"><?= trans('employees.employee_code') ?></td>
                 <td class="class_result">{{ $all_data->emp_code }}</td>
             </tr>
-            <tr>
+            {{-- <tr>
                 <td class="class_label" style="width: 25%"><?= trans('employees.email') ?></td>
                 <td class="class_result">{{ $all_data->email }}</td>
             </tr>
@@ -30,7 +30,7 @@
             <tr>
                 <td class="class_label"><?= trans('employees.gender') ?></td>
                 <td class="class_result">{{ trans('employees.'.$all_data->gender) }}</td>
-            </tr>
+            </tr> --}}
             <tr>
                 <td class="class_label"><?= trans('employees.position') ?></td>
                 <td class="class_result">{{ $all_data->position }}</td>
@@ -51,22 +51,22 @@
                 <td class="class_label"><?= trans('employees.whatsapp_num') ?></td>
                 <td class="class_result">{{ $all_data->whatsapp_num }}</td>
             </tr>
-            <tr>
+            {{-- <tr>
                 <td class="class_label"><?= trans('employees.date_of_birth') ?></td>
                 <td class="class_result">{{ $all_data->date_of_birth }}</td>
-            </tr>
+            </tr> --}}
             <tr>
                 <td class="class_label"><?= trans('employees.address') ?></td>
                 <td class="class_result">{{ $all_data->address }}</td>
             </tr>
-            <tr>
+            {{-- <tr>
                 <td class="class_label"><?= trans('employees.material_status') ?></td>
                 <td class="class_result">{{ trans('employees.'.$all_data->material_status) }}</td>
             </tr>
             <tr>
                 <td class="class_label"><?= trans('employees.religion') ?></td>
                 <td class="class_result">{{ trans('employees.'.$all_data->religion) }}</td>
-            </tr>
+            </tr> --}}
             </tbody>
         </table>
     </div>

@@ -265,7 +265,7 @@
 
     <script src="{{asset('assets/plugins/custom/ckeditor/ckeditor-classic.bundle.js')}}"></script>
     <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js')}}"></script>
-    {{--    {!! JsValidator::formRequest('App\Http\Requests\Admin\Members\StoreRequest', '#save_form'); !!}--}}
+    {{--    {!! JsValidator::formRequest('App\Http\Requests\Admin\Members\StoreRequest', '#save_form') !!}--}}
     <script>
         var KTAppBlogSave = function () {
             const initckeditor = () => {

@@ -14,7 +14,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('inspire')->hourly();
-        $schedule->command(AddNewInvoices::class)->monthlyOn(1, '00:00');
+        // $schedule->command(AddNewInvoices::class)->monthlyOn(1, '00:00');
     }
 
     /**

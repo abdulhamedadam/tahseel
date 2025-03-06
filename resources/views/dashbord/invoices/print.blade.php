@@ -244,7 +244,7 @@
                 </div>
                 <div class="info-item">
                     <span class="info-label">{{ trans('invoices.Subscription') }}</span>
-                    <span class="info-value">{{ $all_data->subscription->name }}</span>
+                    <span class="info-value">{{ $all_data->subscription ? $all_data->subscription->name : 'خدمة' }}</span>
                 </div>
                 <div class="info-item">
                     <span class="info-label">{{ trans('invoices.Status') }}</span>
@@ -259,6 +259,10 @@
                 <tr>
                     <th>{{ trans('invoices.Amount') }}</th>
                     <td>{{ $all_data->amount }}</td>
+                </tr>
+                <tr>
+                    <th>{{ trans('invoices.Paid Amount') }}</th>
+                    <td>{{ $all_data->paid_amount ?? 'N/A' }}</td>
                 </tr>
                 <tr>
                     <th>{{ trans('invoices.Remaining Amount') }}</th>

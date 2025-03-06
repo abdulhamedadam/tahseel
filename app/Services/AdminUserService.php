@@ -6,6 +6,8 @@ namespace App\Services;
 
 use App\Interfaces\BasicRepositoryInterface;
 use App\Models\Admin;
+use App\Models\Admin\Account;
+use App\Models\Admin\AccountSettings;
 use App\Models\Admin\Test;
 use App\Traits\ImageProcessing;
 use Illuminate\Support\Facades\Hash;
@@ -37,6 +39,20 @@ class AdminUserService
 
         if ($role) {
             $admin->assignRole($role);
+        }
+
+        $account = Account::create([
+            'name' => $validated_data['name'],
+            'parent_id' => null,
+            'level' => 2,
+            'created_by' => auth()->id(),
+        ]);
+
+        $admin->update(['account_id' => $account->id]);
+
+        $accountSettings = AccountSettings::first();
+        if ($accountSettings) {
+            $account->update(['parent_id' => $accountSettings->employee_account_id]);
         }
 
         return $admin;

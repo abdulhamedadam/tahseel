@@ -5,9 +5,11 @@ namespace App\Services;
 
 
 use App\Interfaces\BasicRepositoryInterface;
+use App\Models\Admin;
 use App\Models\Admin\Invoice;
 use App\Models\Admin\Subscription;
 use App\Models\Clients;
+use App\Notifications\NewClientAddedNotification;
 use App\Traits\ImageProcessing;
 
 class ClientService
@@ -31,6 +33,7 @@ class ClientService
             $validated_data['image'] = $dataX;
         }
         $validated_data['created_by']= auth()->user()->id;
+        // dd($validated_data);
 
         $client = $this->ClientsRepository->create($validated_data);
 
@@ -48,6 +51,15 @@ class ClientService
         ];
 
         $this->InvoiceRepository->create($invoice_data);
+
+        $admins = Admin::where('status', '1')
+                    ->whereNull('deleted_at')
+                    ->where('id', '!=', auth()->id())
+                    ->get();
+
+        foreach ($admins as $admin) {
+            $admin->notify(new NewClientAddedNotification($client));
+        }
 
         return $client;
     }
@@ -70,6 +82,7 @@ class ClientService
         return $this->ClientsRepository->update($id,$validated_data);
     }
     /**************************************************/
+
 
 
 

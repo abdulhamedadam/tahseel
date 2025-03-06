@@ -13,6 +13,7 @@ use App\Models\Admin\Employee;
 use App\Models\Admin\EmployeeFiles;
 use App\Models\Admin\Masrofat;
 use App\Models\Admin\Revenue;
+use App\Models\Admin\SarfBand;
 use App\Traits\ImageProcessing;
 use App\Traits\ValidationMessage;
 use Illuminate\Database\Eloquent\Model;
@@ -35,14 +36,32 @@ class EmployeesController extends Controller
     protected $EmployeeFilesRepository;
     protected $MasrofatRepository;
     protected $RevenuesRepository;
+    protected $bandsRepository;
     public function __construct(BasicRepositoryInterface $basicRepository)
     {
+        $this->middleware('can:view_employees')->only('index', 'get_ajax_employee');
+        $this->middleware('can:add_employee')->only('add_employee', 'save_employee');
+        $this->middleware('can:edit_employee')->only('edit_employee', 'update_employee');
+
+        $this->middleware('can:view_employee_files')->only('employee_files');
+        $this->middleware('can:add_employee_files')->only('employee_add_files');
+        $this->middleware('can:read_employee_file')->only('read_file');
+        $this->middleware('can:download_employee_file')->only('download_file');
+        $this->middleware('can:delete_employee_file')->only('delete_file');
+
+        $this->middleware('can:view_employee_details')->only('employee_details');
+        $this->middleware('can:view_employee_masrofat')->only('employee_masrofat');
+        $this->middleware('can:add_employee_masrofat')->only('employee_add_masrofat');
+        $this->middleware('can:delete_employee_masrofat')->only('employee_delete_masrofat');
+        $this->middleware('can:view_employee_revenues')->only('employee_revenues');
+
         $this->AreasSettingRepository   = createRepository($basicRepository, new AreaSetting());
         $this->BranchRepository         = createRepository($basicRepository, new Branch());
         $this->EmployeeRepository       = createRepository($basicRepository, new Employee());
         $this->EmployeeFilesRepository  = createRepository($basicRepository, new EmployeeFiles());
         $this->MasrofatRepository  = createRepository($basicRepository, new Masrofat());
         $this->RevenuesRepository  = createRepository($basicRepository, new Revenue());
+        $this->bandsRepository = createRepository($basicRepository, new SarfBand());
     }
 
     /************************************************************/
@@ -88,19 +107,31 @@ class EmployeesController extends Controller
                     return  $row->salary;
                 })
                 ->addColumn('action', function ($row) {
-                    return '<div class="btn-group">
-                        <button type="button" style="font-size: 16px" class="btn btn-sm btn-secondary">' . trans('employees.actions') . '</button>
-                        <button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-icon" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span class="sr-only">Toggle Dropdown</span>
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a style="font-size: 14px" class="hover-effect dropdown-item" target="_blank" href="' . route('admin.edit_employee', $row->id) . '"><i class=" bi bi-pencil"></i> ' . trans('employees.edit_data') . '</a></li>
-                            <li><a style="font-size: 14px" class="hover-effect dropdown-item" target="_blank" href="' . route('admin.employee_files', $row->id) . '"><i class="bi bi-files"></i> ' . trans('employees.employee_file') . '</a></li>
-                            <li><a style="font-size: 14px" class="hover-effect dropdown-item" target="_blank" href="' . route('admin.employee_masrofat', $row->id) . '"><i class="bi bi-cash-stack"></i> ' . trans('employees.employee_masrofat') . '</a></li>
-                            <li><a style="font-size: 14px" class="hover-effect dropdown-item" target="_blank" href="' . route('admin.employee_revenues', $row->id) . '"><i class="bi bi-cash-coin"></i> ' . trans('employees.employee_revenues') . '</a></li>
-                        </ul>
-                    </div>
-                    ';
+                    $actionButtons = '<div class="btn-group">';
+                    $actionButtons .= '<button type="button" style="font-size: 16px" class="btn btn-sm btn-secondary">' . trans('employees.actions') . '</button>';
+                    $actionButtons .= '<button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-icon" data-bs-toggle="dropdown" aria-expanded="false"><span class="sr-only">Toggle Dropdown</span></button>';
+                    $actionButtons .= '<ul class="dropdown-menu">';
+
+                    if (auth()->user()->can('edit_employee')) {
+                        $actionButtons .=  '<li><a style="font-size: 14px" class="hover-effect dropdown-item" target="_blank" href="' . route('admin.edit_employee', $row->id) . '"><i class=" bi bi-pencil"></i> ' . trans('employees.edit_data') . '</a></li>';
+                    }
+
+
+                    if (auth()->user()->can('view_employee_files')) {
+                        $actionButtons .= '<li><a style="font-size: 14px" class="hover-effect dropdown-item" target="_blank" href="' . route('admin.employee_files', $row->id) . '"><i class="bi bi-files"></i> ' . trans('employees.employee_file') . '</a></li>';
+                    }
+
+                    if (auth()->user()->can('view_employee_masrofat')) {
+                        $actionButtons .= '<li><a style="font-size: 14px" class="hover-effect dropdown-item" target="_blank" href="' . route('admin.employee_masrofat', $row->id) . '"><i class="bi bi-cash-stack"></i> ' . trans('employees.employee_masrofat') . '</a></li>';
+                    }
+
+                    if (auth()->user()->can('view_employee_revenues')) {
+                        $actionButtons .= '<li><a style="font-size: 14px" class="hover-effect dropdown-item" target="_blank" href="' . route('admin.employee_revenues', $row->id) . '"><i class="bi bi-cash-coin"></i> ' . trans('employees.employee_revenues') . '</a></li>';
+                    }
+
+                    $actionButtons .= '</ul>';
+                    $actionButtons .= '</div>';
+                    return $actionButtons;
                 })->rawColumns(['profile_picture', 'action'])
                 ->make(true);
 
@@ -274,8 +305,47 @@ class EmployeesController extends Controller
     {
         $data['all_data']     =  $this->EmployeeRepository->getById($id);
         $data['masrofat_data']   =  $this->MasrofatRepository->getBywhere(array('emp_id' => $id));
+        $data['bands'] = $this->bandsRepository->getAll();
         // dd($data);
         return view('dashbord.admin.employees.employee_masrofat', $data);
+    }
+    /***********************************************************/
+    public function employee_add_masrofat(Request $request, $emp_id)
+    {
+        $request->validate([
+            'band_id' => 'required|exists:tbl_sarf_bands,id',
+            'value' => 'required|numeric|min:0',
+            'notes' => 'nullable|string|max:255',
+        ]);
+        try {
+
+            $emp = $this->EmployeeRepository->getById($emp_id);
+
+            $data['emp_id'] = $emp->id;
+            $data['band_id'] = $request->band_id;
+            $data['value'] = $request->value;
+            $data['notes'] = $request->notes;
+            $data['created_by'] = auth()->user()->id;
+
+            $this->MasrofatRepository->create($data);
+
+            return redirect()->back()->with('success', trans('employees.masrofat_added'));
+        } catch (\Exception $e) {
+            test($e->getMessage());
+            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+        }
+    }
+    /***********************************************************/
+    public function employee_delete_masrofat(Request $request, $masrofat_id)
+    {
+        try {
+            $this->MasrofatRepository->delete($masrofat_id);
+
+            return redirect()->back()->with('success', trans('employees.masrofat_deleted'));
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+        }
     }
     /**********************************************************/
 

@@ -76,4 +76,6 @@
   'general_settings' => 'general_settings',
   'employee_data' => 'employee_data',
   'users' => 'users',
+  'notifications' => 'notifications',
+  'account_settings' => 'account_settings',
 );
