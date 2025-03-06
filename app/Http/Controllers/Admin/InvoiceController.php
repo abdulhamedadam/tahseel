@@ -264,10 +264,10 @@ class InvoiceController extends Controller
         ]);
 
         try {
-            $this->invoiceService->payInvoice($id, $request);
+            return $this->invoiceService->payInvoice($id, $request);
 
-            toastr()->addSuccess(trans('forms.success'));
-            return redirect()->back()->with('success', trans('forms.success'));
+            // toastr()->addSuccess(trans('forms.success'));
+            // return redirect()->back()->with('success', trans('forms.success'));
         } catch (\Exception $e) {
             dd($e->getMessage());
             return redirect()->back()->with('error', $e->getMessage());
@@ -322,10 +322,10 @@ class InvoiceController extends Controller
             $invoice->save();
 
             $financialTransaction = FinancialTransaction::where('account_id', auth()->user()->account_id)
-                                    ->where('amount', $lastPayment->amount)
-                                    ->where('created_by', auth()->id())
-                                    ->orderBy('created_at', 'desc')
-                                    ->first();
+                ->where('amount', $lastPayment->amount)
+                ->where('created_by', auth()->id())
+                ->orderBy('created_at', 'desc')
+                ->first();
 
             if ($financialTransaction) {
                 $financialTransaction->delete();

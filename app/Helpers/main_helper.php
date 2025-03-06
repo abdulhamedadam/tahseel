@@ -3,7 +3,9 @@
 
 
 use App\Interfaces\BasicRepositoryInterface;
+use App\Models\Admin\AccountSettings;
 use App\Models\Admin\Employee;
+use App\Models\Admin\FinancialTransaction;
 use App\Models\Admin\Invoice;
 use App\Models\Admin\Masrofat;
 use App\Models\Admin\Revenue;
@@ -402,6 +404,8 @@ if (!function_exists('form_icon')) {
     if (!function_exists('get_dashboard_data')) {
         function get_dashboard_data()
         {
+            $accountSettings = AccountSettings::first();
+            $generalAccountId = $accountSettings ? $accountSettings->general_account_id : null;
             return [
                 'employees' => Employee::count(),
                 'clients' => Clients::count(),
@@ -414,6 +418,8 @@ if (!function_exists('form_icon')) {
 
                 'revenues' => Revenue::sum('amount'),
                 'masrofat' => Masrofat::sum('value'),
+
+                'general_account' => FinancialTransaction::where('account_id', $generalAccountId)->sum('amount'),
             ];
         }
     }

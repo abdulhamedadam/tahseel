@@ -107,17 +107,40 @@ class BasicRepository implements BasicRepositoryInterface
         return $this->model->with($relations)->get();
     }
 
+    // public function getLastFieldValue($field)
+    // {
+    //     $query = $this->model;
+
+    //     if (in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses($this->model))) {
+    //         $query = $query->withTrashed();
+    //     }
+
+    //     $lastValue = $query->orderByDesc($field)->value($field);
+
+    //     return is_null($lastValue) ? 1 : $lastValue + 1;
+    // }
+
     public function getLastFieldValue($field)
     {
-        $query = $this->model;
+        $query = $this->model->newQuery();
 
-        if (in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses($this->model))) {
-            $query = $query->withTrashed();
+        if (method_exists($this->model, 'trashed')) {
+            $query->withTrashed();
         }
 
-        $lastValue = $query->orderByDesc($field)->value($field);
+        $lastRecord = $query->latest('id')->first();
 
-        return is_null($lastValue) ? 1 : $lastValue + 1;
+        if (!$lastRecord) {
+            return 1;
+        }
+
+        $newValue = $lastRecord->{$field} + 1;
+
+        while ($query->where($field, $newValue)->exists()) {
+            $newValue++;
+        }
+
+        return $newValue;
     }
 }
 

@@ -3377,6 +3377,14 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-md-4">
+                    <div class="card text-white bg-dark mb-3">
+                        <div class="card-header">{{ trans('dashboard.general_account') }}</div>
+                        <div class="card-body">
+                            <h5 class="card-title">${{ number_format($dashboardData['general_account'], 2) }}</h5>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     @endsection
