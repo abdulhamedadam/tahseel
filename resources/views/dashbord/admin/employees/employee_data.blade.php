@@ -147,13 +147,12 @@
                 "buttons": [
                     {
                         "extend": 'excel',
-                        "text": '<i class="bi bi-file-earmark-excel"></i>إكسل',
-                        "className": 'btn btn-dark'
                     },
                     {
                         "extend": 'copy',
-                        "text": '<i class="bi bi-clipboard"></i>نسخ',
-                        "className": 'btn btn-primary'
+                    },
+                    {
+                        "extend": 'pdf'
                     }
                 ],
 

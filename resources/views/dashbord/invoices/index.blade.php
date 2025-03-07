@@ -1,10 +1,5 @@
 @extends('dashbord.layouts.master')
-<style>
-    .btn:not(.btn-outline):not(.btn-dashed):not(.border-hover):not(.border-active):not(.btn-flush):not(.btn-icon).btn-sm,
-    .btn-group-sm>.btn:not(.btn-outline):not(.btn-dashed):not(.border-hover):not(.border-active):not(.btn-flush):not(.btn-icon) {
-        padding: 10px 12px !important;
-    }
-</style>
+
 @section('toolbar')
     <div id="kt_app_toolbar_container" class="app-container container-xxl d-flex flex-stack">
         @php
@@ -123,6 +118,7 @@
                 "processing": true,
                 "serverSide": true,
                 "order": [],
+                "pageLength": 10,
                 "ajax": {
                     url: "{{ route('admin.invoices.index') }}",
                 },
@@ -246,13 +242,12 @@
                 "dom": '<"row align-items-center"<"col-md-3"l><"col-md-6"f><"col-md-3"B>>rt<"row align-items-center"<"col-md-6"i><"col-md-6"p>>',
                 "buttons": [{
                         "extend": 'excel',
-                        "text": '<i class="bi bi-file-earmark-excel"></i>إكسل',
-                        "className": 'btn btn-dark'
                     },
                     {
                         "extend": 'copy',
-                        "text": '<i class="bi bi-clipboard"></i>نسخ',
-                        "className": 'btn btn-primary'
+                    },
+                    {
+                        "extend": 'pdf'
                     }
                 ],
 
@@ -292,6 +287,8 @@
         });
     </script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
     <script>
         function confirmDelete(clientId) {
             Swal.fire({

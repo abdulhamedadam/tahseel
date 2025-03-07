@@ -39,7 +39,8 @@ class AccountController extends Controller
 
     public function accounts()
     {
-        $data['accounts'] = $this->accountsRepository->getAll();
+        // $data['accounts'] = $this->accountsRepository->getAll();
+        $data['accounts'] = $this->accountsRepository->getAll()->toQuery()->whereNull('parent_id')->whereNull('deleted_at')->get();
         $data['users'] = $this->usersRepository->getAll();
         return view('dashbord.accounts.index', $data);
     }
@@ -47,7 +48,7 @@ class AccountController extends Controller
     {
         if (request()->ajax()) {
             try {
-                $data = $this->accountsRepository->getAll();
+                $data = $this->accountsRepository->getWithRelations(['admin', 'user', 'parent'])->toQuery()->where('deleted_at', null)->orderBy('created_at', 'desc')->get();
 
                 $counter = 0;
 
@@ -123,6 +124,7 @@ class AccountController extends Controller
             } else {
                 $validated_data['updated_by'] = auth()->user()->id;
                 $account = $this->accountsRepository->update($request->row_id, $validated_data);
+                $account = $this->accountsRepository->getById($request->row_id);
             }
 
             $level = $this->calculateLevel($account->id);

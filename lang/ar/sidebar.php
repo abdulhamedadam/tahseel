@@ -108,4 +108,9 @@
   'account_settings' => 'اعدادات الحساب',
   'financial_transactions' => 'الحركات المالية',
   'account_transfers' => 'التحويلات',
+  'settings_management' => 'ادارة الاعدادات',
+  'user&employees_management' => 'ادارة المستخدمين والموظفين',
+  'clients_management' => 'ادارة العملاء',
+  'invoices&reports_management' => 'ادارة الفواتير والتقارير',
+  'notifications_management' => 'ادارة الاشعارات',
 );

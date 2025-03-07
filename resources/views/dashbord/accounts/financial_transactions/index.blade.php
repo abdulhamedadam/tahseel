@@ -1,10 +1,5 @@
 @extends('dashbord.layouts.master')
-<style>
-    .btn:not(.btn-outline):not(.btn-dashed):not(.border-hover):not(.border-active):not(.btn-flush):not(.btn-icon).btn-sm,
-    .btn-group-sm>.btn:not(.btn-outline):not(.btn-dashed):not(.border-hover):not(.border-active):not(.btn-flush):not(.btn-icon) {
-        padding: 10px 12px !important;
-    }
-</style>
+
 @section('toolbar')
     <div id="kt_app_toolbar_container" class="app-container container-xxl d-flex flex-stack">
         @php
@@ -71,7 +66,6 @@
 
     <script>
         $(document).ready(function() {
-            //datatables
             table = $('#table1').DataTable({
                 "language": {
                     url: "{{ asset('assets/Arabic.json') }}"
@@ -79,6 +73,7 @@
                 "processing": true,
                 "serverSide": true,
                 "order": [],
+                "pageLength": 10,
                 "ajax": {
                     url: "{{ route('admin.financial_transactions.index') }}",
                 },
@@ -116,71 +111,27 @@
                     },
                 ],
                 "columnDefs": [{
-                        "targets": [1, -1],
-                        "orderable": false,
-                    },
-                    {
-                        "targets": [1],
-                        "createdCell": function(td, cellData, rowData, row, col) {
-                            $(td).css({
-                                'font-weight': '600',
-                                'text-align': 'center',
-                                'color': '#6610f2',
-
-                                'vertical-align': 'middle',
-                            });
-                        }
-                    },
-                    {
-                        "targets": [3, 4],
-                        "createdCell": function(td, cellData, rowData, row, col) {
-                            $(td).css({
-                                'font-weight': '600',
-                                'text-align': 'center',
-                                'vertical-align': 'middle',
-                            });
-                        }
-                    },
-                    {
-                        "targets": [7],
-                        "createdCell": function(td, cellData, rowData, row, col) {
-                            $(td).css({
-                                'font-weight': '600',
-                                'text-align': 'center',
-                                'color': 'green',
-                                'vertical-align': 'middle',
-                                // 'text-decoration': 'underline',
-                            });
-                        }
-                    },
-                    {
-                        "targets": [2],
-                        "createdCell": function(td, cellData, rowData, row, col) {
-                            $(td).css({
-                                'font-weight': '600',
-                                'text-align': 'center',
-                                'color': 'green',
-                                'vertical-align': 'middle',
-                                // 'text-decoration': 'underline',
-                            });
-                        }
-                    },
-
-                ],
+                    "targets": [1, -1],
+                    "orderable": false,
+                }],
+                "rowCallback": function(row, data, index) {
+                    if (data.type === "قبض") {
+                        $(row).css("background-color", "#d4edda");
+                    } else if (data.type === "صرف") {
+                        $(row).css("background-color", "#f8d7da");
+                    } else {
+                        $(row).css("background-color", "#fff3cd");
+                    }
+                },
                 "order": [],
                 "dom": '<"row align-items-center"<"col-md-3"l><"col-md-6"f><"col-md-3"B>>rt<"row align-items-center"<"col-md-6"i><"col-md-6"p>>',
                 "buttons": [{
                         "extend": 'excel',
-                        "text": '<i class="bi bi-file-earmark-excel"></i>إكسل',
-                        "className": 'btn btn-dark'
                     },
                     {
                         "extend": 'copy',
-                        "text": '<i class="bi bi-clipboard"></i>نسخ',
-                        "className": 'btn btn-primary'
-                    }
+                    },
                 ],
-
                 "language": {
                     "lengthMenu": "عرض _MENU_ سجلات",
                     "zeroRecords": "لا توجد سجلات",
@@ -199,19 +150,6 @@
                     [5, 10, 25, 50, -1],
                     [5, 10, 25, 50, "الكل"]
                 ],
-            });
-
-            $("input").change(function() {
-                $(this).parent().parent().removeClass('has-error');
-                $(this).next().empty();
-            });
-            $("textarea").change(function() {
-                $(this).parent().parent().removeClass('has-error');
-                $(this).next().empty();
-            });
-            $("select").change(function() {
-                $(this).parent().parent().removeClass('has-error');
-                $(this).next().empty();
             });
         });
     </script>

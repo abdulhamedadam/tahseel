@@ -47,7 +47,7 @@ class InvoiceController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $allData = $this->InvoiceRepository->getWithRelations(['client', 'employee', 'subscription']);
+            $allData = $this->InvoiceRepository->getWithRelations(['client', 'employee', 'subscription'])->toQuery()->whereNull('deleted_at')->orderBy('created_at', 'desc')->get();
             return Datatables::of($allData)
                 ->addColumn('id', function ($row) {
                     return $row->id ?? 'N/A';
@@ -154,57 +154,6 @@ class InvoiceController extends Controller
     }
 
     /***********************************************/
-    // public function create()
-    // {
-    //     $data['invoice_number'] = $this->InvoiceRepository->getLastFieldValue('invoice_number');
-    //     $data['subscriptions'] = $this->SubscriptionRepository->getAll();
-    //     $data['clients'] = $this->ClientsRepository->getAll();
-
-    //     return view($this->admin_view . '.form', $data);
-    // }
-
-    /***********************************************/
-    // public function store(SaveRequests $request)
-    // {
-    //     try {
-    //         $this->invoiceService->store($request);
-    //         toastr()->addSuccess(trans('forms.success'));
-    //         return redirect()->route('admin.invoices.index');
-    //     } catch (\Exception $e) {
-    //         dd($e->getMessage());
-    //         return redirect()->back()->withErrors(['error' => $e->getMessage()]);
-    //     }
-    // }
-
-    /***********************************************/
-    // public function show(string $id)
-    // {
-    //     //
-    // }
-
-    /***********************************************/
-    // public function edit(string $id)
-    // {
-    //     $data['subscriptions'] = $this->SubscriptionRepository->getAll();
-    //     $data['clients'] = $this->ClientsRepository->getAll();
-
-    //     $data['all_data'] =  $this->InvoiceRepository->getById($id);
-
-    //     return view($this->admin_view . '.edit', $data);
-    // }
-    /***********************************************/
-    // public function update(UpdateRequests $request, string $id)
-    // {
-    //     try {
-    //         $this->invoiceService->update($request, $id);
-    //         toastr()->addSuccess(trans('forms.success'));
-    //         return redirect()->route('admin.invoices.index');
-    //     } catch (\Exception $e) {
-    //         dd($e->getMessage());
-    //         return redirect()->back()->withErrors(['error' => $e->getMessage()]);
-    //     }
-    // }
-    /***********************************************/
     public function destroy(string $id)
     {
         try {
@@ -223,37 +172,6 @@ class InvoiceController extends Controller
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
     }
-
-
-    // public function pay_invoice($id, Request $request)
-    // {
-    //     $request->validate([
-    //         'invoice_amount' => 'required|numeric|min:1',
-    //         'paid_amount' => 'required|numeric',
-    //         'notes' => 'nullable|string',
-    //     ]);
-
-    //     $invoice = Invoice::findOrFail($id);
-
-    //     if ($request->paid_amount > $request->amount) {
-    //         return redirect()->back()->with('error', trans('invoices.payment_exceeds_invoice_amount'));
-    //     }
-
-    //     $invoice->amount = $request->invoice_amount;
-    //     $invoice->save();
-    //     // dd($request->all(), $invoice);
-
-    //     // if ($request->paid_amount > $invoice->amount) {
-    //     //     return redirect()->back()->with('error', trans('invoices.payment_exceeds_invoice_amount'));
-    //     // }
-    //     try {
-    //         $invoice->markAsPaid($request->paid_amount, $request->notes);
-    //         toastr()->addSuccess(trans('forms.success'));
-    //         return redirect()->route('admin.invoices.index');
-    //     } catch (\Exception $e) {
-    //         return redirect()->back()->withErrors(['error' => $e->getMessage()]);
-    //     }
-    // }
 
     public function pay_invoice($id, Request $request)
     {
@@ -349,6 +267,8 @@ class InvoiceController extends Controller
                 ->whereMonth('created_at', $currentMonth)
                 ->whereYear('created_at', $currentYear)
                 ->where('remaining_amount', '>', 0)
+                ->whereNull('deleted_at')
+                ->orderBy('created_at', 'desc')
                 ->get();
 
             return Datatables::of($allData)
@@ -455,7 +375,10 @@ class InvoiceController extends Controller
         if ($request->ajax()) {
             $allData = Invoice::with(['client', 'employee', 'subscription'])
                 ->whereIn('status', ['paid', 'partial'])
-                ->whereDate('created_at', '>=', Carbon::now()->subDays(10));
+                ->whereDate('created_at', '>=', Carbon::now()->subDays(10))
+                ->whereNull('deleted_at')
+                ->orderBy('created_at', 'desc')
+                ->get();
 
             return Datatables::of($allData)
                 ->addColumn('id', function ($row) {

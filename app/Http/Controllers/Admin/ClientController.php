@@ -54,6 +54,7 @@ class ClientController extends Controller
         if ($request->ajax()) {
             $allData = Clients::with('subscription')
                 ->withSum('invoices', 'remaining_amount')
+                ->orderBy('created_at', 'desc')
                 ->get();
 
             $counter = 0;

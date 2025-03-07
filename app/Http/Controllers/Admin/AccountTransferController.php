@@ -106,6 +106,9 @@ class AccountTransferController extends Controller
             $validated_data['year'] = now()->year;
             $validated_data['created_by'] = Auth::id();
 
+            $fromAccountName = Account::find($validated_data['from_account'])->name ?? 'Unknown';
+            $toAccountName = Account::find($validated_data['to_account'])->name ?? 'Unknown';
+
             // dd($validated_data);
             $this->accountTransfersRepository->create($validated_data);
 
@@ -116,7 +119,7 @@ class AccountTransferController extends Controller
                 'time'          => $validated_data['time'],
                 'month'         => $validated_data['month'],
                 'year'          => $validated_data['year'],
-                'notes'         => 'تحويل مالي من الحساب ' . $validated_data['from_account'] . ' إلى الحساب ' . $validated_data['to_account'] . ' / ' . $validated_data['notes'],
+                'notes'         => "تحويل مالي من الحساب {$fromAccountName} إلى الحساب {$toAccountName} / {$validated_data['notes']}",
                 'type'          => 'sarf',
                 'created_by'    => Auth::id(),
             ]);
@@ -128,7 +131,7 @@ class AccountTransferController extends Controller
                 'time'          => $validated_data['time'],
                 'month'         => $validated_data['month'],
                 'year'          => $validated_data['year'],
-                'notes'         => 'تحويل مالي إلى الحساب ' . $validated_data['to_account'] . ' من الحساب ' . $validated_data['from_account'] . ' / ' . $validated_data['notes'],
+                'notes'         => "تحويل مالي إلى الحساب {$toAccountName} من الحساب {$fromAccountName} / {$validated_data['notes']}",
                 'type'          => 'qapd',
                 'created_by'    => Auth::id(),
             ]);
@@ -140,62 +143,23 @@ class AccountTransferController extends Controller
         }
     }
 
-    // public function edit_account_transfer($id)
-    // {
-    //     $data['transfer'] = $this->accountTransfersRepository->getById($id);
-    //     return response()->json($data);
-    // }
-
-    // public function update(Request $request, $id)
-    // {
-    //     $validated_data = $request->validate([
-    //         'from_account' => 'required|exists:tbl_accounts,id',
-    //         'to_account' => 'required|exists:tbl_accounts,id',
-    //         'amount' => 'required|numeric|min:0',
-    //         'date' => 'nullable|date',
-    //         'time' => 'nullable|date_format:H:i',
-    //         'month' => 'nullable|integer',
-    //         'year' => 'nullable|integer',
-    //         'notes' => 'nullable|string',
-    //     ]);
-
-    //     try {
-    //         $validated_data['updated_by'] = Auth::id();
-    //         $this->accountTransfersRepository->update($id, $validated_data);
-
-    //         toastr()->addSuccess(trans('account_transfers.transfer_updated_successfully'));
-    //         return redirect()->route('admin.account_transfers');
-    //     } catch (\Exception $e) {
-    //         return redirect()->back()->withErrors(['error' => $e->getMessage()]);
-    //     }
-    // }
-
-    // public function destroy($id)
-    // {
-    //     try {
-    //         $this->accountTransfersRepository->delete($id);
-    //         toastr()->addSuccess(trans('account_transfers.transfer_deleted_successfully'));
-    //         return redirect()->route('admin.account_transfers');
-    //     } catch (\Exception $e) {
-    //         return redirect()->back()->withErrors(['error' => $e->getMessage()]);
-    //     }
-    // }
     public function redo_account_transfer($id)
     {
         try {
             $accountTransfer = $this->accountTransfersRepository->getById($id);
 
             if ($accountTransfer) {
+                $createdAt = $accountTransfer->created_at;
+
                 FinancialTransaction::where('account_id', $accountTransfer->from_account)
-                    ->where('amount', -$accountTransfer->amount)
-                    ->where('notes', 'like', '%تحويل مالي من الحساب ' . $accountTransfer->from_account . '%')
-                    ->delete();
+                        ->where('amount', -$accountTransfer->amount)
+                        ->whereBetween('created_at', [$createdAt->subSeconds(5), $createdAt->addSeconds(5)])
+                        ->delete();
 
                 FinancialTransaction::where('account_id', $accountTransfer->to_account)
-                    ->where('amount', $accountTransfer->amount)
-                    ->where('notes', 'like', '%تحويل مالي إلى الحساب ' . $accountTransfer->to_account . '%')
-                    ->delete();
-
+                        ->where('amount', $accountTransfer->amount)
+                        ->whereBetween('created_at', [$createdAt->subSeconds(5), $createdAt->addSeconds(5)])
+                        ->delete();
                 $this->accountTransfersRepository->delete($id);
 
                 toastr()->addSuccess(trans('account_transfers.transfer_redone_successfully'));

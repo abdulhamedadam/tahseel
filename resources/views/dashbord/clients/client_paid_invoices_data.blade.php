@@ -400,13 +400,12 @@
                 "dom": '<"row align-items-center"<"col-md-3"l><"col-md-6"f><"col-md-3"B>>rt<"row align-items-center"<"col-md-6"i><"col-md-6"p>>',
                 "buttons": [{
                         "extend": 'excel',
-                        "text": '<i class="bi bi-file-earmark-excel"></i>إكسل',
-                        "className": 'btn btn-dark btn-sm'
                     },
                     {
                         "extend": 'copy',
-                        "text": '<i class="bi bi-clipboard"></i>نسخ',
-                        "className": 'btn btn-primary btn-sm'
+                    },
+                    {
+                        "extend": 'pdf'
                     }
                 ],
 
