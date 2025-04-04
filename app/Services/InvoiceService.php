@@ -160,9 +160,9 @@ class InvoiceService
                     'invoice_id' => $invoice->id,
                     'client_id' => $invoice->client_id,
                     'amount' => $request->paid_amount,
-                    'collected_by' => auth()->check() && auth()->user()->is_employee
-                        ? auth()->user()->emp_id
-                        : auth()->id(),
+                    'remaining_amount' => $remainingAmount,
+                    'status' => $remainingAmount > 0 ? 'partial' : 'paid',
+                    'collected_by' => auth()->id(),
                     'received_at' => now(),
                 ]);
             } catch (\Exception $e) {

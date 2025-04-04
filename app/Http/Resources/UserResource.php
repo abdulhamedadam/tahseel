@@ -18,24 +18,14 @@ class UserResource extends JsonResource
      */
     public function toArray($request)
     {
-        if (!empty($this->user_image)) {
-            $image_path = Storage::disk('images')->url($this->user_image);
-
-            $image = asset((Storage::disk('images')->exists($this->user_image)) ? $image_path : 'assets/media/avatars/blank.png');
-        } else {
-            $image = asset('assets/media/avatars/blank.png');
-
-        }
-
         return [
-            'user_id'=>$this->id,
-            'user_name'=>$this->user_name,
-            'name'=>$this->name,
-            'email'=>$this->email,
-            'phone'=>$this->phone,
-            'lang'=>$this->lang,
-            'image'=>$image,
-            'member_date'=>new MembersResource(Members::where('user_id', $this->id)->first()),
+            'UserId'         => $this->id,
+            'UserName'       => $this->name,
+            'UserEmail'       => $this->email,
+            'UserPhone'      => $this->phone,
+            'financial_transactions_sum_amount' => $this->financialTransactions->sum('amount'),
+            'currency' => get_app_config_data('currency'),
+            'phone_service' => get_app_config_data('phone_service')
         ];
     }
 }

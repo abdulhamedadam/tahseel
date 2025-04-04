@@ -76,7 +76,7 @@
                     url: "{{ route('admin.revenues.index') }}",
                 },
                 "columns": [{
-                        data: 'id',
+                        data: 'counter',
                         className: 'text-center no-export'
                     },
                     {
@@ -148,9 +148,9 @@
                     {
                         "extend": 'copy',
                     },
-                    {
-                        "extend": 'pdf'
-                    }
+                    // {
+                    //     "extend": 'pdf'
+                    // }
                 ],
 
                 "language": {
@@ -168,8 +168,8 @@
                     }
                 },
                 "lengthMenu": [
-                    [5, 10, 25, 50, -1],
-                    [5, 10, 25, 50, "الكل"]
+                    [10, 25, 50, -1],
+                    [10, 25, 50, "الكل"]
                 ],
             });
 

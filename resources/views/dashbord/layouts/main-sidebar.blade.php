@@ -45,27 +45,28 @@
             <div class="menu menu-column menu-rounded menu-sub-indention fw-semibold px-3" id="#kt_app_sidebar_menu"
                 data-kt-menu="true" data-kt-menu-expand="false">
 
-                {{-- @can('view_dashboard') --}}
-
-                <div class="menu-item">
-                    <a class="menu-link {{ request()->routeIs(['admin.dashboard']) ? 'active' : '' }}"
-                        href="{{ route('admin.dashboard') }}">
-                        <span class="svg-icon svg-icon-2" style="margin-left: 5px">
-                            <i class="bi bi-speedometer2 text-primary fs-2x"></i>
-                        </span>
-                        <span class="menu-title">{{ trans('sidebar.dashboard') }}</span>
-                    </a>
-                </div>
-                {{-- @endcan --}}
-                <hr class="w-100 border border-success">
-
-                <div class="menu-item ">
-                    <div class="menu-content">
-                        <span
-                            class="fw-bold text-uppercase fs-7 text-success">{{ trans('sidebar.settings_management') }}</span>
+                @can('view_dashboard')
+                    <div class="menu-item">
+                        <a class="menu-link {{ request()->routeIs(['admin.dashboard']) ? 'active' : '' }}"
+                            href="{{ route('admin.dashboard') }}">
+                            <span class="svg-icon svg-icon-2" style="margin-left: 5px">
+                                <i class="bi bi-speedometer2 text-primary fs-2x"></i>
+                            </span>
+                            <span class="menu-title">{{ trans('sidebar.dashboard') }}</span>
+                        </a>
                     </div>
+                @endcan
+                @canany('view_subscriptions', 'view_sarf_band')
+                    <hr class="w-100 border border-success">
 
-                </div>
+                    <div class="menu-item ">
+                        <div class="menu-content">
+                            <span
+                                class="fw-bold text-uppercase fs-7 text-success">{{ trans('sidebar.settings_management') }}</span>
+                        </div>
+
+                    </div>
+                @endcan
                 @php
                     $defaultSettingsLink = null;
 
@@ -266,7 +267,8 @@
                     </div>
                 @endcan
 
-                @canany(['list_eradat', 'list_masrofat'])
+                @canany(['list_eradat', 'list_masrofat', 'view_accounts', 'view_account_settings', 'view_financial_transactions',
+                    'view_account_transfers'])
                     <hr class="w-100 border border-success">
 
                     <div class="menu-item">
@@ -278,46 +280,54 @@
                         </div>
                     </div>
                 @endcanany
-                <div class="menu-item">
-                    <a class="menu-link {{ request()->routeIs(['admin.accounts']) ? 'active' : '' }}"
-                        href="{{ route('admin.accounts') }}">
-                        <span class="svg-icon svg-icon-2" style="margin-left: 5px">
-                            <i class="bi bi-wallet text-primary fs-2x"></i>
-                        </span>
-                        <span class="menu-title">{{ trans('sidebar.accounts') }}</span>
-                    </a>
-                </div>
 
-                <div class="menu-item">
-                    <a class="menu-link {{ request()->routeIs(['admin.account_settings']) ? 'active' : '' }}"
-                        href="{{ route('admin.account_settings') }}">
-                        <span class="svg-icon svg-icon-2" style="margin-left: 5px">
-                            <i class="bi bi-gear text-primary fs-2x"></i>
-                        </span>
-                        <span class="menu-title">{{ trans('sidebar.account_settings') }}</span>
-                    </a>
-                </div>
+                @can('view_accounts')
+                    <div class="menu-item">
+                        <a class="menu-link {{ request()->routeIs(['admin.accounts']) ? 'active' : '' }}"
+                            href="{{ route('admin.accounts') }}">
+                            <span class="svg-icon svg-icon-2" style="margin-left: 5px">
+                                <i class="bi bi-wallet text-primary fs-2x"></i>
+                            </span>
+                            <span class="menu-title">{{ trans('sidebar.accounts') }}</span>
+                        </a>
+                    </div>
+                @endcan
 
-                <div class="menu-item">
-                    <a class="menu-link {{ request()->routeIs(['admin.financial_transactions.index']) ? 'active' : '' }}"
-                        href="{{ route('admin.financial_transactions.index') }}">
-                        <span class="svg-icon svg-icon-2" style="margin-left: 5px">
-                            <i class="bi bi-cash-coin text-primary fs-2x"></i>
-                        </span>
-                        <span class="menu-title">{{ trans('sidebar.financial_transactions') }}</span>
-                    </a>
-                </div>
+                @can('view_account_settings')
+                    <div class="menu-item">
+                        <a class="menu-link {{ request()->routeIs(['admin.account_settings']) ? 'active' : '' }}"
+                            href="{{ route('admin.account_settings') }}">
+                            <span class="svg-icon svg-icon-2" style="margin-left: 5px">
+                                <i class="bi bi-gear text-primary fs-2x"></i>
+                            </span>
+                            <span class="menu-title">{{ trans('sidebar.account_settings') }}</span>
+                        </a>
+                    </div>
+                @endcan
+                @can('view_financial_transactions')
+                    <div class="menu-item">
+                        <a class="menu-link {{ request()->routeIs(['admin.financial_transactions.index']) ? 'active' : '' }}"
+                            href="{{ route('admin.financial_transactions.index') }}">
+                            <span class="svg-icon svg-icon-2" style="margin-left: 5px">
+                                <i class="bi bi-cash-coin text-primary fs-2x"></i>
+                            </span>
+                            <span class="menu-title">{{ trans('sidebar.financial_transactions') }}</span>
+                        </a>
+                    </div>
+                @endcan
 
-                <div class="menu-item">
-                    <a class="menu-link {{ request()->routeIs(['admin.account_transfers']) ? 'active' : '' }}"
-                        href="{{ route('admin.account_transfers') }}">
-                        <span class="svg-icon svg-icon-2" style="margin-left: 5px">
-                            <i class="bi bi-arrow-left-right text-primary fs-2x"></i>
-                        </span>
-                        <span class="menu-title">{{ trans('sidebar.account_transfers') }}</span>
-                    </a>
-                </div>
-
+                @can('view_account_transfers')
+                    <div class="menu-item">
+                        <a class="menu-link {{ request()->routeIs(['admin.account_transfers']) ? 'active' : '' }}"
+                            href="{{ route('admin.account_transfers') }}">
+                            <span class="svg-icon svg-icon-2" style="margin-left: 5px">
+                                <i class="bi bi-arrow-left-right text-primary fs-2x"></i>
+                            </span>
+                            <span class="menu-title">{{ trans('sidebar.account_transfers') }}</span>
+                        </a>
+                    </div>
+                @endcan
+                
                 @can('list_eradat')
                     <div class="menu-item">
                         <a class="menu-link {{ request()->routeIs(['admin.revenues.index']) ? 'active' : '' }}"

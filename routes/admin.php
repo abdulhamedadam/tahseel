@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\app_setting\DiscountController;
 use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\CompanyController;
+use App\Http\Controllers\Admin\ConfigAppController;
 use App\Http\Controllers\Admin\EmployeesController;
 
 use App\Http\Controllers\Admin\FinancialTransactionsController;
@@ -136,7 +137,7 @@ Route::group(
             Route::get('/edit/account/{id}', [AccountController::class, 'edit_account'])->name('edit_account');
             Route::get('delete/account/{id}', [AccountController::class, 'destroy'])->name('delete_account');
             Route::get('/get_ajax_accounts', [AccountController::class, 'get_ajax_accounts'])->name('get_ajax_accounts');
-
+            Route::get('/accounts/{id}/transactions', [AccountController::class, 'get_transactions'])->name('accounts_transactions');
 
             Route::get('account-settings', [AccountController::class, 'account_setting'])->name('account_settings');
             Route::post('save-account-settings', [AccountController::class, 'save_account_setting'])->name('save_account_setting');
@@ -151,6 +152,12 @@ Route::group(
             Route::get('delete/account_transfers/{id}', [AccountTransferController::class, 'destroy'])->name('delete_account_transfer');
             Route::get('/get_ajax_account_transfers', [AccountTransferController::class, 'get_ajax_account_transfers'])->name('get_ajax_account_transfers');
             Route::post('redo_account_transfer/{id}', [AccountTransferController::class, 'redo_account_transfer'])->name('redo_account_transfer');
+
+
+            /*************************************************************************************************/
+            Route::get('setting/app_config', [ConfigAppController::class, 'index'])->name('app_config');
+            Route::post('setting/app_config/save', [ConfigAppController::class, 'store'])->name('save_app_config');
+
         });
     }
 );
@@ -163,6 +170,7 @@ Route::group(
     ],
     function () {
 
+        Route::get('/invoice/{id}/print', [InvoiceController::class, 'print_invoice'])->name('print_invoice');
 
 
         require __DIR__ . '/adminauth.php';

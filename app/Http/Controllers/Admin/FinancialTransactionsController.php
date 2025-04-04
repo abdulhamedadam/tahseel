@@ -21,7 +21,7 @@ class FinancialTransactionsController extends Controller
 
     public function __construct(BasicRepositoryInterface $basicRepository)
     {
-        // $this->middleware('can:list_financial_transactions')->only('index');
+        $this->middleware('can:view_financial_transactions')->only('index');
 
         $this->financialTransactionsRepository = createRepository($basicRepository, new FinancialTransaction());
         // $this->revenueService = $revenueService;

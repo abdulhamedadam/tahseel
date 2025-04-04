@@ -14,13 +14,13 @@
         @endphp
 
 
-        <div class="d-flex align-items-center gap-2 gap-lg-3">
+        {{-- <div class="d-flex align-items-center gap-2 gap-lg-3">
 
             @can('create_masrofat')
                 {{ AddButton(route('admin.masrofat.create')) }}
             @endcan
 
-        </div>
+        </div> --}}
     </div>
 
 @endsection
@@ -158,9 +158,6 @@
                     {
                         "extend": 'copy',
                     },
-                    {
-                        "extend": 'pdf'
-                    }
                 ],
 
                 "language": {

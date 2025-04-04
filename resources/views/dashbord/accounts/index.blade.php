@@ -24,11 +24,13 @@
             PageTitle($title, $breadcrumbs);
         @endphp
 
-        <div class="d-flex align-items-center gap-2 gap-lg-3">
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAccounts">
-                {{ trans('accounts.add_account') }}
-            </button>
-        </div>
+        @can('create_account')
+            <div class="d-flex align-items-center gap-2 gap-lg-3">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAccounts">
+                    {{ trans('accounts.add_account') }}
+                </button>
+            </div>
+        @endcan
     </div>
 @endsection
 
@@ -45,7 +47,8 @@
                             <th>{{ trans('accounts.account_name') }}</th>
                             <th>{{ trans('accounts.parent') }}</th>
                             <th>{{ trans('accounts.level') }}</th>
-                            <th>{{ trans('accounts.assigned_user') }}</th>
+                            <th>{{ trans('accounts.sum_amount') }}</th>
+                            {{-- <th>{{ trans('accounts.assigned_user') }}</th> --}}
                             <th>{{ trans('accounts.created_by') }}</th>
                             <th>{{ trans('accounts.actions') }}</th>
                         </tr>
@@ -98,6 +101,43 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="transactionsModal" tabindex="-1" aria-labelledby="transactionsModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="transactionsModalLabel">{{ trans('accounts.transactions_for') }} <span
+                            id="accountName"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="table1" class="table table-bordered">
+                                <thead>
+                                    <tr class="fw-bold fs-6 text-gray-800">
+                                        <th style="text-align: center;">{{ trans('accounts.ID') }}</th>
+                                        <th style="text-align: center;">{{ trans('accounts.amount') }}</th>
+                                        <th style="text-align: center;">{{ trans('accounts.account') }}</th>
+                                        <th style="text-align: center;">{{ trans('accounts.date') }}</th>
+                                        <th style="text-align: center;">{{ trans('accounts.time') }}</th>
+                                        <th style="text-align: center;">{{ trans('accounts.type') }}</th>
+                                        <th style="text-align: center;">{{ trans('accounts.notes') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transactionsTableBody">
+                                    <tr>
+                                        <td colspan="8" class="text-center">No transactions found.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @stop
 
 @section('js')
@@ -132,7 +172,50 @@
                 },
             });
         }
+
+        function viewTransactions(id) {
+            $.ajax({
+                url: "{{ route('admin.accounts_transactions', ['id' => '__id__']) }}".replace('__id__', id),
+                type: "GET",
+                dataType: "json",
+                success: function(response) {
+                    $('#accountName').text(response.account_name);
+                    var transactionsTableBody = $('#transactionsTableBody');
+                    transactionsTableBody.empty();
+
+                    if (response.transactions.length > 0) {
+                        response.transactions.forEach(function(transaction) {
+                            transactionsTableBody.append(`
+                                <tr>
+                                    <td class="text-center">${transaction.id}</td>
+                                    <td class="text-center">${transaction.amount}</td>
+                                    <td class="text-center">${transaction.account?.name ?? 'N/A'}</td>
+                                    <td class="text-center">${transaction.date}</td>
+                                    <td class="text-center">${transaction.time ?? ''}</td>
+                                    <td class="text-center">${transaction.type == 'qapd' ? 'قبض' : 'صرف'}</td>
+                                    <td class="text-center">${transaction.notes || ''}</td>
+                                </tr>
+                            `);
+                        });
+                    } else {
+                        transactionsTableBody.append(`
+                            <tr>
+                                <td colspan="8" class="text-center">{{ trans('accounts.no_transactions') }}</td>
+                            </tr>
+                        `);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX Error:", status, error);
+                    alert('Failed to load transactions. Check the console for details.');
+                }
+            });
+
+            $('#transactionsModal').modal('show');
+        }
     </script>
+
+
     <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js') }}"></script>
     {!! JsValidator::formRequest('App\Http\Requests\Admin\account\SaveRequest', '#accountForm') !!}
 @endsection

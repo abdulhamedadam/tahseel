@@ -215,6 +215,24 @@ class RolesController extends Controller
                 'view_unpaid_invoices_notifications',
                 'mark_notification_read',
             ])->get(),
+            'Accounts' => Permission::whereIn('name', [
+                'view_accounts',
+                'create_account',
+                'edit_account',
+                'delete_account',
+                'view_account_settings',
+                'save_account_settings',
+            ])->get(),
+
+            'Financial Transactions' => Permission::whereIn('name', [
+                'view_financial_transactions',
+            ])->get(),
+
+            'Account Transfers' => Permission::whereIn('name', [
+                'view_account_transfers',
+                'create_account_transfer',
+                'redo_account_transfer',
+            ])->get(),
         ];
         // dd($data);
         // return view('dashbord.roles.form', $data);

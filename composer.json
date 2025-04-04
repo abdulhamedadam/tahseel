@@ -23,6 +23,7 @@
         "php-flasher/flasher-laravel": "^1.15",
         "php-flasher/flasher-sweetalert-laravel": "^1.15",
         "php-flasher/flasher-toastr-laravel": "^1.15",
+        "php-open-source-saver/jwt-auth": "^2.3",
         "proengsoft/laravel-jsvalidation": "^4.8",
         "pusher/pusher-php-server": "*",
         "simplesoftwareio/simple-qrcode": "^4.2",

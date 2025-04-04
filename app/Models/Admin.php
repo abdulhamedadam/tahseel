@@ -15,12 +15,13 @@ use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
 //use Spatie\Permission\Traits\HasRoles;
 
-class Admin extends Authenticatable
+class Admin extends Authenticatable implements JWTSubject
 {
-//HasRoles
+    //HasRoles
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
     protected $guard = 'admin';
@@ -57,7 +58,6 @@ class Admin extends Authenticatable
             return asset((Storage::disk('images')->exists($value)) ? $image_path : 'assets/media/avatars/blank.png');
         } else {
             return asset('assets/media/avatars/blank.png');
-
         }
     }
 
@@ -92,5 +92,15 @@ class Admin extends Authenticatable
     public function financialTransactions()
     {
         return $this->hasMany(FinancialTransaction::class, 'account_id', 'account_id');
+    }
+
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return [];
     }
 }

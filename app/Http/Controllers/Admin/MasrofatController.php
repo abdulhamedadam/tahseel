@@ -40,7 +40,7 @@ class MasrofatController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $allData = Masrofat::with(['employee', 'sarf_band', 'user'])->get();
+            $allData = Masrofat::with(['employee', 'sarf_band', 'user'])->orderBy('created_at', 'desc')->get();
             return DataTables::of($allData)
                 ->editColumn('emp_id', function ($row) {
                     return $row->employee ? $row->employee->first_name . ' ' . $row->employee->last_name : 'N/A';
@@ -52,7 +52,7 @@ class MasrofatController extends Controller
                     return $row->value;
                 })
                 ->editColumn('notes', function ($row) {
-                    return $row->notes;
+                    return $row->notes ?? 'N/A';
                 })
                 ->editColumn('created_by', function ($row) {
                     return $row->user ? $row->user->name : 'N/A';

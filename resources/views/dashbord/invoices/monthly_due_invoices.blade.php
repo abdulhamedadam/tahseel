@@ -31,6 +31,7 @@
                     'invoices.remaining_amount',
                     'invoices.due_date',
                     'invoices.paid_date',
+                    'invoices.collected_by',
                     'invoices.status',
                     'invoices.subscription',
                     'invoices.notes',
@@ -153,6 +154,10 @@
                         className: 'text-center'
                     },
                     {
+                        data: 'collected_by',
+                        className: 'text-center'
+                    },
+                    {
                         data: 'status',
                         className: 'text-center'
                     },
@@ -206,7 +211,7 @@
                         }
                     },
                     {
-                        "targets": [2],
+                        "targets": [2, 8],
                         "createdCell": function(td, cellData, rowData, row, col) {
                             $(td).css({
                                 'font-weight': '600',
@@ -240,9 +245,6 @@
                     {
                         "extend": 'copy',
                     },
-                    {
-                        "extend": 'pdf'
-                    }
                 ],
 
                 "language": {

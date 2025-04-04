@@ -37,6 +37,7 @@
                     'invoices.remaining_amount',
                     'invoices.due_date',
                     'invoices.paid_date',
+                    'invoices.collected_by',
                     'invoices.status',
                     'invoices.subscription',
                     'invoices.notes',
@@ -64,11 +65,12 @@
                         <div class="mb-3">
                             <label for="invoice_amount" class="form-label">{{ trans('invoices.invoice_amount') }}</label>
                             <input type="number" class="form-control" id="invoice_amount" name="invoice_amount" required
-                                min="1">
+                            min="1">
                         </div>
                         <div class="mb-3">
                             <label for="paid_amount" class="form-label">{{ trans('invoices.invoice_paid_amount') }}</label>
                             <input type="number" class="form-control" id="paid_amount" name="paid_amount">
+                            <small class="text-muted">{{ trans('invoices.remaining_amount') }}: <span id="remaining_amount_note"></span></small>
                         </div>
                         <div class="mb-3">
                             <label for="notes" class="form-label">{{ trans('invoices.notes') }}</label>
@@ -159,6 +161,10 @@
                         className: 'text-center'
                     },
                     {
+                        data: 'collected_by',
+                        className: 'text-center'
+                    },
+                    {
                         data: 'status',
                         className: 'text-center'
                     },
@@ -212,7 +218,7 @@
                         }
                     },
                     {
-                        "targets": [2],
+                        "targets": [2, 8],
                         "createdCell": function(td, cellData, rowData, row, col) {
                             $(td).css({
                                 'font-weight': '600',
@@ -246,9 +252,6 @@
                     {
                         "extend": 'copy',
                     },
-                    {
-                        "extend": 'pdf'
-                    }
                 ],
 
                 "language": {
@@ -313,7 +316,38 @@
             $('#payInvoiceForm').attr('action', url);
             $('#invoice_amount').val(invoiceAmount);
             // $('#paid_amount').val(remainingAmount);
+            $('#remaining_amount_note').text(remainingAmount);
+            $('#paid_amount').val('').attr({
+                'max': remainingAmount,
+                'placeholder': 'Max: ' + remainingAmount
+            });
             $('#payInvoiceModal').modal('show');
+        }
+
+        $(document).on('input', '#paid_amount', function() {
+            let enteredAmount = parseFloat($(this).val()) || 0;
+            let remainingAmount = parseFloat($('#remaining_amount_note').text());
+
+            if (enteredAmount > remainingAmount) {
+                $(this).val(remainingAmount);
+                showAmountWarning();
+            }
+        });
+
+        function showAmountWarning() {
+            let warning = $('#amount_warning');
+            if (warning.length === 0) {
+                $('<div id="amount_warning" class="text-danger mt-1 small">' +
+                '<i class="bi bi-exclamation-triangle"></i> ' +
+                'تم تعديل المبلغ إلى الحد الأقصى للمبلغ المتبقي' +
+                '</div>').insertAfter('#paid_amount');
+            } else {
+                warning.show();
+            }
+
+            setTimeout(() => {
+                $('#amount_warning').fadeOut();
+            }, 3000);
         }
 
         function validateAmount() {

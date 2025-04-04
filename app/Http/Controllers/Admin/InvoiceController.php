@@ -82,6 +82,15 @@ class InvoiceController extends Controller
                         ? Carbon::parse($row->paid_date)->format('Y-m-d h:i A')
                         : 'N/A';
                 })
+                ->addColumn('collected_by', function ($row) {
+                    $latestRevenue = $row->revenues->sortByDesc('created_at')->first();
+
+                    if ($latestRevenue && $latestRevenue->user) {
+                        return $latestRevenue->user->name;
+                    }
+                    // return trans('invoices.not_found');
+                    return 'N/A';
+                })
                 ->addColumn('status', function ($row) {
                     $status = $row->status ?? 'N/A';
                     $class = match ($status) {
@@ -180,7 +189,7 @@ class InvoiceController extends Controller
             'paid_amount' => 'nullable|numeric',
             'notes' => 'nullable|string',
         ]);
-
+        // dd($request->all());
         try {
             return $this->invoiceService->payInvoice($id, $request);
 
@@ -295,6 +304,14 @@ class InvoiceController extends Controller
                 ->addColumn('paid_date', function ($row) {
                     return $row->paid_date ? $row->paid_date : 'N/A';
                 })
+                ->addColumn('collected_by', function ($row) {
+                    $latestRevenue = $row->revenues->sortByDesc('created_at')->first();
+
+                    if ($latestRevenue && $latestRevenue->user) {
+                        return $latestRevenue->user->name;
+                    }
+                    return 'N/A';
+                })
                 ->addColumn('amount', function ($row) {
                     return $row->amount ?? 'N/A';
                 })
@@ -375,7 +392,7 @@ class InvoiceController extends Controller
         if ($request->ajax()) {
             $allData = Invoice::with(['client', 'employee', 'subscription'])
                 ->whereIn('status', ['paid', 'partial'])
-                ->whereDate('created_at', '>=', Carbon::now()->subDays(10))
+                ->whereDate('paid_date', '>=', Carbon::now()->subDays(10))
                 ->whereNull('deleted_at')
                 ->orderBy('created_at', 'desc')
                 ->get();
@@ -411,6 +428,14 @@ class InvoiceController extends Controller
                 })
                 ->addColumn('paid_date', function ($row) {
                     return $row->paid_date ? $row->paid_date : 'N/A';
+                })
+                ->addColumn('collected_by', function ($row) {
+                    $latestRevenue = $row->revenues->sortByDesc('created_at')->first();
+
+                    if ($latestRevenue && $latestRevenue->user) {
+                        return $latestRevenue->user->name;
+                    }
+                    return 'N/A';
                 })
                 ->addColumn('notes', function ($row) {
                     return $row->notes ?? 'N/A';

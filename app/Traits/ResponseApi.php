@@ -6,25 +6,23 @@ namespace App\Traits;
 
 trait ResponseApi
 {
-    function ResponseApi($content = null, $massage = null, $status = null)
+    function responseApi($content, $massage = null, $status = true)
     {
-
-        $array = ['data' => $content,
+        $array = [
+            'result' => $status,
             'message' => $massage,
-            'status' => $status
+            'data' => (object)$content
         ];
-        return response($array, $status);
-
+        return response()->json($array, 200);
     }
 
-    function responseApiError($massage = null, $status = null)
+    function responseApiError($massage = null, $status = false)
     {
-
-
-        $array = ['message' => $massage,
-            'status' => $status
+        $array = [
+            'result' => $status,
+            'message' => $massage,
+            'data' => (object)[]
         ];
-        return response($array, $status);
+        return response($array, 200);
     }
-
 }
