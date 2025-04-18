@@ -42,13 +42,14 @@ class AccountController extends Controller
 
     public function accounts()
     {
-        $data['accounts'] = $this->accountsRepository->getAll()->toQuery()->whereNull('parent_id')
+        $accounts = $this->accountsRepository->getAll();
+        $data['accounts'] = $accounts->isNotEmpty() ? $accounts->toQuery()->whereNull('parent_id')
             ->whereNull('deleted_at')
             ->with(['children' => function ($query) {
                 $query->withSum('financialTransactions', 'amount');
             }])
             ->withSum('financialTransactions', 'amount')
-            ->get();
+            ->get() : collect();
         $data['users'] = $this->usersRepository->getAll();
         // dd($data);
         // dd(auth()->user());
@@ -58,7 +59,8 @@ class AccountController extends Controller
     {
         if (request()->ajax()) {
             try {
-                $data = $this->accountsRepository->getWithRelations(['admin', 'user', 'parent'])->toQuery()->where('deleted_at', null)->orderBy('created_at', 'desc')->get();
+                $accounts = $this->accountsRepository->getWithRelations(['admin', 'user', 'parent']);
+                $data = $accounts->isNotEmpty() ? $accounts->toQuery()->where('deleted_at', null)->orderBy('created_at', 'desc')->get() : collect();
 
                 $counter = 0;
 

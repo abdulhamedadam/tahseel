@@ -7,10 +7,13 @@ namespace App\Services;
 use App\Interfaces\BasicRepositoryInterface;
 use App\Models\Admin\FinancialTransaction;
 use App\Models\Admin\Invoice;
+use App\Models\Admin\MonthlyInvoiceGeneration;
 use App\Models\Admin\Revenue;
 use App\Models\Admin\Subscription;
 use App\Models\Clients;
 use App\Traits\ImageProcessing;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class InvoiceService
 {
@@ -132,6 +135,9 @@ class InvoiceService
             $invoice->amount = $request->invoice_amount;
             $invoice->remaining_amount = max($invoice->amount - $invoice->paid_amount, 0);
         }
+        if ($request->notes) {
+            $invoice->notes = $request->notes;
+        }
 
         if ($request->paid_amount) {
             $totalPaid = $invoice->paid_amount + $request->paid_amount;
@@ -194,5 +200,93 @@ class InvoiceService
         $invoice->save();
 
         return redirect()->back()->with('success', trans('forms.success'));
+    }
+
+    public function canGenerateInvoices(): bool
+    {
+        // $currentDay = now()->day;
+        // if ($currentDay > 15) {
+        //     return false;
+        // }
+
+        return !MonthlyInvoiceGeneration::where('year_month', now()->format('Y-m'))->exists();
+    }
+
+    public function generateMonthlyInvoices()
+    {
+        $currentYearMonth = Carbon::now()->format('Y-m');
+        // $currentDay = Carbon::now()->day;
+
+        // if ($currentDay > 15) {
+        //     return redirect()->back()
+        //         ->with('error', 'يمكن إنشاء الفواتير الشهرية فقط خلال الأيام الـ15 الأولى من الشهر.');
+        // }
+
+        if (!$this->canGenerateInvoices()) {
+            return redirect()->back()->with('error', 'تم إنشاء الفواتير بالفعل لهذا الشهر.');
+        }
+
+        try {
+            $clients = Clients::whereNull('deleted_at')->get();
+            $invoicesCreated = 0;
+            $currentMonth = Carbon::now()->startOfMonth();
+
+            foreach ($clients as $client) {
+                $startDate = Carbon::parse($client->start_date)->startOfMonth();
+
+                if ($startDate->greaterThanOrEqualTo(date: $currentMonth)) {
+                    continue;
+                }
+
+                $lastAutoInvoice = Invoice::where('client_id', $client->id)
+                        ->where('auto_generated', true)
+                        ->latest('due_date')
+                        ->first();
+                // dd($lastAutoInvoice);
+                $dueDate = $lastAutoInvoice
+                    ? Carbon::parse($lastAutoInvoice->due_date)->addMonth()
+                    : Carbon::parse($client->start_date ?? $currentMonth)->addMonth();
+
+                $invoiceNumber = $this->getNextInvoiceNumber();
+
+                Invoice::create([
+                    'client_id' => $client->id,
+                    'invoice_number' => $invoiceNumber,
+                    'amount' => $client->price,
+                    'remaining_amount' => $client->price,
+                    'subscription_id' => $client->subscription_id,
+                    'enshaa_date' => Carbon::now(),
+                    'due_date' => $dueDate,
+                    'status' => 'unpaid',
+                    'auto_generated' => true,
+                ]);
+
+                $invoicesCreated++;
+            }
+
+            MonthlyInvoiceGeneration::create([
+                'year_month' => $currentYearMonth,
+                'generated_at' => now(),
+                'invoices_created' => $invoicesCreated,
+                'generated_by' => Auth::id(),
+            ]);
+
+            return redirect()->back()->with('success', 'تم إنشاء ' . $invoicesCreated . ' فاتورة بنجاح');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'حدث خطأ أثناء إنشاء الفواتير: ' . $e->getMessage());
+        }
+    }
+
+    private function getNextInvoiceNumber()
+    {
+        $lastInvoice = Invoice::withTrashed()->orderBy('id', 'desc')->first();
+
+        if ($lastInvoice) {
+            if (is_numeric($lastInvoice->invoice_number)) {
+                return (int)$lastInvoice->invoice_number + 1;
+            }
+        }
+
+        return (int)1;
     }
 }

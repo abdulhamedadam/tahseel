@@ -13,7 +13,7 @@
                     <div id="kt_app_content_container" class="" style="padding-top: 20px" >
                         <div class="card shadow-sm" style="border-top: 3px solid #007bff;">
                             <div class="card-header">
-                                <h3 class="card-title">{{ trans('notifications.invoices') }}</h3>
+                                <h3 class="card-title">{{ trans('notifications.transfers') }}</h3>
                             </div>
 
 
@@ -23,13 +23,11 @@
                                         <thead>
                                             <tr class="fw-bold fs-6 text-gray-800">
                                                 <th style="width: 5%">{{ trans('notifications.id') }}</th>
-                                                <th class="text-center">{{ trans('notifications.invoice_number') }}</th>
                                                 <th class="text-center">{{ trans('notifications.message') }}</th>
                                                 <th class="text-center">{{ trans('notifications.amount') }}</th>
-                                                <th class="text-center">{{ trans('notifications.paid_amount') }}</th>
-                                                <th class="text-center">{{ trans('notifications.remaining_amount') }}</th>
-                                                <th class="text-center">{{ trans('notifications.due_date') }}</th>
-                                                <th class="text-center">{{ trans('notifications.client_name') }}</th>
+                                                <th class="text-center">{{ trans('notifications.from_account') }}</th>
+                                                <th class="text-center">{{ trans('notifications.to_account') }}</th>
+                                                <th class="text-center">{{ trans('notifications.user') }}</th>
                                                 <th>{{ trans('notifications.status') }}</th>
                                                 <th class="text-center">{{ trans('notifications.month_year') }}</th>
                                                 <th style="width: 20%; text-align: center">{{ trans('notifications.actions') }}</th>
@@ -95,17 +93,15 @@
                         url: "{{ asset('assets/Arabic.json') }}"
                     },
                     ajax: {
-                        url: "{{ route('admin.get_ajax_invoice_notifications') }}",
+                        url: "{{ route('admin.get_ajax_transfers_notifications') }}",
                     },
                     columns: [
                         { data: 'id', name: 'id' },
-                        { data: 'invoice_number', name: 'invoice_number', orderable: false, searchable: false },
                         { data: 'message', name: 'message' },
                         { data: 'amount', name: 'amount', orderable: false, searchable: false },
-                        { data: 'paid_amount', name: 'paid_amount', orderable: false, searchable: false },
-                        { data: 'remaining_amount', name: 'remaining_amount', orderable: false, searchable: false },
-                        { data: 'due_date', name: 'due_date' },
-                        { data: 'client', name: 'client', orderable: false, searchable: false },
+                        { data: 'from_account', name: 'from_account', orderable: false, searchable: false },
+                        { data: 'to_account', name: 'to_account', orderable: false, searchable: false },
+                        { data: 'user_name', name: 'user_name', orderable: false, searchable: false },
                         { data: 'status', name: 'status' },
                         { data: 'month_year', name: 'month_year', orderable: false, searchable: false },
                         { data: 'action', name: 'action', orderable: false, searchable: false }

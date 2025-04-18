@@ -151,9 +151,6 @@
                     {
                         "extend": 'copy',
                     },
-                    {
-                        "extend": 'pdf'
-                    }
                 ],
 
                 "language": {

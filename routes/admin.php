@@ -116,6 +116,7 @@ Route::group(
             Route::get('/invoice/{id}/redo', [InvoiceController::class, 'redo_invoice'])->name('redo_invoice');
             Route::get('/invoices/due-monthly', [InvoiceController::class, 'dueMonthlyInvoices'])->name('due_monthly_invoices');
             Route::get('/invoices/new', [InvoiceController::class, 'newlyPaidInvoices'])->name('new_paid_invoices');
+            Route::post('/invoices/generate', [InvoiceController::class, 'generate'])->name('invoices_generate');
 
             Route::get('invoices/reports', [ReportController::class, 'reports'])->name('reports.reports');
             Route::post('reports', [ReportController::class, 'index'])->name('reports.index');
@@ -129,6 +130,10 @@ Route::group(
             Route::get('/get_ajax_notifications/new_clients', [NotificationsController::class, 'get_ajax_notifications'])->name('get_ajax_notifications');
             Route::get('/notifications/unpaid_invoices', [NotificationsController::class, 'unpaid_invoices'])->name('unpaid_invoices_notifications');
             Route::get('/get_ajax_invoice_notifications', [NotificationsController::class, 'get_ajax_invoice_notifications'])->name('get_ajax_invoice_notifications');
+            Route::get('/notifications/invoices', [NotificationsController::class, 'invoices'])->name('invoices_process_notifications');
+            Route::get('/get_ajax_invoices_notifications', [NotificationsController::class, 'get_ajax_invoices_notifications'])->name('get_ajax_invoices_notifications');
+            Route::get('/notifications/transfers', [NotificationsController::class, 'transfers'])->name('transfers_notifications');
+            Route::get('/get_ajax_transfers_notifications', [NotificationsController::class, 'get_ajax_transfers_notifications'])->name('get_ajax_transfers_notifications');
             Route::get('/notifications/read/{id}', [NotificationsController::class, 'mark_notification_read'])->name('mark_notification_read');
 
 

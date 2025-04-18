@@ -1,88 +1,4 @@
-<div class="card-header d-flex justify-content-between align-items-center">
-    <div class="d-flex gap-4">
-        <span class="badge bg-success fs-6 px-3 py-2">
-            {{ trans('clients.total_paid') }}: {{ $total_paid }}
-        </span>
-        <span class="badge bg-danger fs-6 px-3 py-2">
-            {{ trans('clients.total_unpaid') }}: {{ $total_unpaid }}
-        </span>
-    </div>
-</div>
 <div class="" style="margin-top: 30px">
-    {{-- <table id="table" class="example table table-bordered responsive nowrap text-center" cellspacing="0"
-            width="70%">
-            <thead>
-                <tr class="greentd" style="background-color: lightgrey">
-                    <th>{{ trans('invoices.hash') }}</th>
-                    <th>{{ trans('invoices.invoice_number') }}</th>
-                    <th>{{ trans('invoices.subscription') }}</th>
-                    <th>{{ trans('invoices.amount') }}</th>
-                    <th>{{ trans('invoices.paid_amount') }}</th>
-                    <th>{{ trans('invoices.paid_date') }}</th>
-                    <th>{{ trans('invoices.enshaa_date') }}</th>
-                    <th>{{ trans('invoices.due_date') }}</th>
-                    <th>{{ trans('invoices.status') }}</th>
-                    <th>{{ trans('invoices.actions') }}</th>
-                </tr>
-            </thead>
-            <tbody>
-                @php
-                    $x = 1;
-                @endphp
-                @foreach ($paid_data as $invoice)
-                    <tr>
-                        <td>{{ $x++ }}</td>
-                        <td>{{ $invoice->client && $invoice->client->client_type == 'satellite' ? 'SA-' : 'IN-' }}{{ $invoice->invoice_number }}
-                        </td>
-                        <td>{{ $invoice->subscription ? $invoice->subscription->name : 'خدمة' }}</td>
-                        <td>{{ $invoice->amount ?? 'N/A' }}</td>
-                        <td>{{ $invoice->paid_amount ?? 'N/A' }}</td>
-                        <td class="fnt_center_black">
-                            {{ $invoice->paid_date ? \Illuminate\Support\Carbon::parse($invoice->paid_date)->format('Y-m-d h:i A') : 'N\A' }}
-                        </td>
-                        <td class="fnt_center_black">
-                            {{ $invoice->enshaa_date ? \Illuminate\Support\Carbon::parse($invoice->enshaa_date)->format('Y-m-d') : 'N\A' }}
-                        </td>
-                        <td class="fnt_center_black">
-                            {{ $invoice->due_date ? \Illuminate\Support\Carbon::parse($invoice->due_date)->format('Y-m-d') : 'N\A' }}
-                        </td>
-                        <td>
-                            <span
-                                class="badge
-                            @if ($invoice->status == 'paid') bg-success text-white
-                            @elseif($invoice->status == 'partial') bg-warning text-dark @endif
-                            px-4 py-3 rounded-pill fw-bold fs-5">
-                                {{ trans('invoices.' . ($invoice->status ?? 'N/A')) }}
-                            </span>
-                        </td>
-                        <td>
-                            <div class="btn-group">
-                                <a href="javascript:void(0)"
-                                    onclick="invoice_details('{{ route('admin.invoice_details', $invoice->id) }}')"
-                                    class="btn btn-info" title="{{ trans('invoices.view_details') }}"
-                                    style="padding: 2px 4px; font-size: 20px; line-height: 1; margin-right: 2px;">
-                                    <i class="bi bi-eye"></i>
-                                </a>
-                                <a href="javascript:void(0)"
-                                    onclick="print_invoice('{{ route('admin.print_invoice', $invoice->id) }}')"
-                                    class="btn btn-warning" title="{{ trans('invoices.print') }}"
-                                    style="padding: 2px 4px; font-size: 20px; line-height: 1; margin-right: 2px;">
-                                    <i class="bi bi-printer"></i>
-                                </a>
-                                @if ($invoice->status == 'unpaid' || $invoice->status == 'partial')
-                                    <a href="javascript:void(0)"
-                                        onclick="showPayModal('{{ route('admin.pay_invoice', $invoice->id) }}', {{ $invoice->remaining_amount }}, {{ $invoice->amount }})"
-                                        class="btn btn-success" title="{{ trans('invoices.mark_as_paid') }}"
-                                        style="padding: 2px 4px; font-size: 20px; line-height: 1; margin-right: 2px;">
-                                        <i class="bi bi-check-circle"></i>
-                                    </a>
-                                @endif
-                            </div>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table> --}}
     <div class="card-body">
         <div class="col-md-12 row">
 
@@ -210,6 +126,7 @@
                     <div class="mb-3">
                         <label for="paid_amount" class="form-label">{{ trans('invoices.invoice_paid_amount') }}</label>
                         <input type="number" class="form-control" id="paid_amount" name="paid_amount">
+                        <small class="text-muted">{{ trans('invoices.remaining_amount') }}: <span id="remaining_amount_note"></span></small>
                     </div>
                     <div class="mb-3">
                         <label for="notes" class="form-label">{{ trans('invoices.notes') }}</label>
@@ -245,7 +162,6 @@
         </div>
     </div>
 </div>
-
 
 @section('js')
     <script>
@@ -404,9 +320,6 @@
                     {
                         "extend": 'copy',
                     },
-                    {
-                        "extend": 'pdf'
-                    }
                 ],
 
                 "language": {
@@ -453,11 +366,49 @@
         });
     </script>
     <script>
-        function showPayModal(url, remainingAmount, invoiceAmount) {
+        function showPayModal(url, remainingAmount, invoiceAmount, notes) {
+            // console.log(notes)
             $('#payInvoiceForm').attr('action', url);
             $('#invoice_amount').val(invoiceAmount);
             // $('#paid_amount').val(remainingAmount);
+            $('#remaining_amount_note').text(remainingAmount);
+            let notesValue = notes;
+            if (notesValue === 'undefined' || notesValue === null || notesValue === 'null') {
+                notesValue = '';
+            }
+
+            $('#notes').val(notesValue);
+            $('#paid_amount').val('').attr({
+                'max': remainingAmount,
+                'placeholder': 'Max: ' + remainingAmount
+            });
             $('#payInvoiceModal').modal('show');
+        }
+
+        $(document).on('input', '#paid_amount', function() {
+            let enteredAmount = parseFloat($(this).val()) || 0;
+            let remainingAmount = parseFloat($('#remaining_amount_note').text());
+
+            if (enteredAmount > remainingAmount) {
+                $(this).val(remainingAmount);
+                showAmountWarning();
+            }
+        });
+
+        function showAmountWarning() {
+            let warning = $('#amount_warning');
+            if (warning.length === 0) {
+                $('<div id="amount_warning" class="text-danger mt-1 small">' +
+                '<i class="bi bi-exclamation-triangle"></i> ' +
+                'تم تعديل المبلغ إلى الحد الأقصى للمبلغ المتبقي' +
+                '</div>').insertAfter('#paid_amount');
+            } else {
+                warning.show();
+            }
+
+            setTimeout(() => {
+                $('#amount_warning').fadeOut();
+            }, 3000);
         }
 
         function validateAmount() {

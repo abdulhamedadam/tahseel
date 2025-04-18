@@ -124,4 +124,14 @@ class AuthController extends Controller
             'user_data' => $data,
         ], 'تم تسجيل الدخول بنجاح', true);
     }
+
+    public function authUserFinancialSum(Request $request)
+    {
+        $user = auth('api')->user();
+
+        return $this->responseApi([
+            'financial_transactions_amount' => $user->financialTransactions->sum('amount'),
+            'currency' => get_app_config_data('currency'),
+        ], 'تم استرجاع إجمالي المعاملات المالية بنجاح', true);
+    }
 }

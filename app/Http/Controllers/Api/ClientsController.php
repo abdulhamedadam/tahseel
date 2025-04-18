@@ -47,7 +47,7 @@ class ClientsController extends Controller
             $data = [
                 'clients' => ClientResource::collection($clients)
             ];
-            return $this->responseApi($data, 'تم استرجاع العملاء بنجاح');
+            return $this->responseApi($data, 'تم استرجاع الزبائن بنجاح');
         } catch (\Exception $e) {
             return $this->responseApiError('حدث خطأ ما.');
         }
@@ -122,10 +122,6 @@ class ClientsController extends Controller
                 ->where('client_id', $id)
                 ->whereIn('status', ['paid', 'partial'])
                 ->where('created_at', '>=', $oneYearAgo)
-                // ->whereHas('revenues', function($query) use ($user) {
-                //     $query->where('collected_by', $user->id);
-                // })
-                // ->orderBy('created_at', 'desc')
                 ->get();
 
                 // dd($paidInvoices);
@@ -134,21 +130,27 @@ class ClientsController extends Controller
                     if ($invoice->revenues->count() > 0) {
                         foreach ($invoice->revenues as $revenue) {
 
-                            $paidBeforeThisRevenue = $revenue->amount + $revenue->remaining_amount;
+                            // $paidBeforeThisRevenue = $revenue->amount + $revenue->remaining_amount;
 
                             $processedPaidInvoices[] = [
-                                'invoice_id' => $invoice->id,
+                                'id' => $invoice->id,
                                 'invoice_number' => ($invoice->client->client_type == 'satellite' ? 'SA-' : 'IN-') . $invoice->invoice_number,
-                                'status' => $revenue->status,
+                                'client_id' => $invoice->client->id,
+                                'client_name' => $invoice->client->name,
+                                'client_phone' => $invoice->client->phone,
+                                'client_address' => $invoice->client->address1,
                                 'subscription_id' => $invoice->subscription_id,
                                 'subscription' => $invoice->subscription ? $invoice->subscription->name : trans('invoices.service'),
-                                'client_name' => $invoice->client->name,
-                                'client_address' => $invoice->client->address1,
+                                'amount' => $invoice->amount,
                                 'paid_amount' => $revenue->amount,
+                                // 'remaining_before_payment' => $paidBeforeThisRevenue,
+                                'remaining_amount' => $revenue->remaining_amount,
+                                'due_date' => $invoice->due_date ?? 'N/A',
                                 'paid_date' => $revenue->received_at,
-                                'remaining_before_payment' => $paidBeforeThisRevenue,
-                                'remaining_after_payment' => $revenue->remaining_amount,
                                 'collected_by' => $revenue->user->name,
+                                // 'status' => $revenue->status,
+                                'status' => 'paid',
+                                'invoice_type' => $invoice->invoice_type,
                                 'notes' => $revenue->notes,
                                 'currency' => get_app_config_data('currency')
                             ];

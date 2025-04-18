@@ -23,6 +23,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'v1'], function ($router) {
         Route::get('user/profile', [AuthController::class, 'show']);
         Route::post('user/update', [AuthController::class, 'update']);
         Route::post('logout', [AuthController::class, 'logout']);
+        Route::get('user/financial_sum', [AuthController::class, 'authUserFinancialSum']);
 
 
         Route::post('/clients', [ClientsController::class, 'index']);
@@ -34,5 +35,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'v1'], function ($router) {
         Route::get('invoice/{id}', [InvoicesController::class, 'show']);
         Route::post('/invoice/{id}/pay', [InvoicesController::class, 'payInvoice']);
         Route::get('/invoice/{id}/print', [InvoicesController::class, 'print_invoice']);
+
+
     });
 });

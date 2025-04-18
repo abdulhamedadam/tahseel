@@ -1,6 +1,6 @@
 <?php return array (
   'notifications' => 'الاشعارات',
-  'new_clients' => 'العملاء الجدد',
+  'new_clients' => 'الزبائن الجدد',
   'message' => 'الرسالة',
   'client_name' => 'اسم العميل',
   'created_at' => 'تاريخ الانشاء',
@@ -19,5 +19,11 @@
   'month_year' => 'الشهر/السنه',
   'notification_read' => 'تم قراءة الاشعار',
   'read' => 'مقروء',
-  'currency' => 'currency',
+  'currency' => 'العمله',
+  'invoices_proccess' => 'عمليات الفواتير',
+  'transfers' => 'التحويلات',
+  'transfer_id' => 'رقم العمليه',
+  'from_account' => 'من حساب',
+  'to_account' => 'الى حساب',
+  'user' => 'القائم بالتحويل',
 );

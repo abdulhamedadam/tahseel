@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Interfaces\BasicRepositoryInterface;
+use App\Models\Admin;
 use App\Models\Admin\Account;
 use App\Models\Admin\AccountSettings;
 use App\Models\Admin\AccountTransfer;
 use App\Models\Admin\FinancialTransaction;
 use App\Models\Admin\Masrofat;
 use App\Models\Admin\SarfBand;
+use App\Notifications\AccountTransferNotification;
+use App\Notifications\AccountTransferRedoNotification;
 use App\Traits\ValidationMessage;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
@@ -52,7 +55,8 @@ class AccountTransferController extends Controller
     {
         if (request()->ajax()) {
             try {
-                $data = $this->accountTransfersRepository->getAll()->toQuery()->where('deleted_at', null)->orderBy('created_at', 'desc')->get();
+                $account_transfers = $this->accountTransfersRepository->getAll();
+                $data = $account_transfers->isNotEmpty() ? $account_transfers->toQuery()->where('deleted_at', null)->orderBy('created_at', 'desc')->get() : collect();
 
                 return DataTables::of($data)
                     ->addColumn('id', function ($row) {
@@ -174,6 +178,21 @@ class AccountTransferController extends Controller
                 'created_by'    => Auth::id(),
             ]);
 
+            $admins = Admin::where('status', '1')
+                ->whereNull('deleted_at')
+                // ->where('id', '!=', auth()->id())
+                ->get();
+
+            foreach ($admins as $admin) {
+                $admin->notify(new AccountTransferNotification(
+                    $fromAccountName,
+                    $toAccountName,
+                    $validated_data['amount'],
+                    auth()->user(),
+                    'تم تحويل مبلغ ' . $validated_data['amount'] . ' جنيه من حساب ' . $fromAccountName . ' إلى حساب ' . $toAccountName
+                ));
+            }
+
             toastr()->addSuccess(trans('account_transfers.transfer_added_successfully'));
             return redirect()->route('admin.account_transfers');
         } catch (\Exception $e) {
@@ -208,6 +227,22 @@ class AccountTransferController extends Controller
 
                 $this->accountTransfersRepository->delete($id);
 
+                $admins = Admin::where('status', '1')
+                    ->whereNull('deleted_at')
+                    // ->where('id', '!=', auth()->id())
+                    ->get();
+
+                foreach ($admins as $admin) {
+                    $admin->notify(new AccountTransferRedoNotification(
+                        Account::find($accountTransfer->from_account)->name,
+                        Account::find($accountTransfer->to_account)->name,
+                        $accountTransfer->amount,
+                        auth()->user(),
+                        'تم التراجع عن تحويل مبلغ ' . $accountTransfer->amount . ' جنيه من حساب ' .
+                        Account::find($accountTransfer->from_account)->name . ' إلى حساب ' .
+                        Account::find($accountTransfer->to_account)->name
+                    ));
+                }
                 toastr()->addSuccess(trans('account_transfers.transfer_redone_successfully'));
             } else {
                 toastr()->addError(trans('account_transfers.transfer_not_found'));

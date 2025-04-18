@@ -1,6 +1,6 @@
 <?php return array (
-  'clients' => 'العملاء',
-  'clients_table' => 'جدول االعملاء',
+  'clients' => 'الزبائن',
+  'clients_table' => 'جدول الزبائن',
   'ID' => 'المعرف',
   'name' => 'الاسم',
   'phone' => 'رقم الهاتف',

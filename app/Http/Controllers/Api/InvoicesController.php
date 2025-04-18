@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\InvoiceResource;
+use App\Models\Admin;
 use App\Models\Admin\FinancialTransaction;
 use App\Models\Admin\Invoice;
 use App\Models\Admin\Revenue;
+use App\Notifications\InvoicePaidNotification;
 use App\Traits\ResponseApi;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -100,8 +102,8 @@ class InvoicesController extends Controller
     public function paidInvoices(Request $request)
     {
         $rules = [
-            'start_date' => 'required|before_or_equal:today',
-            'end_date' => 'required|after:start_date|before_or_equal:today',
+            'start_date' => 'required',
+            'end_date' => 'required|after:start_date',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -120,7 +122,9 @@ class InvoicesController extends Controller
             if ($request->has('start_date') && $request->has('end_date')) {
                 $startDate = Carbon::parse($request->input('start_date'))->startOfDay();
                 $endDate = Carbon::parse($request->input('end_date'))->endOfDay();
-
+                if ($endDate->isFuture()) {
+                    $endDate = Carbon::today()->endOfDay();
+                }
                 $query->whereHas('revenues', function($q) use ($startDate, $endDate) {
                     $q->whereBetween('received_at', [$startDate, $endDate]);
                 });
@@ -138,20 +142,27 @@ class InvoicesController extends Controller
             foreach ($invoices as $invoice) {
                 foreach ($invoice->revenues as $revenue) {
 
-                    $paidBeforeThisRevenue = $revenue->amount + $revenue->remaining_amount;
+                    // $paidBeforeThisRevenue = $revenue->amount + $revenue->remaining_amount;
 
                     $processedInvoices[] = [
-                        'invoice_id' => $invoice->id,
+                        'id' => $invoice->id,
                         'invoice_number' => ($invoice->client->client_type == 'satellite' ? 'SA-' : 'IN-') . $invoice->invoice_number,
-                        'status' => $revenue->status,
-                        'subscription' => $invoice->subscription ? $invoice->subscription->name : trans('invoices.service'),
+                        'client_id' => $invoice->client->id,
                         'client_name' => $invoice->client->name,
+                        'client_phone' => $invoice->client->phone,
                         'client_address' => $invoice->client->address1,
+                        'subscription_id' => $invoice->subscription_id,
+                        'subscription' => $invoice->subscription ? $invoice->subscription->name : trans('invoices.service'),
+                        'amount' => $invoice->amount,
                         'paid_amount' => $revenue->amount,
+                        // 'remaining_before_payment' => $paidBeforeThisRevenue,
+                        'remaining_amount' => $revenue->remaining_amount,
+                        'due_date' => $invoice->due_date ?? 'N/A',
                         'paid_date' => $revenue->received_at,
-                        'remaining_before_payment' => $paidBeforeThisRevenue,
-                        'remaining_after_payment' => $revenue->remaining_amount,
                         'collected_by' => $revenue->user->name,
+                        // 'status' => $revenue->status,
+                        'status' => 'paid',
+                        'invoice_type' => $invoice->invoice_type,
                         'notes' => $revenue->notes,
                         'currency' => get_app_config_data('currency')
                     ];
@@ -253,7 +264,7 @@ class InvoicesController extends Controller
                     'year'          => now()->year,
                     'notes'         => 'سداد مستحقات الفاتورة رقم #' . $invoice->id,
                     'type'          => 'qapd',
-                    'created_by'    => auth()->id(),
+                    'created_by'    => auth('api')->id(),
                 ]);
             } catch (\Exception $e) {
                 return $this->responseApiError('حدث خطأ أثناء إنشاء الحركة المالية');
@@ -324,10 +335,23 @@ class InvoicesController extends Controller
                 'year'          => now()->year,
                 'notes'         => 'سداد مستحقات الفاتورة رقم #' . $invoice->id,
                 'type'          => 'qapd',
-                'created_by'    => auth()->id(),
+                'created_by'    => auth('api')->id(),
             ]);
 
             DB::commit();
+
+            $admins = Admin::where('status', '1')
+                ->whereNull('deleted_at')
+                ->get();
+
+            foreach ($admins as $admin) {
+                $admin->notify(new InvoicePaidNotification(
+                    $invoice,
+                    $paidAmount,
+                    auth('api')->user(),
+                    'تم دفع فاتورة رقم ' . $invoice->id . ' بقيمة ' . $paidAmount . ' جنيه'
+                ));
+            }
 
             return $this->responseApi(null, 'تم دفع الفاتورة بنجاح');
         } catch (ModelNotFoundException $e) {

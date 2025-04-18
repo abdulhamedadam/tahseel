@@ -60,5 +60,12 @@
   'LE' => 'جنيهاً',
   'revenue_creation_failed' => 'تعذر إنشاء سجل الإيراد',
   'collected_by' => 'محصل بواسطة',
-  'not_found' => 'غير موجود'
+  'not_found' => 'غير موجود',
+  '' => '',
+  'generate_invoices' => 'إصدار الفواتير',
+  'back' => 'رجوع',
+  'unpaid_data' => 'الغير مدفوعة',
+  'paid_data' => 'المدفوعة',
+  'total_unpaid' => 'اجمالى الغير مدفوعة',
+  'total_paid' => 'اجمالى المدفوعة',
 );

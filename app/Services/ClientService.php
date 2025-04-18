@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Interfaces\BasicRepositoryInterface;
 use App\Models\Admin;
 use App\Models\Admin\Invoice;
+use App\Models\Admin\MonthlyInvoiceGeneration;
 use App\Models\Admin\Subscription;
 use App\Models\Clients;
 use App\Notifications\NewClientAddedNotification;
@@ -46,15 +47,40 @@ class ClientService
             'amount' => $validated_data['price'],
             'remaining_amount' => $validated_data['price'],
             'enshaa_date' => now(),
-            'due_date' => now()->addMonth(),
+            'due_date' => now(),
             'status' => 'unpaid',
+            'auto_generated' => true,
         ];
 
         $this->InvoiceRepository->create($invoice_data);
 
+        // $invoicesGeneratedThisMonth = MonthlyInvoiceGeneration::where('year_month', now()->format('Y-m'))->exists();
+
+        // if ($invoicesGeneratedThisMonth) {
+        //     $invoiceNumber1 = $this->InvoiceRepository->getLastFieldValue('invoice_number');
+        //     $dueDate1 = now()->addMonth();
+
+        //     Invoice::create([
+        //         'client_id' => $client->id,
+        //         'invoice_number' => $invoiceNumber1,
+        //         'amount' => $client->price,
+        //         'remaining_amount' => $client->price,
+        //         'subscription_id' => $client->subscription_id,
+        //         'enshaa_date' => now(),
+        //         'due_date' => $dueDate1,
+        //         'status' => 'unpaid',
+        //         'auto_generated' => true,
+        //     ]);
+
+        //     $monthlyRecord = MonthlyInvoiceGeneration::where('year_month', now()->format('Y-m'))->first();
+        //     if ($monthlyRecord) {
+        //         $monthlyRecord->increment('invoices_created');
+        //     }
+        // }
+
         $admins = Admin::where('status', '1')
                     ->whereNull('deleted_at')
-                    ->where('id', '!=', auth()->id())
+                    // ->where('id', '!=', auth()->id())
                     ->get();
 
         foreach ($admins as $admin) {

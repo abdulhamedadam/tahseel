@@ -28,16 +28,103 @@
 
     <div id="kt_app_content_container" class="app-container container-xxxl">
 
+        <div class="card-body">
+            <div class="col-md-12 row">
+
+                <div class="col-md-3">
+                    <label for="band_id"class="form-label">{{ trans('reports.band') }}</label>
+                    <div class="input-group flex-nowrap ">
+                        <span class="input-group-text" id="basic-addon3">{!! form_icon('select1') !!}</i></span>
+                        <div class="overflow-hidden flex-grow-1">
+                            <select class="form-select rounded-start-0" name="band_id" id="band_id"
+                                data-placeholder="{{ trans('reports.select') }}">
+                                <option value="">{{ trans('reports.select') }}</option>
+                                @foreach ($bands as $item)
+                                    <option value="{{ $item->id }}"
+                                        {{ old('band_id') == $item->id ? 'selected' : '' }}>{{ $item->title }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    @error('band_id')
+                        <span class="invalid-feedback d-block" role="alert">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label for="from_date" class="form-label">{{ trans('reports.from_date') }}</label>
+                    <div class="input-group flex-nowrap">
+                        <span class="input-group-text">{!! form_icon('date') !!}</span>
+                        <input type="date" class="form-control" name="from_date" id="from_date"
+                            value="{{ old('from_date') }}">
+                    </div>
+                    @error('from_date')
+                        <span class="invalid-feedback d-block">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label for="to_date" class="form-label">{{ trans('reports.to_date') }}</label>
+                    <div class="input-group flex-nowrap">
+                        <span class="input-group-text">{!! form_icon('date') !!}</span>
+                        <input type="date" class="form-control" name="to_date" id="to_date"
+                            value="{{ old('to_date') }}">
+                    </div>
+                    @error('to_date')
+                        <span class="invalid-feedback d-block">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label for="value" class="form-label">{{ trans('masrofat.value') }}</label>
+                    <div class="input-group flex-nowrap">
+                        <span class="input-group-text">{!! form_icon('price') !!}</span>
+                        <input type="text" class="form-control" name="value" id="value"
+                            placeholder="{{ trans('masrofat.value') }}" value="{{ old('value') }}">
+                    </div>
+                    @error('value')
+                        <span class="invalid-feedback d-block">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label for="notes" class="form-label">{{ trans('masrofat.notes') }}</label>
+                    <div class="input-group flex-nowrap">
+                        <span class="input-group-text">{!! form_icon('text') !!}</span>
+                        <input type="text" class="form-control" name="notes" id="notes"
+                            placeholder="{{ trans('masrofat.notes') }}" value="{{ old('notes') }}">
+                    </div>
+                    @error('notes')
+                        <span class="invalid-feedback d-block">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label for="created_by" class="form-label">{{ trans('masrofat.created_by') }}</label>
+                    <div class="input-group flex-nowrap">
+                        <span class="input-group-text">{!! form_icon('text') !!}</span>
+                        <input type="text" class="form-control" name="created_by" id="created_by"
+                            placeholder="{{ trans('masrofat.created_by') }}" value="{{ old('created_by') }}">
+                    </div>
+                    @error('created_by')
+                        <span class="invalid-feedback d-block">{{ $message }}</span>
+                    @enderror
+                </div>
+            </div>
+        </div>
+
         <div class="card shadow-sm" style="border-top: 3px solid #007bff;">
             @php
                 $headers = [
                     'masrofat.ID',
-                    'masrofat.emp_name',
+                    // 'masrofat.emp_name',
                     'masrofat.band_name',
                     'masrofat.value',
                     'masrofat.notes',
+                    'masrofat.created_at',
                     'masrofat.created_by',
-                    'masrofat.actions',
+                    // 'masrofat.actions',
                 ];
 
                 generateTable($headers);
@@ -62,7 +149,15 @@
                 "order": [],
                 "ajax": {
                     url: "{{ route('admin.masrofat.index') }}",
-                    type: 'GET'
+                    type: 'GET',
+                    data: function(d) {
+                        d.band_id = $('#band_id').val();
+                        d.from_date = $('#from_date').val();
+                        d.to_date = $('#to_date').val();
+                        d.value = $('#value').val();
+                        d.notes = $('#notes').val();
+                        d.created_by = $('#created_by').val();
+                    }
                 },
                 "columns": [
                     {
@@ -70,10 +165,10 @@
 
                         className: 'text-center no-export'
                     },
-                    {
-                        data: 'emp_id',
-                        className: 'text-center no-export'
-                    },
+                    // {
+                    //     data: 'emp_id',
+                    //     className: 'text-center no-export'
+                    // },
                     {
                         data: 'band_id',
                         className: 'text-center'
@@ -87,15 +182,19 @@
                         className: 'text-center'
                     },
                     {
-                        data: 'created_by',
+                        data: 'created_at',
                         className: 'text-center'
                     },
                     {
-                        data: 'action',
-                        name: 'action',
-                        orderable: false,
-                        className: 'text-center no-export'
+                        data: 'created_by',
+                        className: 'text-center'
                     },
+                    // {
+                    //     data: 'action',
+                    //     name: 'action',
+                    //     orderable: false,
+                    //     className: 'text-center no-export'
+                    // },
                 ],
                 "columnDefs": [{
                         "targets": [1, -1], //last column
@@ -196,6 +295,18 @@
     </script>
 
     <script>
+        $('#band_id, #from_date, #to_date').change(function() {
+            table.ajax.reload();
+        });
+
+        var delayTimer;
+        $('#value, #notes, #created_by').keyup(function() {
+            clearTimeout(delayTimer);
+            delayTimer = setTimeout(function() {
+                table.ajax.reload();
+            }, 100);
+        });
+
         function confirmDelete(clientId) {
             Swal.fire({
                 title: '{{ trans('employees.confirm_delete') }}',

@@ -17,11 +17,11 @@ class InvoiceResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'invoice_number' => ($this->client->client_type == 'satellite' ? 'SA-' : 'IN-') . $this->invoice_number,
+            'invoice_number' => ($this->client?->client_type == 'satellite' ? 'SA-' : 'IN-') . $this->invoice_number,
             'client_id' => $this->client_id,
-            'client_name' => $this->client->name,
-            'client_phone' => $this->client->phone,
-            'client_address' => $this->client->address1,
+            'client_name' => $this->client?->name,
+            'client_phone' => $this->client?->phone,
+            'client_address' => $this->client?->address1,
             'subscription_id' => $this->subscription_id,
             'subscription' => $this->subscription ? $this->subscription->name : trans('invoices.service'),
             'amount' => $this->amount,
@@ -29,7 +29,9 @@ class InvoiceResource extends JsonResource
             'remaining_amount' => $this->remaining_amount,
             'due_date' => $this->due_date ?? 'N/A',
             'paid_date' => $this->paid_date ? Carbon::parse($this->paid_date)->format('Y-m-d h:i A') : 'N/A',
-            'status' => $this->status,
+            'collected_by' => $this->revenues->isNotEmpty() ? $this->revenues->first()->user->name : null,
+            // 'status' => $this->status,
+            'status' => 'unpaid',
             'invoice_type' => $this->invoice_type,
             'notes' => $this->notes,
             'currency' => get_app_config_data('currency')

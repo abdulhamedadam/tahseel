@@ -13,7 +13,8 @@
                     <div id="kt_app_content_container" class="" style="padding-top: 20px" >
                         <div class="card shadow-sm" style="border-top: 3px solid #007bff;">
                             <div class="card-header">
-                                <h3 class="card-title">{{ trans('notifications.invoices') }}</h3>
+                                <h3 class="card-title">{{ trans('notifications.invoices_proccess') }}</h3>
+
                             </div>
 
 
@@ -26,9 +27,6 @@
                                                 <th class="text-center">{{ trans('notifications.invoice_number') }}</th>
                                                 <th class="text-center">{{ trans('notifications.message') }}</th>
                                                 <th class="text-center">{{ trans('notifications.amount') }}</th>
-                                                <th class="text-center">{{ trans('notifications.paid_amount') }}</th>
-                                                <th class="text-center">{{ trans('notifications.remaining_amount') }}</th>
-                                                <th class="text-center">{{ trans('notifications.due_date') }}</th>
                                                 <th class="text-center">{{ trans('notifications.client_name') }}</th>
                                                 <th>{{ trans('notifications.status') }}</th>
                                                 <th class="text-center">{{ trans('notifications.month_year') }}</th>
@@ -95,16 +93,13 @@
                         url: "{{ asset('assets/Arabic.json') }}"
                     },
                     ajax: {
-                        url: "{{ route('admin.get_ajax_invoice_notifications') }}",
+                        url: "{{ route('admin.get_ajax_invoices_notifications') }}",
                     },
                     columns: [
                         { data: 'id', name: 'id' },
                         { data: 'invoice_number', name: 'invoice_number', orderable: false, searchable: false },
                         { data: 'message', name: 'message' },
                         { data: 'amount', name: 'amount', orderable: false, searchable: false },
-                        { data: 'paid_amount', name: 'paid_amount', orderable: false, searchable: false },
-                        { data: 'remaining_amount', name: 'remaining_amount', orderable: false, searchable: false },
-                        { data: 'due_date', name: 'due_date' },
                         { data: 'client', name: 'client', orderable: false, searchable: false },
                         { data: 'status', name: 'status' },
                         { data: 'month_year', name: 'month_year', orderable: false, searchable: false },

@@ -64,41 +64,85 @@ class AppServiceProvider extends ServiceProvider
             return $key;
         });
 
-        if (Carbon::now()->day == 1) {
-            // dd(Carbon::now()->day);
-            $clients = Clients::whereNull('deleted_at')->get();
-            foreach ($clients as $client) {
-                $existingInvoice = Invoice::where('client_id', $client->id)
-                    ->whereYear('created_at', Carbon::now()->year)
-                    ->whereMonth('created_at', Carbon::now()->month)
-                    ->exists();
 
-                if (!$existingInvoice) {
-                    $lastInvoice = Invoice::where('client_id', $client->id)->latest()->first();
+        // $this->checkAndGenerateInvoices();
+        $this->sendOverdueInvoiceNotifications();
+    }
 
-                    if ($lastInvoice) {
-                        $dueDate = Carbon::parse($lastInvoice->due_date)->addMonth();
-                    } else {
-                        $dueDate = Carbon::parse($client->start_date)->addMonth();
-                    }
+    private function checkAndGenerateInvoices()
+    {
+        $currentYearMonth = Carbon::now()->format('Y-m');
+        $invoiceGenerationKey = 'monthly_invoices_generated_' . $currentYearMonth;
 
-                    Invoice::create([
-                        'client_id' => $client->id,
-                        'invoice_number' => getLastFieldValue(Invoice::class, 'invoice_number'),
-                        'amount' => $client->price,
-                        'remaining_amount' => $client->price,
-                        'subscription_id' => $client->subscription_id,
-                        'enshaa_date' => Carbon::now()->startOfMonth(),
-                        'due_date' => $dueDate,
-                        'status' => 'unpaid',
-                    ]);
+        $invoicesGenerated = Cache::get($invoiceGenerationKey, false);
+
+        if (!$invoicesGenerated && Carbon::now()->day <= 5) {
+            try {
+
+                $this->generateMonthlyInvoices();
+
+                Cache::put($invoiceGenerationKey, true, now()->addDays(35));
+
+                Log::info('تم إنشاء الفواتير الشهرية بنجاح لشهر: ' . $currentYearMonth);
+            } catch (\Exception $e) {
+                Log::error('حدث خطأ أثناء إنشاء الفواتير الشهرية: ' . $e->getMessage());
+            }
+        }
+    }
+
+    private function generateMonthlyInvoices()
+    {
+        $clients = Clients::whereNull('deleted_at')->get();
+        $invoicesCreated = 0;
+
+        foreach ($clients as $client) {
+            $currentMonth = Carbon::now()->startOfMonth();
+
+            $existingInvoice = Invoice::where('client_id', $client->id)
+                ->whereYear('created_at', $currentMonth->year)
+                ->whereMonth('created_at', $currentMonth->month)
+                ->exists();
+
+            if (!$existingInvoice) {
+                $lastInvoice = Invoice::where('client_id', $client->id)->latest()->first();
+
+                if ($lastInvoice) {
+                    $dueDate = Carbon::parse($lastInvoice->due_date)->addMonth();
+                } else {
+                    $dueDate = Carbon::parse($client->start_date ?? $currentMonth)->addMonth();
                 }
+
+                $invoiceNumber = $this->getNextInvoiceNumber();
+
+                Invoice::create([
+                    'client_id' => $client->id,
+                    'invoice_number' => $invoiceNumber,
+                    'amount' => $client->price,
+                    'remaining_amount' => $client->price,
+                    'subscription_id' => $client->subscription_id,
+                    'enshaa_date' => $currentMonth,
+                    'due_date' => $dueDate,
+                    'status' => 'unpaid',
+                ]);
+
+                $invoicesCreated++;
             }
         }
 
+        return $invoicesCreated;
+    }
 
-        $this->sendOverdueInvoiceNotifications();
-        // $this->generateInvoicesOncePerDay();
+    private function getNextInvoiceNumber()
+    {
+        $lastInvoice = Invoice::orderBy('id', 'desc')->first();
+
+        if ($lastInvoice) {
+            if (is_numeric($lastInvoice->invoice_number)) {
+                return (int)$lastInvoice->invoice_number + 1;
+            }
+        }
+
+        return (int)1;
     }
 
     private function sendOverdueInvoiceNotifications()
@@ -131,73 +175,6 @@ class AppServiceProvider extends ServiceProvider
 
         Cache::put('last_invoice_notification_date', $today, now()->endOfDay());
     }
-
-
-    private function generateInvoicesOncePerDay()
-    {
-        $today = Carbon::today()->toDateString();
-
-        if (!Cache::has('last_invoice_run') || Cache::get('last_invoice_run') != $today) {
-            $clients = Clients::whereNull('deleted_at')->get();
-
-            foreach ($clients as $client) {
-                $startDate = Carbon::parse($client->start_date);
-                $enshaaDate = Carbon::now()->startOfMonth();
-                $dueDate = $startDate->copy()->addMonthsNoOverflow(1);
-
-                if (Carbon::now()->format('d') == $startDate->format('d')) {
-                    $existingInvoice = Invoice::where('client_id', $client->id)
-                        ->whereYear('enshaa_date', $enshaaDate->year)
-                        ->whereMonth('enshaa_date', $enshaaDate->month)
-                        ->exists();
-
-                    if (!$existingInvoice) {
-                        Invoice::create([
-                            'client_id' => $client->id,
-                            'invoice_number' => getLastFieldValue(Invoice::class, 'invoice_number'),
-                            'amount' => $client->price,
-                            'remaining_amount' => $client->price,
-                            'subscription_id' => $client->subscription_id,
-                            'enshaa_date' => $enshaaDate,
-                            'due_date' => $dueDate,
-                            'status' => 'unpaid',
-                        ]);
-                    }
-                }
-            }
-
-            Cache::put('last_invoice_run', $today, now()->endOfDay());
-        }
-    }
-
-    // private function sendOverdueInvoiceNotifications()
-    // {
-    //     $today = Carbon::today();
-
-    //     if ($today->day > 5) {
-    //         return;
-    //     }
-
-    //     $currentMonth = $today->format('Y-m');
-
-    //     $admins = Admin::where('status', '1')->whereNull('deleted_at')->get();
-
-    //     $overdueInvoices = Invoice::where('status', 'unpaid')
-    //         ->where('due_date', '<', $today)
-    //         ->where(function ($query) use ($currentMonth) {
-    //             $query->whereNull('last_notified_at')
-    //                 ->orWhereRaw("DATE_FORMAT(last_notified_at, '%Y-%m') != ?", [$currentMonth]);
-    //         })
-    //         ->get();
-
-    //     foreach ($overdueInvoices as $invoice) {
-    //         foreach ($admins as $admin) {
-    //             $admin->notify(new InvoiceReminderNotification($invoice));
-    //         }
-
-    //         $invoice->update(['last_notified_at' => $today]);
-    //     }
-    // }
 
 
 }

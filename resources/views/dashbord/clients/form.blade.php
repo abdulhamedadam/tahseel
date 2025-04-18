@@ -76,7 +76,8 @@
                                 <span class="input-group-text">{!! form_icon('phone') !!}</span>
                                 <input type="tel" class="form-control @error('phone') is-invalid @enderror"
                                     name="phone" id="phone" value="{{ old('phone') }}" placeholder="123456789" maxlength="13">
-                                <select class="form-select" id="country_code" style="max-width: 120px;">
+                                <select class="form-select" id="country_code" style="max-width: 130px;">
+                                    <option value="+961">+961 (لبنان)</option>
                                     <option value="+20">+20 (مصر)</option>
                                     <option value="+966">+966 (السعودية)</option>
                                     <option value="+971">+971 (الإمارات)</option>
@@ -87,7 +88,6 @@
                                     <option value="+968">+968 (عُمان)</option>
                                     <option value="+962">+962 (الأردن)</option>
                                     <option value="+963">+963 (سوريا)</option>
-                                    <option value="+961">+961 (لبنان)</option>
                                     <option value="+964">+964 (العراق)</option>
                                     <option value="+967">+967 (اليمن)</option>
                                     <option value="+212">+212 (المغرب)</option>
@@ -366,7 +366,7 @@
 
             phoneInput.addEventListener('blur', function() {
                 if (!/^\+\d{1,3}/.test(this.value)) {
-                    this.value = (countryCodeSelect ? countryCodeSelect.value : '+20') + this.value;
+                    this.value = (countryCodeSelect ? countryCodeSelect.value : '+961') + this.value;
                 }
             });
         });

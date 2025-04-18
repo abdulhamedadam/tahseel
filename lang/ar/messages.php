@@ -16,4 +16,10 @@
   'تم التحويل بنجاح' => 'تم التحويل بنجاح',
   'تم استرجاع التحويل بنجاح' => 'تم استرجاع التحويل بنجاح',
   'no_account_found' => 'no_account_found',
+  'حدث خطأ أثناء إنشاء الفواتير: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry \'10\' for key \'tbl_invoices_invoice_number_unique\' (Connection: mysql, SQL: insert into `tbl_invoices` (`client_id`, `invoice_number`, `amount`, `remaining_amount`, `subscription_id`, `enshaa_date`, `due_date`, `status`, `updated_at`, `created_at`) values (1, 10, 500' => 'حدث خطأ أثناء إنشاء الفواتير: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry \'10\' for key \'tbl_invoices_invoice_number_unique\' (Connection: mysql, SQL: insert into `tbl_invoices` (`client_id`, `invoice_number`, `amount`, `remaining_amount`, `subscription_id`, `enshaa_date`, `due_date`, `status`, `updated_at`, `created_at`) values (1, 10, 500',
+  'حدث خطأ أثناء إنشاء الفواتير: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry \'14\' for key \'tbl_invoices_invoice_number_unique\' (Connection: mysql, SQL: insert into `tbl_invoices` (`client_id`, `invoice_number`, `amount`, `remaining_amount`, `subscription_id`, `enshaa_date`, `due_date`, `status`, `updated_at`, `created_at`) values (1, 14, 500' => 'حدث خطأ أثناء إنشاء الفواتير: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry \'14\' for key \'tbl_invoices_invoice_number_unique\' (Connection: mysql, SQL: insert into `tbl_invoices` (`client_id`, `invoice_number`, `amount`, `remaining_amount`, `subscription_id`, `enshaa_date`, `due_date`, `status`, `updated_at`, `created_at`) values (1, 14, 500',
+  'تم إنشاء 5 فاتورة بنجاح' => 'تم إنشاء 5 فاتورة بنجاح',
+  'الفواتير قد تم إنشاؤها بالفعل لهذا الشهر' => 'الفواتير قد تم إنشاؤها بالفعل لهذا الشهر',
+  'تم إنشاء الفواتير بالفعل لهذا الشهر' => 'تم إنشاء الفواتير بالفعل لهذا الشهر',
+  'تم إنشاء 6 فاتورة بنجاح' => 'تم إنشاء 6 فاتورة بنجاح',
 );

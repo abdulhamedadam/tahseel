@@ -4,8 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Interfaces\BasicRepositoryInterface;
+use App\Models\Admin\Account;
 use App\Models\Admin\Invoice;
 use App\Models\Clients;
+use App\Notifications\AccountTransferNotification;
+use App\Notifications\AccountTransferRedoNotification;
+use App\Notifications\InvoicePaidNotification;
+use App\Notifications\InvoiceRedoNotification;
 use App\Notifications\InvoiceReminderNotification;
 use App\Notifications\NewClientAddedNotification;
 use App\Traits\ImageProcessing;
@@ -65,7 +70,7 @@ class NotificationsController extends Controller
                         //         </a>';
                         $client = Clients::find($row->data['client_id']);
                         return '<a href="' . route('admin.client_paid_invoices', $row->data['client_id']) . '" class="text-primary" style="text-decoration: underline;">
-                                    '. $client->name .'
+                                    '. $client?->name .'
                                 </a>';
                     })
                     ->addColumn('created_at', function ($row) {
@@ -135,7 +140,7 @@ class NotificationsController extends Controller
                         $prefix = ($client && $client->client_type == 'satellite') ? 'SA-' : 'IN-';
 
                         return '<a href="javascript:void(0)" onclick="invoice_details(\'' . route('admin.invoice_details', $invoice->id) . '\')"
-                                class="text-primary fw-bold" title="' . trans('invoices.view_details') . '">
+                                class="text-primary fw-bold" style="text-decoration: underline;" title="' . trans('invoices.view_details') . '">
                                 ' . $prefix . $invoice->invoice_number . '
                             </a>';
                     })
@@ -184,6 +189,150 @@ class NotificationsController extends Controller
                         return $row->read_at ? 'table-light' : 'table-warning';
                     })
                     ->rawColumns(['invoice_number', 'client', 'action', 'month_year'])
+                    ->make(true);
+            } catch (\Exception $e) {
+                Log::error('Error in get_ajax_invoice_notifications: ' . $e->getMessage());
+                return response()->json(['error' => $e->getMessage()]);
+            }
+        }
+    }
+    public function invoices()
+    {
+        return view('dashbord.notifications.pay_invoices');
+    }
+    /*****************************************************/
+    public function get_ajax_invoices_notifications()
+    {
+        if (request()->ajax()) {
+            try {
+                $notifications = auth()->user()->notifications()
+                                ->whereIn('type', [
+                                    \App\Notifications\InvoicePaidNotification::class,
+                                    \App\Notifications\InvoiceRedoNotification::class,
+                                ])
+                                ->orderBy('created_at', 'desc');
+
+                $counter = 0;
+
+                return DataTables::of($notifications)
+                    ->addColumn('id', function () use (&$counter) {
+                        $counter++;
+                        return $counter;
+                    })
+                    ->addColumn('invoice_number', function ($row) {
+                        $invoice = Invoice::find($row->data['invoice_id']);
+                        if (!$invoice) return 'N/A';
+
+                        $client = Clients::find($invoice->client_id);
+                        $prefix = ($client && $client->client_type == 'satellite') ? 'SA-' : 'IN-';
+
+                        return '<a href="javascript:void(0)" onclick="invoice_details(\'' . route('admin.invoice_details', $invoice->id) . '\')"
+                                class="text-primary fw-bold" style="text-decoration: underline;" title="' . trans('invoices.view_details') . '">
+                                ' . $prefix . $invoice->invoice_number . '
+                            </a>';
+                    })
+                    ->addColumn('message', function ($row) {
+                        return $row->data['message'] ?? 'تنبيه بفاتورة مستحقة';
+                    })
+                    ->addColumn('amount', function ($row) {
+                        return number_format($row->data['amount'], 2);
+                    })
+                    ->addColumn('client', function ($row) {
+                        $invoice = Invoice::find($row->data['invoice_id']);
+                        if (!$invoice) return 'N/A';
+
+                        $client = Clients::find($invoice->client_id);
+                        return '<a href="' . route('admin.client_paid_invoices', $client) . '" class="text-primary" style="text-decoration: underline;">
+                                    '. $client->name .'
+                                </a>';
+                    })
+                    ->addColumn('status', function ($row) {
+                        return $row->read_at ? trans('notifications.read') : trans('notifications.unread');
+                    })
+                    ->addColumn('month_year', function ($row) {
+                        return $row->created_at ? Carbon::parse($row->created_at)->format('F Y') : 'N/A';
+                    })
+                    ->addColumn('action', function ($row) {
+                        if (!$row->read_at) {
+                            if (Auth::user()->can('mark_notification_read')) {
+                                return '<a href="' . route('admin.mark_notification_read', $row->id) . '" class="btn btn-sm btn-primary">
+                                        ' . trans('notifications.mark_as_read') . '
+                                    </a>';
+                            }
+                        }
+                        return '<span class="badge bg-success">' . trans('notifications.read') . '</span>';
+                    })
+                    ->setRowClass(function ($row) {
+                        return $row->read_at ? 'table-light' : 'table-warning';
+                    })
+                    ->rawColumns(['invoice_number', 'client', 'action', 'month_year'])
+                    ->make(true);
+            } catch (\Exception $e) {
+                Log::error('Error in get_ajax_invoice_notifications: ' . $e->getMessage());
+                return response()->json(['error' => $e->getMessage()]);
+            }
+        }
+    }
+    public function transfers()
+    {
+        return view('dashbord.notifications.transfers');
+    }
+    /*****************************************************/
+    public function get_ajax_transfers_notifications()
+    {
+        if (request()->ajax()) {
+            try {
+                $notifications = auth()->user()->notifications()
+                                ->whereIn('type', [
+                                    \App\Notifications\AccountTransferNotification::class,
+                                    \App\Notifications\AccountTransferRedoNotification::class,
+                                ])
+                                ->orderBy('created_at', 'desc');
+
+                $counter = 0;
+
+                return DataTables::of($notifications)
+                    ->addColumn('id', function () use (&$counter) {
+                        $counter++;
+                        return $counter;
+                    })
+                    ->addColumn('message', function ($row) {
+                        return $row->data['message'] ?? 'تنبيه بتحويل مالي';
+                    })
+                    ->addColumn('amount', function ($row) {
+                        return number_format($row->data['amount'], 2);
+                    })
+                    ->addColumn('from_account', function ($row) {
+                        $account = Account::find($row->data['from_account']);
+                        return $row->data['from_account'] ?? 'N/A';
+                    })
+                    ->addColumn('to_account', function ($row) {
+                        $account = Account::find($row->data['to_account']);
+                        return $row->data['to_account'] ?? 'N/A';
+                    })
+                    ->addColumn('user_name', function ($row) {
+                        return $row->data['user_name'] ?? 'N/A';
+                    })
+                    ->addColumn('status', function ($row) {
+                        return $row->read_at ? trans('notifications.read') : trans('notifications.unread');
+                    })
+                    ->addColumn('month_year', function ($row) {
+                        return $row->created_at ? Carbon::parse($row->created_at)->format('F Y') : 'N/A';
+                    })
+                    ->addColumn('action', function ($row) {
+                        if (!$row->read_at) {
+                            if (Auth::user()->can('mark_notification_read')) {
+                                return '<a href="' . route('admin.mark_notification_read', $row->id) . '" class="btn btn-sm btn-primary">
+                                        ' . trans('notifications.mark_as_read') . '
+                                    </a>';
+                            }
+                        }
+                        return '<span class="badge bg-success">' . trans('notifications.read') . '</span>';
+                    })
+                    ->setRowClass(function ($row) {
+                        return $row->read_at ? 'table-light' : 'table-warning';
+                    })
+                    ->rawColumns(['action', 'month_year'])
                     ->make(true);
             } catch (\Exception $e) {
                 Log::error('Error in get_ajax_invoice_notifications: ' . $e->getMessage());

@@ -31,7 +31,8 @@ class FinancialTransactionsController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $allData = $this->financialTransactionsRepository->getWithRelations(['account', 'admin'])->toQuery()->where('deleted_at', null)->orderBy('created_at', 'desc')->get();
+            $financial_transactions = $this->financialTransactionsRepository->getWithRelations(['account', 'admin']);
+            $allData = $financial_transactions->isNotEmpty() ? $financial_transactions->toQuery()->where('deleted_at', null)->orderBy('created_at', 'desc')->get() : collect();
             return DataTables::of($allData)
                 ->addColumn('id', function ($row) {
                     return $row->id ?? 'N/A';

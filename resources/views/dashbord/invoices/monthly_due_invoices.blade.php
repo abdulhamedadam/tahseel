@@ -64,6 +64,7 @@
                         <div class="mb-3">
                             <label for="paid_amount" class="form-label">{{ trans('invoices.invoice_paid_amount') }}</label>
                             <input type="number" class="form-control" id="paid_amount" name="paid_amount">
+                            <small class="text-muted">{{ trans('invoices.remaining_amount') }}: <span id="remaining_amount_note"></span></small>
                         </div>
                         <div class="mb-3">
                             <label for="notes" class="form-label">{{ trans('invoices.notes') }}</label>
@@ -302,11 +303,48 @@
     </script>
 
     <script>
-        function showPayModal(url, remainingAmount, invoiceAmount) {
+        function showPayModal(url, remainingAmount, invoiceAmount, notes) {
             $('#payInvoiceForm').attr('action', url);
             $('#invoice_amount').val(invoiceAmount);
             // $('#paid_amount').val(remainingAmount);
+            $('#remaining_amount_note').text(remainingAmount);
+            let notesValue = notes;
+            if (notesValue === 'undefined' || notesValue === null || notesValue === 'null') {
+                notesValue = '';
+            }
+
+            $('#notes').val(notesValue);
+            $('#paid_amount').val('').attr({
+                'max': remainingAmount,
+                'placeholder': 'Max: ' + remainingAmount
+            });
             $('#payInvoiceModal').modal('show');
+
+            $(document).on('input', '#paid_amount', function() {
+                let enteredAmount = parseFloat($(this).val()) || 0;
+                let remainingAmount = parseFloat($('#remaining_amount_note').text());
+
+                if (enteredAmount > remainingAmount) {
+                    $(this).val(remainingAmount);
+                    showAmountWarning();
+                }
+            });
+        }
+
+        function showAmountWarning() {
+            let warning = $('#amount_warning');
+            if (warning.length === 0) {
+                $('<div id="amount_warning" class="text-danger mt-1 small">' +
+                '<i class="bi bi-exclamation-triangle"></i> ' +
+                'تم تعديل المبلغ إلى الحد الأقصى للمبلغ المتبقي' +
+                '</div>').insertAfter('#paid_amount');
+            } else {
+                warning.show();
+            }
+
+            setTimeout(() => {
+                $('#amount_warning').fadeOut();
+            }, 3000);
         }
 
         function validateAmount() {

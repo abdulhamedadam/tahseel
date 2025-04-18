@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Admin\Account;
 use App\Models\Admin\Employee;
 use App\Models\Admin\FinancialTransaction;
+use App\Models\Admin\Revenue;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -102,5 +103,10 @@ class Admin extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+    public function revenues()
+    {
+        return $this->hasMany(Revenue::class, 'collected_by');
     }
 }

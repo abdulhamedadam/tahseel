@@ -47,7 +47,8 @@ class RevenueController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $allData = $this->RevenueRepository->getWithRelations(['client', 'invoice'])->toQuery()->whereNull('deleted_at')->orderBy('created_at', 'desc')->get();
+            $revenues = $this->RevenueRepository->getWithRelations(['client', 'invoice']);
+            $allData = $revenues->isNotEmpty() ? $revenues->toQuery()->whereNull('deleted_at')->orderBy('created_at', 'desc')->get() : collect();
             return Datatables::of($allData)
                 ->addColumn('counter', function ($row) {
                     static $count = 1;

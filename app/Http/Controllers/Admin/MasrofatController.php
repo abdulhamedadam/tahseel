@@ -40,8 +40,37 @@ class MasrofatController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $allData = Masrofat::with(['employee', 'sarf_band', 'user'])->orderBy('created_at', 'desc')->get();
-            return DataTables::of($allData)
+            // $allData = Masrofat::with(['employee', 'sarf_band', 'user'])->orderBy('created_at', 'desc')->get();
+            $query = Masrofat::with(['employee', 'sarf_band', 'user'])
+                ->orderBy('created_at', 'desc');
+
+            if ($request->has('band_id') && $request->band_id != '') {
+                $query->where('band_id', $request->band_id);
+            }
+
+            if ($request->has('from_date') && $request->from_date != '') {
+                $query->whereDate('created_at', '>=', $request->from_date);
+            }
+
+            if ($request->has('to_date') && $request->to_date != '') {
+                $query->whereDate('created_at', '<=', $request->to_date);
+            }
+
+            if ($request->has('value') && $request->value != '') {
+                $query->where('value', 'like', '%' . $request->value . '%');
+            }
+
+            if ($request->has('notes') && $request->notes != '') {
+                $query->where('notes', 'like', '%' . $request->notes . '%');
+            }
+
+            if ($request->has('created_by') && $request->created_by != '') {
+                $query->whereHas('user', function($q) use ($request) {
+                    $q->where('name', 'like', '%' . $request->created_by . '%');
+                });
+            }
+
+            return DataTables::of($query)
                 ->editColumn('emp_id', function ($row) {
                     return $row->employee ? $row->employee->first_name . ' ' . $row->employee->last_name : 'N/A';
                 })
@@ -57,30 +86,34 @@ class MasrofatController extends Controller
                 ->editColumn('created_by', function ($row) {
                     return $row->user ? $row->user->name : 'N/A';
                 })
-                ->addColumn('action', function ($row) {
-                    $actionButtons = '<div class="btn-group btn-group-sm">';
-
-                    if (auth()->user()->can('update_masrofat')) {
-                        $actionButtons .=  '<a href="' . route('admin.masrofat.edit', $row->id) . '" class="btn btn-sm btn-primary" title="' . trans('masrofat.edit') . '" style="font-size: 16px;">
-                                            <i class="bi bi-pencil-square"></i>
-                                        </a>';
-                    }
-
-                    if (auth()->user()->can('delete_masrofat')) {
-                        $actionButtons .= '<a onclick="return confirm(\'Are You Sure To Delete?\')"  href="' . route('admin.delete_masrofat', $row->id) . '"  class="btn btn-sm btn-danger" title="' . trans('masrofat.delete') . '" style="font-size: 16px;" onclick="return confirm(\'' . trans('masrofat.confirm_delete') . '\')">
-                                        <i class="bi bi-trash3"></i>
-                                    </a>';
-                    }
-
-
-                    $actionButtons .= '</div>';
-
-                    return $actionButtons;
+                ->editColumn('created_at', function ($row) {
+                    return $row->created_at->format('Y-m-d H:i:s');
                 })
+                // ->addColumn('action', function ($row) {
+                //     $actionButtons = '<div class="btn-group btn-group-sm">';
+
+                //     if (auth()->user()->can('update_masrofat')) {
+                //         $actionButtons .=  '<a href="' . route('admin.masrofat.edit', $row->id) . '" class="btn btn-sm btn-primary" title="' . trans('masrofat.edit') . '" style="font-size: 16px;">
+                //                             <i class="bi bi-pencil-square"></i>
+                //                         </a>';
+                //     }
+
+                //     if (auth()->user()->can('delete_masrofat')) {
+                //         $actionButtons .= '<a onclick="return confirm(\'Are You Sure To Delete?\')"  href="' . route('admin.delete_masrofat', $row->id) . '"  class="btn btn-sm btn-danger" title="' . trans('masrofat.delete') . '" style="font-size: 16px;" onclick="return confirm(\'' . trans('masrofat.confirm_delete') . '\')">
+                //                         <i class="bi bi-trash3"></i>
+                //                     </a>';
+                //     }
+
+
+                //     $actionButtons .= '</div>';
+
+                //     return $actionButtons;
+                // })
                 ->rawColumns(['action'])
                 ->make(true);
         }
-        return view('dashbord.masrofat.index');
+        $data['bands'] = SarfBand::all();
+        return view('dashbord.masrofat.index', $data);
     }
 
     /********************************************/

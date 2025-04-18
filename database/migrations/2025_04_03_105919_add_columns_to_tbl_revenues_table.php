@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('tbl_revenues', function (Blueprint $table) {
-            $table->enum('status', ['paid', 'partial'])->nullable()->after('received_at');
+            $table->enum('status', ['paid', 'partial'])->default('paid')->after('received_at');
             $table->decimal('remaining_amount', 10, 2)->default(0)->after('status');
         });
     }

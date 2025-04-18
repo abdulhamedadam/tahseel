@@ -327,7 +327,7 @@
                         </a>
                     </div>
                 @endcan
-                
+
                 @can('list_eradat')
                     <div class="menu-item">
                         <a class="menu-link {{ request()->routeIs(['admin.revenues.index']) ? 'active' : '' }}"
@@ -371,12 +371,14 @@
                         $defaultNotificationLink = route('admin.new_clients_notifications');
                     } elseif (auth()->user()->can('view_unpaid_invoices_notifications')) {
                         $defaultNotificationLink = route('admin.unpaid_invoices_notifications');
+                    } else {
+                        $defaultNotificationLink = route('admin.invoices_notifications');
                     }
                     // echo $defaultNotificationLink;
                 @endphp
                 @if ($defaultNotificationLink)
                     <div class="menu-item">
-                        <a class="menu-link {{ request()->routeIs('admin.new_clients_notifications') || request()->routeIs('admin.unpaid_invoices_notifications') ? 'active' : '' }}"
+                        <a class="menu-link {{ request()->routeIs('admin.new_clients_notifications') || request()->routeIs('admin.unpaid_invoices_notifications') || request()->routeIs('admin.invoices_notifications') || request()->routeIs('admin.transfers_notifications') ? 'active' : '' }}"
                             href="{{ $defaultNotificationLink }}">
                             <span class="svg-icon svg-icon-2" style="margin-left: 5px">
                                 <i class="bi bi-bell text-warning fs-2x"></i>

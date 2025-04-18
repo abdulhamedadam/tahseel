@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\clients\SaveRequests;
 use App\Http\Requests\Admin\clients\UpdateRequests;
 use App\Interfaces\BasicRepositoryInterface;
+use App\Models\Admin\FinancialTransaction;
 use App\Models\Admin\Invoice;
 use App\Models\Admin\Revenue;
 use App\Models\Admin\Subscription;
@@ -111,9 +112,9 @@ class ClientController extends Controller
                         $actionButtons .= '<li><a style="font-size: 14px" class="hover-effect dropdown-item" href="' . route('admin.clients.edit', $row->id) . '"><i class="bi bi-pencil-square"></i> ' . trans('clients.edit_clients') . '</a></li>';
                     }
 
-                    if (auth()->user()->can('delete_client')) {
-                        $actionButtons .= '<li><a style="font-size: 14px" class="hover-effect dropdown-item text-danger" onclick="return confirm(\'' . trans('clients.confirm_delete') . '\')" href="' . route('admin.delete_client', $row->id) . '"><i class="bi bi-trash-fill"></i> ' . trans('clients.client_delete') . '</a></li>';
-                    }
+                    // if (auth()->user()->can('delete_client')) {
+                    //     $actionButtons .= '<li><a style="font-size: 14px" class="hover-effect dropdown-item text-danger" onclick="return confirm(\'' . trans('clients.confirm_delete') . '\')" href="' . route('admin.delete_client', $row->id) . '"><i class="bi bi-trash-fill"></i> ' . trans('clients.client_delete') . '</a></li>';
+                    // }
 
                     // if (auth()->user()->can('view_client_paid_invoices')) {
                     $actionButtons .= '<li><a style="font-size: 14px" class="hover-effect dropdown-item" href="' . route('admin.client_paid_invoices', $row->id) . '"><i class="bi bi-currency-dollar"></i> ' . trans('clients.client_invoices') . '</a></li>';
@@ -239,7 +240,7 @@ class ClientController extends Controller
         $data['total_unpaid'] = $data['unpaid_data']->sum('amount');
         $data['total_paid'] = $data['paid_data']->sum('paid_amount');
         // dd($data);
-        return view($this->admin_view . '.client_paid_invoices', $data);
+        return view($this->admin_view . '.invoices.invoices', $data);
     }
     /***********************************************/
     public function client_invoices($id)
@@ -252,10 +253,14 @@ class ClientController extends Controller
             ->whereIn('status', ['paid', 'partial'])
             ->get();
         // $data['invoiceNumber'] = $this->InvoiceRepository->getLastFieldValue('invoice_number');
-        $data['invoiceNumber'] = getLastFieldValue(Invoice::class, 'invoice_number');
+        $lastInvoice = Invoice::withTrashed()->orderBy('id', 'desc')->first();
+        $data['invoiceNumber'] = $lastInvoice->invoice_number + 1;
         $data['subscriptions'] = $this->SubscriptionRepository->getAll();
+
+        $data['total_unpaid'] = $data['unpaid_data']->sum('amount');
+        $data['total_paid'] = $data['paid_data']->sum('paid_amount');
         // dd($data);
-        return view($this->admin_view . '.client_invoices', $data);
+        return view($this->admin_view . '.add_invoice.add_invoice', $data);
     }
     /***********************************************/
     public function client_add_invoice(Request $request, $id)
@@ -303,20 +308,44 @@ class ClientController extends Controller
             $invoice = $this->InvoiceRepository->create($invoiceData);
 
             // if ($request->remaining_amount < $request->amount) {
-            $admin = auth()->user();
-            $collectedBy = $admin && $admin->is_employee ? $admin->emp_id : auth()->user()->id;
+            // $admin = auth()->user();
+            // $collectedBy = $admin && $admin->is_employee ? $admin->emp_id : auth()->user()->id;
 
             Revenue::create([
                 'invoice_id' => $invoice->id,
                 'client_id' => $id,
                 // 'amount' => $paidAmount,
                 'amount' => $request->amount,
-                'collected_by' => $collectedBy,
+                'collected_by' => auth()->id(),
+                'status' => 'paid',
+                'remaining_amount' => 0,
                 'received_at' => now(),
             ]);
+
+            $accountId = auth()->user()->account_id ?? null;
+            if (!$accountId) {
+                return redirect()->back()->with('error', trans('invoices.no_account_found'));
+            }
+
+            try {
+                FinancialTransaction::create([
+                    'account_id'    => $accountId,
+                    'amount'        => $request->amount,
+                    'date'          => now()->toDateString(),
+                    'time'          => now()->toTimeString(),
+                    'month'         => now()->month,
+                    'year'          => now()->year,
+                    'notes'         => 'سداد مستحقات الفاتورة رقم #' . $invoice->id,
+                    'type'          => 'qapd',
+                    'created_by'    => auth()->id(),
+                ]);
+            } catch (\Exception $e) {
+                return redirect()->back()->with('error', trans('invoices.financial_transaction_creation_failed'));
+            }
+
             // }
 
-            return redirect()->back()->with('success', trans('clients.invoice_created_successfully.'));
+            return redirect()->route('admin.client_paid_invoices', $id)->with('success', trans('clients.invoice_created_successfully.'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', trans('clients.failed_to_create_invoice.'));
         }
