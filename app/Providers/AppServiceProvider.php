@@ -153,7 +153,12 @@ class AppServiceProvider extends ServiceProvider
             return;
         }
 
-        $admins = Admin::where('status', '1')->whereNull('deleted_at')->get();
+        $admins = Admin::where('status', '1')
+                ->whereNull('deleted_at')
+                // ->whereNotNull('onesignal_id')
+                ->get();
+
+        $playerIds = $admins->pluck('onesignal_id')->filter()->toArray();
 
         $overdueInvoices = Invoice::where('status', 'unpaid')
             ->where(function ($query) use ($today) {
@@ -165,8 +170,28 @@ class AppServiceProvider extends ServiceProvider
         foreach ($overdueInvoices as $invoice) {
             if ($today->toDateString() >= Carbon::parse($invoice->due_date)->toDateString()) {
                 // dd('ddd');
+                $notificationMessage = $notificationMessage = 'فاتورة متأخرة: #' . $invoice->invoice_number .
+                                        ' - العميل: ' . ($invoice->client->name ?? 'غير معروف') .
+                                        ' - المبلغ: ' . $invoice->amount . ' جنيه';
+
                 foreach ($admins as $admin) {
                     $admin->notify(new InvoiceReminderNotification($invoice));
+                }
+
+                if (!empty($admins)) {
+                    sendOneSignalNotification1(
+                        $admins,
+                        $notificationMessage,
+                        [
+                            'invoice_id' => $invoice->id,
+                            'type' => 'overdue_invoice',
+                            'amount' => $invoice->amount,
+                            'due_date' => $invoice->due_date,
+                            'client' => $invoice->client->name ?? 'غير معروف',
+                            'days_overdue' => $today->diffInDays($invoice->due_date)
+                        ],
+                        null
+                    );
                 }
 
                 $invoice->updateQuietly(['last_notified_at' => $today]);

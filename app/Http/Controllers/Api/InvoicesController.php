@@ -337,21 +337,43 @@ class InvoicesController extends Controller
                 'type'          => 'qapd',
                 'created_by'    => auth('api')->id(),
             ]);
-
-            DB::commit();
+            $notificationMessage = 'تم دفع فاتورة رقم ' . $invoice->invoice_number . ' بقيمة ' . $paidAmount . ' جنيه';
 
             $admins = Admin::where('status', '1')
                 ->whereNull('deleted_at')
                 ->get();
+
+            $playerIds = $admins->pluck('onesignal_id')->filter()->toArray();
 
             foreach ($admins as $admin) {
                 $admin->notify(new InvoicePaidNotification(
                     $invoice,
                     $paidAmount,
                     auth('api')->user(),
-                    'تم دفع فاتورة رقم ' . $invoice->id . ' بقيمة ' . $paidAmount . ' جنيه'
+                    $notificationMessage
                 ));
             }
+
+            if (!empty($admins)) {
+                sendOneSignalNotification1(
+                    $admins,
+                    $notificationMessage,
+                    [
+                        'invoice_id' => $invoice->id,
+                        'type' => 'invoice_paid',
+                        'amount' => $paidAmount,
+                        'initiator' => auth('api')->user()->name,
+                        'invoice_details' => [
+                            'number' => $invoice->invoice_number,
+                            'date' => $invoice->paid_date,
+                            'client' => $invoice->client->name ?? 'Unknown'
+                        ]
+                    ],
+                    null
+                );
+            }
+
+            DB::commit();
 
             return $this->responseApi(null, 'تم دفع الفاتورة بنجاح');
         } catch (ModelNotFoundException $e) {

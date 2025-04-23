@@ -16,21 +16,33 @@
 
         <div class="d-flex align-items-center gap-2 gap-lg-3">
 
-            <form action="{{ route('admin.invoices_generate') }}" method="POST" class="d-flex">
+            <form action="{{ route('admin.invoices_generate') }}" method="POST" class="text-center">
                 @csrf
-                <button type="submit"
-                        class="btn btn-primary btn-sm d-flex align-items-center gap-2 ms-4"
-                        onclick="return confirm('هل انت متأكد من انشاء الفواتير لهذا الشهر؟')">
-                    <span class="svg-icon svg-icon-2">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <rect opacity="0.5" x="11.364" y="20.364" width="16" height="2" rx="1"
-                                transform="rotate(-90 11.364 20.364)" fill="currentColor"/>
-                            <rect x="4.36396" y="11.364" width="16" height="2" rx="1" fill="currentColor"/>
-                        </svg>
-                    </span>
-                    <span>{{ trans('invoices.generate_invoices') }}</span>
-                </button>
+                @php
+                    $invoicesGenerated = App\Models\Admin\MonthlyInvoiceGeneration::where('year_month', now()->format('Y-m'))->exists();
+                @endphp
+
+                <div class="d-flex flex-column align-items-center">
+                    <button type="submit"
+                            class="btn btn-primary btn-sm d-flex align-items-center gap-2 ms-4 {{ $invoicesGenerated ? 'disabled' : '' }}"
+                            onclick="{{ !$invoicesGenerated ? "return confirm('هل انت متأكد من انشاء الفواتير لهذا الشهر؟')" : '' }}"
+                            {{ $invoicesGenerated ? 'disabled' : '' }}>
+                        <span class="svg-icon svg-icon-2">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <rect opacity="0.5" x="11.364" y="20.364" width="16" height="2" rx="1"
+                                    transform="rotate(-90 11.364 20.364)" fill="currentColor"/>
+                                <rect x="4.36396" y="11.364" width="16" height="2" rx="1" fill="currentColor"/>
+                            </svg>
+                        </span>
+                        <span>{{ trans('invoices.generate_invoices') }}</span>
+                    </button>
+                </div>
+                @if($invoicesGenerated)
+                    <small class="text-muted mt-1 ms-4" style="font-size: 0.75rem;">
+                        (تم إنشاء الفواتير لهذا الشهر)
+                    </small>
+                @endif
             </form>
         </div>
     </div>

@@ -17,6 +17,7 @@ use App\Traits\ValidationMessage;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class AccountTransferController extends Controller
 {
@@ -110,6 +111,96 @@ class AccountTransferController extends Controller
         }
     }
 
+    // public function add_account_transfer(Request $request)
+    // {
+    //     $validated_data = $request->validate([
+    //         'from_account' => 'required|exists:tbl_accounts,id',
+    //         'to_account' => 'required|exists:tbl_accounts,id',
+    //         'amount' => 'required|numeric|min:0',
+    //         'notes' => 'nullable|string',
+    //         'band_id' => 'nullable|exists:tbl_sarf_bands,id',
+    //     ]);
+
+    //     try {
+    //         $transferData = [
+    //             'from_account' => $validated_data['from_account'],
+    //             'to_account' => $validated_data['to_account'],
+    //             'amount' => $validated_data['amount'],
+    //             'notes' => $validated_data['notes'],
+    //             'date' => now()->toDateString(),
+    //             'time' => now()->toTimeString(),
+    //             'month' => now()->month,
+    //             'year' => now()->year,
+    //             'created_by' => Auth::id(),
+    //         ];
+
+    //         $fromAccountName = Account::find($validated_data['from_account'])->name ?? 'Unknown';
+    //         $toAccountName = Account::find($validated_data['to_account'])->name ?? 'Unknown';
+
+    //         // dd($validated_data);
+    //         $this->accountTransfersRepository->create($transferData);
+
+    //         $masrofatAccountId = AccountSettings::first()->masrofat_account_id ?? null;
+    //         // dd($validated_data, $masrofatAccountId);
+    //         if ($validated_data['to_account'] == $masrofatAccountId && !empty($validated_data['band_id'])) {
+    //             // dd('ssss');
+    //             $masrofatData = [
+    //                 'emp_id' => Auth::id(),
+    //                 'band_id' => $validated_data['band_id'],
+    //                 'value' => $validated_data['amount'],
+    //                 'notes' => $validated_data['notes'],
+    //                 'created_by' => Auth::id(),
+    //             ];
+    //             // dd($masrofatData);
+    //             $this->masrofatRepository->create($masrofatData);
+    //         }
+
+    //         FinancialTransaction::create([
+    //             'account_id'    => $validated_data['from_account'],
+    //             'amount'        => -$validated_data['amount'],
+    //             'date'          => now()->toDateString(),
+    //             'time'          => now()->toTimeString(),
+    //             'month'         => now()->month,
+    //             'year'          => now()->year,
+    //             'notes'         => "تحويل مالي من الحساب {$fromAccountName} إلى الحساب {$toAccountName} / {$validated_data['notes']}",
+    //             'type'          => 'sarf',
+    //             'created_by'    => Auth::id(),
+    //         ]);
+
+    //         FinancialTransaction::create([
+    //             'account_id'    => $validated_data['to_account'],
+    //             'amount'        => $validated_data['amount'],
+    //             'date'          => now()->toDateString(),
+    //             'time'          => now()->toTimeString(),
+    //             'month'         => now()->month,
+    //             'year'          => now()->year,
+    //             'notes'         => "تحويل مالي إلى الحساب {$toAccountName} من الحساب {$fromAccountName} / {$validated_data['notes']}",
+    //             'type'          => 'qapd',
+    //             'created_by'    => Auth::id(),
+    //         ]);
+
+    //         $admins = Admin::where('status', '1')
+    //             ->whereNull('deleted_at')
+    //             // ->where('id', '!=', auth()->id())
+    //             ->get();
+
+    //         foreach ($admins as $admin) {
+    //             $admin->notify(new AccountTransferNotification(
+    //                 $fromAccountName,
+    //                 $toAccountName,
+    //                 $validated_data['amount'],
+    //                 auth()->user(),
+    //                 'تم تحويل مبلغ ' . $validated_data['amount'] . ' جنيه من حساب ' . $fromAccountName . ' إلى حساب ' . $toAccountName
+    //             ));
+    //         }
+
+    //         toastr()->addSuccess(trans('account_transfers.transfer_added_successfully'));
+    //         return redirect()->route('admin.account_transfers');
+    //     } catch (\Exception $e) {
+    //         return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+    //     }
+    // }
+
     public function add_account_transfer(Request $request)
     {
         $validated_data = $request->validate([
@@ -121,6 +212,8 @@ class AccountTransferController extends Controller
         ]);
 
         try {
+            DB::beginTransaction();
+
             $transferData = [
                 'from_account' => $validated_data['from_account'],
                 'to_account' => $validated_data['to_account'],
@@ -136,13 +229,11 @@ class AccountTransferController extends Controller
             $fromAccountName = Account::find($validated_data['from_account'])->name ?? 'Unknown';
             $toAccountName = Account::find($validated_data['to_account'])->name ?? 'Unknown';
 
-            // dd($validated_data);
-            $this->accountTransfersRepository->create($transferData);
+            $transfer = $this->accountTransfersRepository->create($transferData);
 
             $masrofatAccountId = AccountSettings::first()->masrofat_account_id ?? null;
-            // dd($validated_data, $masrofatAccountId);
+
             if ($validated_data['to_account'] == $masrofatAccountId && !empty($validated_data['band_id'])) {
-                // dd('ssss');
                 $masrofatData = [
                     'emp_id' => Auth::id(),
                     'band_id' => $validated_data['band_id'],
@@ -150,7 +241,6 @@ class AccountTransferController extends Controller
                     'notes' => $validated_data['notes'],
                     'created_by' => Auth::id(),
                 ];
-                // dd($masrofatData);
                 $this->masrofatRepository->create($masrofatData);
             }
 
@@ -180,8 +270,11 @@ class AccountTransferController extends Controller
 
             $admins = Admin::where('status', '1')
                 ->whereNull('deleted_at')
-                // ->where('id', '!=', auth()->id())
                 ->get();
+
+            $playerIds = $admins->pluck('onesignal_id')->filter()->toArray();
+
+            $notificationMessage = 'تم تحويل مبلغ ' . $validated_data['amount'] . ' جنيه من حساب ' . $fromAccountName . ' إلى حساب ' . $toAccountName;
 
             foreach ($admins as $admin) {
                 $admin->notify(new AccountTransferNotification(
@@ -189,18 +282,61 @@ class AccountTransferController extends Controller
                     $toAccountName,
                     $validated_data['amount'],
                     auth()->user(),
-                    'تم تحويل مبلغ ' . $validated_data['amount'] . ' جنيه من حساب ' . $fromAccountName . ' إلى حساب ' . $toAccountName
+                    $notificationMessage
                 ));
+
+                // if ($admin->onesignal_id) {
+                //     sendOneSignalNotification1(
+                //         $admin->onesignal_id,
+                //         $notificationMessage,
+                //         [
+                //             'transfer_id' => $transfer->id,
+                //             'type' => 'account_transfer'
+                //         ],
+                //         route('admin.account_transfers.show', $transfer->id)
+                //     );
+                // }
             }
+
+            $financeManagers = Admin::whereHas('roles', function($query) {
+                    $query->where('name', 'Super-Admin');
+                })
+                ->whereNotNull('onesignal_id')
+                ->pluck('onesignal_id')
+                ->toArray();
+
+                if (!empty($admins)) {
+                    logger()->info('Sending OneSignal notification to admins: ' . json_encode($admins));
+                    $response = sendOneSignalNotification1(
+                        $admins,
+                        $notificationMessage,
+                        [
+                            'transfer_id' => $transfer->id,
+                            'type' => 'account_transfer',
+                            'from_account' => $fromAccountName,
+                            'to_account' => $toAccountName,
+                            'amount' => $validated_data['amount'],
+                            'initiator' => auth()->user()->name
+                        ],
+                        null
+                    );
+
+                    logger()->info('OneSignal response: ' . json_encode($response));
+                } else {
+                    logger()->warning('No admins to send notification to');
+                }
+
+            DB::commit();
 
             toastr()->addSuccess(trans('account_transfers.transfer_added_successfully'));
             return redirect()->route('admin.account_transfers');
         } catch (\Exception $e) {
+            DB::rollBack();
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
     }
 
-    public function redo_account_transfer($id)
+    public function redo_account_transfer1($id)
     {
         try {
             $accountTransfer = $this->accountTransfersRepository->getById($id);
@@ -243,6 +379,8 @@ class AccountTransferController extends Controller
                         Account::find($accountTransfer->to_account)->name
                     ));
                 }
+
+
                 toastr()->addSuccess(trans('account_transfers.transfer_redone_successfully'));
             } else {
                 toastr()->addError(trans('account_transfers.transfer_not_found'));
@@ -250,6 +388,86 @@ class AccountTransferController extends Controller
 
             return redirect()->route('admin.account_transfers');
         } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+        }
+    }
+
+    public function redo_account_transfer($id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $accountTransfer = $this->accountTransfersRepository->getById($id);
+            $masrofatAccountId = AccountSettings::first()->masrofat_account_id ?? null;
+
+            if (!$accountTransfer) {
+                toastr()->addError(trans('account_transfers.transfer_not_found'));
+                return redirect()->route('admin.account_transfers');
+            }
+
+            $createdAt = $accountTransfer->created_at;
+            $fromAccountName = Account::find($accountTransfer->from_account)->name ?? 'Unknown';
+            $toAccountName = Account::find($accountTransfer->to_account)->name ?? 'Unknown';
+            $notificationMessage = 'تم التراجع عن تحويل مبلغ ' . $accountTransfer->amount . ' جنيه من حساب ' .
+                                $fromAccountName . ' إلى حساب ' . $toAccountName;
+
+            FinancialTransaction::where('account_id', $accountTransfer->from_account)
+                    ->where('amount', -$accountTransfer->amount)
+                    ->whereBetween('created_at', [$createdAt->subSeconds(3), $createdAt->addSeconds(3)])
+                    ->delete();
+
+            FinancialTransaction::where('account_id', $accountTransfer->to_account)
+                    ->where('amount', $accountTransfer->amount)
+                    ->whereBetween('created_at', [$createdAt->subSeconds(3), $createdAt->addSeconds(3)])
+                    ->delete();
+
+            if ($accountTransfer->to_account == $masrofatAccountId) {
+                Masrofat::where('value', $accountTransfer->amount)
+                        ->whereBetween('created_at', [$createdAt->subSeconds(3), $createdAt->addSeconds(3)])
+                        ->delete();
+            }
+
+            $this->accountTransfersRepository->delete($id);
+
+            $admins = Admin::where('status', '1')
+                ->whereNull('deleted_at')
+                // ->whereNotNull('onesignal_id')
+                ->get();
+
+            $playerIds = $admins->pluck('onesignal_id')->filter()->toArray();
+
+            foreach ($admins as $admin) {
+                $admin->notify(new AccountTransferRedoNotification(
+                    $fromAccountName,
+                    $toAccountName,
+                    $accountTransfer->amount,
+                    auth()->user(),
+                    $notificationMessage
+                ));
+            }
+
+            if (!empty($admins)) {
+                sendOneSignalNotification1(
+                    $admins,
+                    $notificationMessage,
+                    [
+                        'transfer_id' => $id,
+                        'type' => 'account_transfer_redo',
+                        'from_account' => $fromAccountName,
+                        'to_account' => $toAccountName,
+                        'amount' => $accountTransfer->amount,
+                        'initiator' => auth()->user()->name
+                    ],
+                    null
+                );
+            }
+
+            DB::commit();
+            toastr()->addSuccess(trans('account_transfers.transfer_redone_successfully'));
+            return redirect()->route('admin.account_transfers');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
     }

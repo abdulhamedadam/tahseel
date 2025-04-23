@@ -18,6 +18,7 @@ use App\Traits\ValidationMessage;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use DataTables;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class InvoiceController extends Controller
@@ -228,7 +229,7 @@ class InvoiceController extends Controller
         }
     }
 
-    public function pay_invoice($id, Request $request)
+    public function pay_invoice1($id, Request $request)
     {
         $request->validate([
             'invoice_amount' => 'required|numeric|min:1',
@@ -238,7 +239,6 @@ class InvoiceController extends Controller
         // dd($request->all());
         try {
             $result = $this->invoiceService->payInvoice($id, $request);
-
             $invoice = Invoice::findOrFail($id);
             $admins = Admin::where('status', '1')
                 ->whereNull('deleted_at')
@@ -263,6 +263,67 @@ class InvoiceController extends Controller
         }
     }
 
+    public function pay_invoice($id, Request $request)
+    {
+        $request->validate([
+            'invoice_amount' => 'required|numeric|min:1',
+            'paid_amount' => 'nullable|numeric',
+            'notes' => 'nullable|string',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $result = $this->invoiceService->payInvoice($id, $request);
+            $invoice = Invoice::findOrFail($id);
+
+            $notificationMessage = 'تم دفع فاتورة رقم ' . $invoice->invoice_number . ' بقيمة ' . $request->paid_amount . ' جنيه';
+
+            $admins = Admin::where('status', '1')
+                ->whereNull('deleted_at')
+                // ->whereNotNull('onesignal_id')
+                ->get();
+
+            $playerIds = $admins->pluck('onesignal_id')->filter()->toArray();
+
+            foreach ($admins as $admin) {
+                $admin->notify(new InvoicePaidNotification(
+                    $invoice,
+                    $request->paid_amount,
+                    auth()->user(),
+                    $notificationMessage
+                ));
+            }
+
+            if (!empty($admins)) {
+                sendOneSignalNotification1(
+                    $admins,
+                    $notificationMessage,
+                    [
+                        'invoice_id' => $invoice->id,
+                        'type' => 'invoice_paid',
+                        'amount' => $request->paid_amount,
+                        'initiator' => auth()->user()->name,
+                        'invoice_details' => [
+                            'number' => $invoice->invoice_number,
+                            'date' => $invoice->paid_date,
+                            'client' => $invoice->client->name ?? 'Unknown'
+                        ]
+                    ],
+                    null
+                );
+            }
+
+            DB::commit();
+
+            return $result;
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+
     public function show_details($id)
     {
         $data['all_data'] = Invoice::with('client', 'subscription', 'employee')->findOrFail($id);
@@ -276,7 +337,7 @@ class InvoiceController extends Controller
         return view($this->admin_view . '.print', $data);
     }
 
-    public function redo_invoice($id)
+    public function redo_invoice1($id)
     {
         try {
             $invoice = Invoice::findOrFail($id);
@@ -337,6 +398,95 @@ class InvoiceController extends Controller
 
             return redirect()->back()->with(['success' => trans('messages.redo_successfully')]);
         } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+        }
+    }
+
+    public function redo_invoice($id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $invoice = Invoice::findOrFail($id);
+            $lastPayment = Revenue::where('invoice_id', $id)
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            if (!$lastPayment) {
+                return redirect()->back()->withErrors(['error' => 'لا توجد دفعات سابقة لهذه الفاتورة!']);
+            }
+
+            $invoice->remaining_amount += $lastPayment->amount;
+            $invoice->paid_amount -= $lastPayment->amount;
+
+            $client = Clients::find($invoice->client_id);
+            if (!$client) {
+                return redirect()->back()->withErrors(['error' => 'العميل غير موجود!']);
+            }
+
+            if ($invoice->remaining_amount == $invoice->amount) {
+                $invoice->status = 'unpaid';
+                $invoice->paid_date = null;
+            } elseif ($invoice->remaining_amount > 0) {
+                $invoice->status = 'partial';
+            }
+
+            $invoice->save();
+
+            $financialTransaction = FinancialTransaction::where('account_id', auth()->user()->account_id)
+                ->where('amount', $lastPayment->amount)
+                // ->where('created_by', auth()->id())
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            if ($financialTransaction) {
+                $financialTransaction->delete();
+            }
+
+            $lastPayment->delete();
+
+            $notificationMessage = 'تم التراجع عن دفع فاتورة رقم ' . $invoice->id . ' بقيمة ' . $lastPayment->amount . ' جنيه';
+
+            $admins = Admin::where('status', '1')
+                ->whereNull('deleted_at')
+                // ->whereNotNull('onesignal_id')
+                ->get();
+
+            $playerIds = $admins->pluck('onesignal_id')->filter()->toArray();
+
+            foreach ($admins as $admin) {
+                $admin->notify(new InvoiceRedoNotification(
+                    $invoice,
+                    $lastPayment->amount,
+                    auth()->user(),
+                    $notificationMessage
+                ));
+            }
+
+            if (!empty($playerIds)) {
+                sendOneSignalNotification1(
+                    $playerIds,
+                    $notificationMessage,
+                    [
+                        'invoice_id' => $invoice->id,
+                        'type' => 'invoice_payment_redo',
+                        'amount' => $lastPayment->amount,
+                        'initiator' => auth()->user()->name,
+                        'invoice_details' => [
+                            'number' => $invoice->invoice_number,
+                            'client' => $client->name ?? 'Unknown',
+                            'status' => $invoice->status
+                        ]
+                    ],
+                    null
+                );
+            }
+
+            DB::commit();
+            return redirect()->back()->with(['success' => trans('messages.redo_successfully')]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
     }

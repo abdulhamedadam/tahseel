@@ -30,7 +30,7 @@ class SaveRequests extends FormRequest
             'subscription_id'      => 'required|integer',
             'price'                => 'required',
             'subscription_date'    => 'required|date',
-            'start_date'           => 'required|date|after_or_equal:subscription_date',
+            'start_date'           => 'required|date',
             'notes'                => 'nullable|string|max:1000',
         ];
     }

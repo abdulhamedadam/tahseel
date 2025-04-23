@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\RevenueController;
 use App\Http\Controllers\Admin\RolesController;
 use App\Http\Controllers\Admin\TestsController;
 use App\Http\Controllers\Admin\UsersController;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
@@ -181,3 +182,47 @@ Route::group(
         require __DIR__ . '/adminauth.php';
     }
 );
+
+Route::get('/run-migrate', function () {
+    try {
+        Artisan::call('migrate', [
+            '--force' => true
+        ]);
+
+        return response()->json([
+            'message' => 'Migration completed successfully.',
+            'output' => Artisan::output()
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Migration failed: ' . $e->getMessage()
+        ], 500);
+    }
+})->middleware('auth');
+
+Route::get('/run-specific-migrate/{file}', function ($file) {
+    try {
+        $path = "database/migrations/{$file}";
+
+        if (!file_exists(base_path($path))) {
+            return response()->json([
+                'message' => 'الملف غير موجود.',
+                'path' => $path
+            ], 404);
+        }
+
+        Artisan::call('migrate', [
+            '--path' => $path,
+            '--force' => true
+        ]);
+
+        return response()->json([
+            'message' => 'تم التنفيذ بنجاح.',
+            'output' => Artisan::output()
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'حدث خطأ ما: ' . $e->getMessage()
+        ], 500);
+    }
+})->middleware('auth');

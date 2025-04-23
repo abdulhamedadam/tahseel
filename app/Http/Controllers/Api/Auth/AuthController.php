@@ -20,7 +20,8 @@ class AuthController extends Controller
     {
         $rules = [
             'email' => 'required|email|exists:admins,email',
-            'password' => 'required|string'
+            'password' => 'required|string',
+            'onesignal_id' => 'nullable|string',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -34,7 +35,13 @@ class AuthController extends Controller
                 return $this->responseApiError('هذه البيانات غير صحيحة');
             }
 
-            auth('api')->user();
+            $user = auth('api')->user();
+
+            if ($request->filled('onesignal_id')) {
+                $user->update([
+                    'onesignal_id' => $request->onesignal_id,
+                ]);
+            }
 
             return $this->createNewToken($token);
         } catch (\Exception $e) {

@@ -47,12 +47,23 @@ class ClientService
             'amount' => $validated_data['price'],
             'remaining_amount' => $validated_data['price'],
             'enshaa_date' => now(),
-            'due_date' => now(),
+            'due_date' => $validated_data['start_date'],
             'status' => 'unpaid',
             'auto_generated' => true,
         ];
 
-        $this->InvoiceRepository->create($invoice_data);
+        $invoice = $this->InvoiceRepository->create($invoice_data);
+
+        $admins = Admin::where('status', '1')
+                    ->whereNull('deleted_at')
+                    // ->whereNotNull('onesignal_id')
+                    ->get();
+
+        $notificationMessage = 'تم إضافة عميل جديد: ' . $client->name .
+                            ' - الاشتراك: ' . ($client->subscription->name ?? 'غير محدد') .
+                            ' - القيمة: ' . $validated_data['price'] . ' جنيه';
+
+        $playerIds = $admins->pluck('onesignal_id')->filter()->toArray();
 
         // $invoicesGeneratedThisMonth = MonthlyInvoiceGeneration::where('year_month', now()->format('Y-m'))->exists();
 
@@ -78,13 +89,30 @@ class ClientService
         //     }
         // }
 
-        $admins = Admin::where('status', '1')
-                    ->whereNull('deleted_at')
-                    // ->where('id', '!=', auth()->id())
-                    ->get();
+        // $admins = Admin::where('status', '1')
+        //             ->whereNull('deleted_at')
+        //             // ->where('id', '!=', auth()->id())
+        //             ->get();
 
         foreach ($admins as $admin) {
             $admin->notify(new NewClientAddedNotification($client));
+        }
+
+        if (!empty($admins)) {
+            sendOneSignalNotification1(
+                $admins,
+                $notificationMessage,
+                [
+                    'client_id' => $client->id,
+                    'type' => 'new_client',
+                    'client_name' => $client->name,
+                    'subscription' => $client->subscription->name ?? 'غير محدد',
+                    'price' => $validated_data['price'],
+                    'invoice_number' => $invoiceNumber,
+                    'created_by' => auth()->user()->name
+                ],
+                null
+            );
         }
 
         return $client;
