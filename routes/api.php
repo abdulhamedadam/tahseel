@@ -42,7 +42,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'v1'], function ($router) {
         Route::post('/masrofat', [MasrofatController::class, 'index']);
 
         Route::get('/accounts', [AccountsController::class, 'index']);
-        Route::get('/collectors', [AccountsController::class, 'collectors']);
+        Route::post('/collectors', [AccountsController::class, 'collectors']);
 
         Route::get('/notifications', [NotificationsController::class, 'index']);
     });

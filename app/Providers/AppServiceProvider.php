@@ -155,11 +155,11 @@ class AppServiceProvider extends ServiceProvider
 
         $admins = Admin::where('status', '1')
                 ->whereNull('deleted_at')
-                // ->whereNotNull('onesignal_id')
+                ->whereHas('roles', function($query) {
+                    $query->whereIn('id', [1, 7]);
+                })
                 ->get();
-
-        $playerIds = $admins->pluck('onesignal_id')->filter()->toArray();
-
+                
         $overdueInvoices = Invoice::where('status', 'unpaid')
             ->where(function ($query) use ($today) {
                 $query->whereNull('last_notified_at')
@@ -170,9 +170,14 @@ class AppServiceProvider extends ServiceProvider
         foreach ($overdueInvoices as $invoice) {
             if ($today->toDateString() >= Carbon::parse($invoice->due_date)->toDateString()) {
                 // dd('ddd');
-                $notificationMessage = $notificationMessage = 'فاتورة متأخرة: #' . $invoice->invoice_number .
-                                        ' - العميل: ' . ($invoice->client->name ?? 'غير معروف') .
-                                        ' - المبلغ: ' . $invoice->amount . ' جنيه';
+
+                $notificationMessage = sprintf(
+                    'فاتورة متأخرة: #%s | العميل: %s | المبلغ: %s %s',
+                    $invoice->invoice_number,
+                    $invoice->client->name ?? 'غير معروف',
+                    number_format($invoice->amount, 2),
+                    get_app_config_data('currency') ?? 'جنيه'
+                );
 
                 foreach ($admins as $admin) {
                     $admin->notify(new InvoiceReminderNotification($invoice));

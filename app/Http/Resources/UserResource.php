@@ -25,7 +25,9 @@ class UserResource extends JsonResource
             'UserPhone'      => $this->phone,
             'financial_transactions_sum_amount' => $this->financialTransactions->sum('amount'),
             'currency' => get_app_config_data('currency'),
-            'phone_service' => get_app_config_data('phone_service')
+            'phone_service' => get_app_config_data('phone_service'),
+            'roleId' => $this->roles()->first()?->id,
+            'roleName' => $this->roles()->first()?->name,
         ];
     }
 }

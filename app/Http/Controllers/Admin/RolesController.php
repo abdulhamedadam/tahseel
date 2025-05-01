@@ -72,7 +72,7 @@ class RolesController extends Controller
         // $data['permissions']  = $this->permissionsRepository->getAll();
         $data['sections']  = $this->permissions();
         // dd($data);
-        return view('dashbord.roles.form', $data);
+        // return view('dashbord.roles.form', $data);
     }
 
     /********************************************/

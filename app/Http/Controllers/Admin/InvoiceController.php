@@ -277,14 +277,22 @@ class InvoiceController extends Controller
             $result = $this->invoiceService->payInvoice($id, $request);
             $invoice = Invoice::findOrFail($id);
 
-            $notificationMessage = 'تم دفع فاتورة رقم ' . $invoice->invoice_number . ' بقيمة ' . $request->paid_amount . ' جنيه';
+            $notificationMessage = sprintf(
+                'تم تسديد مبلغ %s %s للفاتورة رقم %s (العميل: %s) - تم الدفع بواسطة %s في %s',
+                number_format($request->paid_amount, 2),
+                get_app_config_data('currency'),
+                $invoice->invoice_number,
+                $invoice->client->name ?? 'غير محدد',
+                auth()->user()->name,
+                now()->format('Y-m-d H:i')
+            );
 
             $admins = Admin::where('status', '1')
                 ->whereNull('deleted_at')
-                // ->whereNotNull('onesignal_id')
+                ->whereHas('roles', function($query) {
+                    $query->whereIn('id', [1, 7]);
+                })
                 ->get();
-
-            $playerIds = $admins->pluck('onesignal_id')->filter()->toArray();
 
             foreach ($admins as $admin) {
                 $admin->notify(new InvoicePaidNotification(
@@ -445,14 +453,29 @@ class InvoiceController extends Controller
 
             $lastPayment->delete();
 
-            $notificationMessage = 'تم التراجع عن دفع فاتورة رقم ' . $invoice->id . ' بقيمة ' . $lastPayment->amount . ' جنيه';
+            // $notificationMessage = sprintf(
+            //     'تم التراجع عن دفع فاتورة رقم %s بقيمة %s جنيه للعميل %s بواسطة %s',
+            //     $invoice->invoice_number,
+            //     $lastPayment->amount,
+            //     $client->name ?? 'غير معروف',
+            //     auth()->user()->name
+            // );
+
+            $notificationMessage = sprintf(
+                'تم التراجع عن دفع فاتورة رقم %s بقيمة %s %s للعميل %s بواسطة %s',
+                $invoice->invoice_number,
+                $lastPayment->amount,
+                get_app_config_data('currency') ?? 'جنيه',
+                $client->name ?? 'غير معروف',
+                auth()->user()->name
+            );
 
             $admins = Admin::where('status', '1')
                 ->whereNull('deleted_at')
-                // ->whereNotNull('onesignal_id')
+                ->whereHas('roles', function($query) {
+                    $query->whereIn('id', [1, 7]);
+                })
                 ->get();
-
-            $playerIds = $admins->pluck('onesignal_id')->filter()->toArray();
 
             foreach ($admins as $admin) {
                 $admin->notify(new InvoiceRedoNotification(
@@ -463,9 +486,9 @@ class InvoiceController extends Controller
                 ));
             }
 
-            if (!empty($playerIds)) {
+            if (!empty($admins)) {
                 sendOneSignalNotification1(
-                    $playerIds,
+                    $admins,
                     $notificationMessage,
                     [
                         'invoice_id' => $invoice->id,

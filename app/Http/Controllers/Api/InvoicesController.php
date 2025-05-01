@@ -337,13 +337,31 @@ class InvoicesController extends Controller
                 'type'          => 'qapd',
                 'created_by'    => auth('api')->id(),
             ]);
-            $notificationMessage = 'تم دفع فاتورة رقم ' . $invoice->invoice_number . ' بقيمة ' . $paidAmount . ' جنيه';
+            // $notificationMessage = 'تم دفع فاتورة رقم ' . $invoice->invoice_number . ' بقيمة ' . $paidAmount . ' جنيه';
+
+            // $notificationMessage = sprintf(
+            //     'تم دفع فاتورة رقم %s بقيمة %s جنيه للعميل %s بواسطة %s',
+            //     $invoice->invoice_number,
+            //     $paidAmount,
+            //     $invoice->client->name ?? 'غير معروف',
+            //     auth('api')->user()->name
+            // );
+            $notificationMessage = sprintf(
+                'تم تسديد مبلغ %s %s للفاتورة رقم %s (العميل: %s) - تم الدفع بواسطة %s في %s',
+                number_format($paidAmount, 2),
+                get_app_config_data('currency'),
+                $invoice->invoice_number,
+                $invoice->client->name ?? 'غير محدد',
+                auth('api')->user()->name,
+                now()->format('Y-m-d H:i')
+            );
 
             $admins = Admin::where('status', '1')
                 ->whereNull('deleted_at')
+                ->whereHas('roles', function($query) {
+                    $query->whereIn('id', [1, 7]);
+                })
                 ->get();
-
-            $playerIds = $admins->pluck('onesignal_id')->filter()->toArray();
 
             foreach ($admins as $admin) {
                 $admin->notify(new InvoicePaidNotification(

@@ -15,7 +15,7 @@ class NotificationsController extends Controller
     {
         try {
             $user = auth('api')->user();
-            $perPage = $request->query('per_page', 5);
+            $perPage = $request->query('per_page', 15);
 
             $notifications = $user->notifications()
                 ->latest()

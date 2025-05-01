@@ -306,79 +306,6 @@ if (!function_exists('sendOneSignalNotification')) {
     }
 }
 
-// if (!function_exists('sendOneSignalNotification1')) {
-//     function sendOneSignalNotification1($playerIds = null, $message, $data = null, $url = null)
-//     {
-//         $payload = [
-//             'app_id' => config('onesignal.app_id'),
-//             'contents' => ['en' => $message],
-//             'data' => $data,
-//             'url' => $url
-//         ];
-
-//         if ($playerIds) {
-//             $payload['include_player_ids'] = (array) $playerIds;
-//         } else {
-//             $payload['included_segments'] = ['All'];
-//         }
-
-//         $response = Http::withHeaders([
-//             'Authorization' => 'Basic ' . config('onesignal.rest_api_key'),
-//             'Content-Type' => 'application/json'
-//         ])->post('https://onesignal.com/api/v1/notifications', $payload);
-
-//         if ($response->failed()) {
-//             logger()->error('OneSignal error: ' . $response->body());
-//             return false;
-//         }
-
-//         return $response->json();
-//     }
-
-//     // sendOneSignalNotification1(
-//     //     null, // هذا ما يجعل الإشعار يرسل للجميع
-//     //     'إعلان عام لجميع المستخدمين',
-//     //     null,
-//     //     'https://example.com/announcement'
-//     // );
-// }
-
-// if (!function_exists('sendOneSignalNotification1')) {
-//     function sendOneSignalNotification1($playerIds = null, $message, $data = null, $url = null, $filters = null)
-//     {
-//         $payload = [
-//             'app_id' => config('onesignal.app_id'),
-//             'contents' => ['en' => $message],
-//             'data' => $data,
-//             'url' => $url
-//         ];
-
-//         if ($playerIds) {
-//             $payload['include_player_ids'] = (array) $playerIds;
-//         } elseif ($filters) {
-//             $payload['filters'] = $filters;
-//         } else {
-//             $payload['included_segments'] = ['All'];
-//         }
-
-//         $response = Http::withHeaders([
-//             'Authorization' => 'Basic ' . config('onesignal.rest_api_key'),
-//             'Content-Type' => 'application/json'
-//         ])->post('https://onesignal.com/api/v1/notifications', $payload);
-
-//         if ($response->failed()) {
-//             $errorMessage = 'OneSignal error: ' . $response->body();
-//             logger()->error($errorMessage);
-
-//             logger()->error('OneSignal request payload: ' . json_encode($payload));
-//             logger()->error('OneSignal status code: ' . $response->status());
-
-//             return false;
-//         }
-
-//         return $response->json();
-//     }
-// }
 
 if (!function_exists('sendOneSignalNotification1')) {
     function sendOneSignalNotification1($users = null, $message, $data = null, $url = null, $filters = null)
@@ -433,6 +360,12 @@ if (!function_exists('sendOneSignalNotification1')) {
 
         return $response->json();
     }
+    // sendOneSignalNotification1(
+    //     null,
+    //     'إعلان عام لجميع المستخدمين',
+    //     null,
+    //     'https://example.com/announcement'
+    // );
 }
 
 if (!function_exists('sendOneSignalNotification2')) {

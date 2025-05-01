@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use App\Models\Admin\Invoice;
 use App\Models\Clients;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -19,7 +20,7 @@ class NotificationResource extends JsonResource
         $type = class_basename($this->type);
 
         // $data = $this->data;
-        
+
         // if (isset($data['client_id'])) {
         //     $client = Clients::find($data['client_id']);
         //     if ($client) {
@@ -39,7 +40,7 @@ class NotificationResource extends JsonResource
             'type' => $type,
             'message' => $this->data['message'] ?? $this->getDefaultMessage($type),
             'read_at' => $this->read_at,
-            'created_at' => $this->created_at->format('Y-m-d H:i:s'),
+            'created_at' => Carbon::parse($this->created_at)->format('Y-m-d h:i A'),
             'data' => $this->data,
             // 'data' => $data,
         ];

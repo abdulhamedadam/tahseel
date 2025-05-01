@@ -31,7 +31,8 @@ class AuthController extends Controller
         }
 
         try {
-            if (!$token = auth('api')->attempt($validator->validated())) {
+            $credentials = $request->only('email', 'password');
+            if (!$token = auth('api')->attempt($credentials)) {
                 return $this->responseApiError('هذه البيانات غير صحيحة');
             }
 

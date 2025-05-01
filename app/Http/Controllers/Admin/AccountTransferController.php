@@ -270,11 +270,19 @@ class AccountTransferController extends Controller
 
             $admins = Admin::where('status', '1')
                 ->whereNull('deleted_at')
+                ->whereHas('roles', function($query) {
+                    $query->whereIn('id', [1, 7]);
+                })
                 ->get();
 
-            $playerIds = $admins->pluck('onesignal_id')->filter()->toArray();
-
-            $notificationMessage = 'تم تحويل مبلغ ' . $validated_data['amount'] . ' جنيه من حساب ' . $fromAccountName . ' إلى حساب ' . $toAccountName;
+            // $notificationMessage = 'تم تحويل مبلغ ' . $validated_data['amount'] . ' جنيه من حساب ' . $fromAccountName . ' إلى حساب ' . $toAccountName;
+            $notificationMessage = sprintf(
+                'تم تحويل مبلغ %s %s من حساب %s إلى حساب %s',
+                number_format($validated_data['amount'], 2),
+                get_app_config_data('currency') ?? 'جنيه',
+                $fromAccountName,
+                $toAccountName
+            );
 
             foreach ($admins as $admin) {
                 $admin->notify(new AccountTransferNotification(
@@ -284,30 +292,10 @@ class AccountTransferController extends Controller
                     auth()->user(),
                     $notificationMessage
                 ));
-
-                // if ($admin->onesignal_id) {
-                //     sendOneSignalNotification1(
-                //         $admin->onesignal_id,
-                //         $notificationMessage,
-                //         [
-                //             'transfer_id' => $transfer->id,
-                //             'type' => 'account_transfer'
-                //         ],
-                //         route('admin.account_transfers.show', $transfer->id)
-                //     );
-                // }
             }
 
-            $financeManagers = Admin::whereHas('roles', function($query) {
-                    $query->where('name', 'Super-Admin');
-                })
-                ->whereNotNull('onesignal_id')
-                ->pluck('onesignal_id')
-                ->toArray();
-
                 if (!empty($admins)) {
-                    logger()->info('Sending OneSignal notification to admins: ' . json_encode($admins));
-                    $response = sendOneSignalNotification1(
+                    sendOneSignalNotification1(
                         $admins,
                         $notificationMessage,
                         [
@@ -321,9 +309,6 @@ class AccountTransferController extends Controller
                         null
                     );
 
-                    logger()->info('OneSignal response: ' . json_encode($response));
-                } else {
-                    logger()->warning('No admins to send notification to');
                 }
 
             DB::commit();
@@ -366,6 +351,9 @@ class AccountTransferController extends Controller
                 $admins = Admin::where('status', '1')
                     ->whereNull('deleted_at')
                     // ->where('id', '!=', auth()->id())
+                    ->whereHas('roles', function($query) {
+                        $query->whereIn('id', [1, 7]);
+                    })
                     ->get();
 
                 foreach ($admins as $admin) {
@@ -374,7 +362,7 @@ class AccountTransferController extends Controller
                         Account::find($accountTransfer->to_account)->name,
                         $accountTransfer->amount,
                         auth()->user(),
-                        'تم التراجع عن تحويل مبلغ ' . $accountTransfer->amount . ' جنيه من حساب ' .
+                        'تم التراجع عن تحويل مبلغ ' . $accountTransfer->amount . ' من حساب ' .
                         Account::find($accountTransfer->from_account)->name . ' إلى حساب ' .
                         Account::find($accountTransfer->to_account)->name
                     ));
@@ -408,8 +396,15 @@ class AccountTransferController extends Controller
             $createdAt = $accountTransfer->created_at;
             $fromAccountName = Account::find($accountTransfer->from_account)->name ?? 'Unknown';
             $toAccountName = Account::find($accountTransfer->to_account)->name ?? 'Unknown';
-            $notificationMessage = 'تم التراجع عن تحويل مبلغ ' . $accountTransfer->amount . ' جنيه من حساب ' .
-                                $fromAccountName . ' إلى حساب ' . $toAccountName;
+            // $notificationMessage = 'تم التراجع عن تحويل مبلغ ' . $accountTransfer->amount . ' من حساب ' .
+            //                     $fromAccountName . ' إلى حساب ' . $toAccountName;
+            $notificationMessage = sprintf(
+                'تم التراجع عن تحويل مبلغ %s %s من حساب %s إلى حساب %s',
+                $accountTransfer->amount,
+                get_app_config_data('currency') ?? 'جنيه',
+                $fromAccountName,
+                $toAccountName
+            );
 
             FinancialTransaction::where('account_id', $accountTransfer->from_account)
                     ->where('amount', -$accountTransfer->amount)
@@ -431,10 +426,11 @@ class AccountTransferController extends Controller
 
             $admins = Admin::where('status', '1')
                 ->whereNull('deleted_at')
-                // ->whereNotNull('onesignal_id')
+                ->whereHas('roles', function($query) {
+                    $query->whereIn('id', [1, 7]);
+                })
                 ->get();
 
-            $playerIds = $admins->pluck('onesignal_id')->filter()->toArray();
 
             foreach ($admins as $admin) {
                 $admin->notify(new AccountTransferRedoNotification(

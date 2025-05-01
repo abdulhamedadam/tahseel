@@ -17,8 +17,9 @@ class AccountResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'amount_sum' => $this->financial_transactions_sum_amount ?? 0,
+            'amount_sum' => $this->financial_transactions_sum_amount ?? "0",
             'children' => AccountResource::collection($this->whenLoaded('children')),
+            'currency' => get_app_config_data('currency')
         ];
     }
 }

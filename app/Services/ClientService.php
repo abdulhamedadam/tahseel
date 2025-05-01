@@ -56,43 +56,18 @@ class ClientService
 
         $admins = Admin::where('status', '1')
                     ->whereNull('deleted_at')
-                    // ->whereNotNull('onesignal_id')
+                    ->whereHas('roles', function($query) {
+                        $query->whereIn('id', [1, 7]);
+                    })
                     ->get();
 
-        $notificationMessage = 'تم إضافة عميل جديد: ' . $client->name .
-                            ' - الاشتراك: ' . ($client->subscription->name ?? 'غير محدد') .
-                            ' - القيمة: ' . $validated_data['price'] . ' جنيه';
-
-        $playerIds = $admins->pluck('onesignal_id')->filter()->toArray();
-
-        // $invoicesGeneratedThisMonth = MonthlyInvoiceGeneration::where('year_month', now()->format('Y-m'))->exists();
-
-        // if ($invoicesGeneratedThisMonth) {
-        //     $invoiceNumber1 = $this->InvoiceRepository->getLastFieldValue('invoice_number');
-        //     $dueDate1 = now()->addMonth();
-
-        //     Invoice::create([
-        //         'client_id' => $client->id,
-        //         'invoice_number' => $invoiceNumber1,
-        //         'amount' => $client->price,
-        //         'remaining_amount' => $client->price,
-        //         'subscription_id' => $client->subscription_id,
-        //         'enshaa_date' => now(),
-        //         'due_date' => $dueDate1,
-        //         'status' => 'unpaid',
-        //         'auto_generated' => true,
-        //     ]);
-
-        //     $monthlyRecord = MonthlyInvoiceGeneration::where('year_month', now()->format('Y-m'))->first();
-        //     if ($monthlyRecord) {
-        //         $monthlyRecord->increment('invoices_created');
-        //     }
-        // }
-
-        // $admins = Admin::where('status', '1')
-        //             ->whereNull('deleted_at')
-        //             // ->where('id', '!=', auth()->id())
-        //             ->get();
+        $notificationMessage = sprintf(
+            'تم إضافة عميل جديد: %s | نوع الاشتراك: %s | القيمة: %s %s',
+            $client->name,
+            $client->subscription->name ?? 'غير محدد',
+            number_format($validated_data['price'], 2),
+            get_app_config_data('currency') ?? 'جنيه'
+        );
 
         foreach ($admins as $admin) {
             $admin->notify(new NewClientAddedNotification($client));

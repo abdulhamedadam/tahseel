@@ -16,12 +16,13 @@ class MasrofatResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'value' => $this->value,
-            'notes' => $this->notes ?? 'N/A',
-            'created_at' => $this->created_at->format('Y-m-d H:i:s'),
+            'value' => (string) $this->value,
+            'notes' => $this->notes ?? null,
+            'created_at' => $this->created_at->format('Y-m-d h:i A'),
             'employee' => $this->employee ? $this->employee?->first_name . ' ' . $this->employee?->last_name : null,
             'sarf_band' => $this->sarf_band ? $this->sarf_band->title : null,
             'created_by' => $this->user ? $this->user->name : null,
+            'currency' => get_app_config_data('currency')
         ];
     }
 }
