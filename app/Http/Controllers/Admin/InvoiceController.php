@@ -51,6 +51,7 @@ class InvoiceController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
+
             // $allData = $this->InvoiceRepository->getWithRelations(['client', 'employee', 'subscription'])->toQuery()->whereNull('deleted_at')->orderBy('id', 'desc')->get();
             $invoices = $this->InvoiceRepository->getWithRelations(['client', 'employee', 'subscription', 'revenues.user']);
             $query = $invoices->isNotEmpty() ? $invoices->toQuery()
@@ -91,6 +92,7 @@ class InvoiceController extends Controller
                 $query->whereDate('created_at', '<=', $request->to_date);
             }
             return Datatables::of($query)
+
                 ->addColumn('id', function ($row) {
                     return $row->id ?? 'N/A';
                 })

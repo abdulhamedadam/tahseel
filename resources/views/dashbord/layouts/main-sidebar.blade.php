@@ -112,7 +112,9 @@
                             <span class="menu-title">{{ trans('sidebar.employee_data') }}</span>
                         </a>
                     </div>
+
                 @endcan
+
                 @can('list_roles')
                     <div class="menu-item">
                         <a class="menu-link {{ request()->routeIs(['admin.roles.index']) ? 'active' : '' }}"
@@ -161,10 +163,10 @@
 
                 {{-- <div class="menu-item">
                     <a class="menu-link {{ request()->routeIs(['admin.invoices.index']) ? 'active' : '' }}"
-                        href="{{ route('admin.invoices.index') }}">
-                            <span class="svg-icon svg-icon-2" style="margin-left: 5px">
-                                <i class="bi bi-file-earmark-text text-primary fs-2x"></i>
-                            </span>
+                       href="{{ route('admin.invoices.index') }}">
+        <span class="svg-icon svg-icon-2" style="margin-left: 5px">
+            <i class="bi bi-receipt text-primary fs-2x"></i>
+        </span>
                         <span class="menu-title">{{ trans('sidebar.invoices') }}</span>
                     </a>
                 </div> --}}

@@ -55,6 +55,7 @@ class UsersController extends Controller
                 })
                 ->editColumn('role', function ($row) {
                     return $row->roles->isNotEmpty() ? $row->roles->first()->getTranslation('title', app()->getLocale()) : 'N/A';
+
                 })
                 ->editColumn('position', function ($row) {
                     return $row->position ?? 'N/A';

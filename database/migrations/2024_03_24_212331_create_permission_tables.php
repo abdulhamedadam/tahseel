@@ -28,7 +28,7 @@ class CreatePermissionTables extends Migration
         Schema::create($tableNames['permissions'], function (Blueprint $table) {
             $table->bigIncrements('id'); // permission id
             $table->string('name')->nullable();       // For MySQL 8.0 use string('name', 125);
-            $table->text('title')->nullable();
+            $table->json('title')->nullable();
             $table->string('guard_name')->nullable(); // For MySQL 8.0 use string('guard_name', 125);
             $table->timestamps();
 
@@ -42,7 +42,7 @@ class CreatePermissionTables extends Migration
                 $table->index($columnNames['team_foreign_key'], 'roles_team_foreign_key_index');
             }
             $table->string('name')->nullable();       // For MySQL 8.0 use string('name', 125);
-            $table->text('title')->nullable();
+            $table->json('title')->nullable();
             $table->string('guard_name')->nullable(); // For MySQL 8.0 use string('guard_name', 125);
             $table->timestamps();
             if ($teams || config('permission.testing')) {
