@@ -20,7 +20,7 @@ class UpdateRequests extends FormRequest
         return [
             // 'client_code'          => 'required|string|max:255|unique:tbl_clients,client_code,'.$id,
             'name'                 => 'required|string|max:255',
-            'phone'                => 'required|string|max:15',
+            'phone'                => 'required|string|max:15|regex:/^\+\d{1,3}\d{6,}$/',
             // 'email'                => 'nullable|email|max:255',
             'user'                 => 'required|string|max:255',
             'address1'             => 'nullable|string|max:255',
@@ -44,6 +44,7 @@ class UpdateRequests extends FormRequest
             'client_code.unique'            => trans('clients.client_code_unique'),
             'name.required'                 => trans('clients.name_required'),
             'phone.required'                => trans('clients.phone_required'),
+            'phone.regex'                   => trans('clients.phone_invalid_format'),
             'email.email'                   => trans('clients.email_invalid'),
             'image.image'                   => trans('clients.image_invalid'),
             'image.mimes'                   => trans('clients.image_format_invalid'),

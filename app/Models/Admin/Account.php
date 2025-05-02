@@ -41,4 +41,18 @@ class Account extends Model
     {
         return $this->belongsTo(Admin::class, 'created_by');
     }
+
+    public function financialTransactions()
+    {
+        return $this->hasMany(FinancialTransaction::class, 'account_id');
+    }
+
+    public function totalAmount()
+    {
+        $childrenAmount = $this->children->sum(function ($child) {
+            return $child->totalAmount();
+        });
+
+        return ($this->financial_transactions_sum_amount ?? 0) + $childrenAmount;
+    }
 }

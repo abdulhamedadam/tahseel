@@ -20,18 +20,21 @@ class JwtMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         try {
-            // Attempt to parse the token from the request
             $token = JWTAuth::parseToken();
 
-            // Check if the token is valid
             if (!$token->check()) {
-                /*                return response()->json(['error' => 'Invalid token'], 401);*/
                 return $this->responseApiError('Invalid token', 401);
             }
         } catch (\Exception $e) {
-            /*            return response()->json(['error' => 'Token not found'], 401);*/
-            return $this->responseApiError('Token not found', 401);
+            if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenExpiredException) {
+                return $this->responseApiError('Token is Expired', 401);
+            } elseif ($e instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException) {
+                return $this->responseApiError('Invalid token', 401);
+            } elseif ($e instanceof \Tymon\JWTAuth\Exceptions\JWTException) {
+                return $this->responseApiError('Token not found', 400);
+            }
 
+            return $this->responseApiError('Unauthorized', 401);
         }
 
         return $next($request);

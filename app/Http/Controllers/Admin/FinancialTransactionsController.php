@@ -21,7 +21,7 @@ class FinancialTransactionsController extends Controller
 
     public function __construct(BasicRepositoryInterface $basicRepository)
     {
-        // $this->middleware('can:list_financial_transactions')->only('index');
+        $this->middleware('can:view_financial_transactions')->only('index');
 
         $this->financialTransactionsRepository = createRepository($basicRepository, new FinancialTransaction());
         // $this->revenueService = $revenueService;
@@ -31,7 +31,8 @@ class FinancialTransactionsController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $allData = $this->financialTransactionsRepository->getWithRelations(['account', 'admin'])->where('deleted_at', null);
+            $financial_transactions = $this->financialTransactionsRepository->getWithRelations(['account', 'admin']);
+            $allData = $financial_transactions->isNotEmpty() ? $financial_transactions->toQuery()->where('deleted_at', null)->orderBy('created_at', 'desc')->get() : collect();
             return DataTables::of($allData)
                 ->addColumn('id', function ($row) {
                     return $row->id ?? 'N/A';
@@ -89,5 +90,4 @@ class FinancialTransactionsController extends Controller
 
         return response()->json(['balance' => $balance]);
     }
-
 }

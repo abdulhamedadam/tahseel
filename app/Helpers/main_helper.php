@@ -286,6 +286,10 @@ if (!function_exists('count_all_notifications_clients')) {
             ->whereIn('type', [
                 \App\Notifications\NewClientAddedNotification::class,
                 \App\Notifications\InvoiceReminderNotification::class,
+                \App\Notifications\InvoicePaidNotification::class,
+                \App\Notifications\InvoiceRedoNotification::class,
+                \App\Notifications\AccountTransferNotification::class,
+                \App\Notifications\AccountTransferRedoNotification::class,
             ])->count();
     }
 }
@@ -303,6 +307,42 @@ if (!function_exists('count_invoice_reminder_notifications')) {
         return $admin->unreadNotifications
             ->where('type', \App\Notifications\InvoiceReminderNotification::class)
             ->count();
+    }
+}
+
+if (!function_exists('count_invoices_process_notifications')) {
+    function count_invoices_process_notifications()
+    {
+        $admin = Auth::user();
+
+        if (!$admin) {
+            return 0;
+        }
+
+        return $admin->unreadNotifications
+            ->whereIn('type', [
+                \App\Notifications\InvoicePaidNotification::class,
+                \App\Notifications\InvoiceRedoNotification::class
+            ])
+            ->count();
+    }
+}
+
+if (!function_exists('count_transfers_notifications')) {
+    function count_transfers_notifications()
+    {
+        $admin = Auth::user();
+
+        if (!$admin) {
+            return 0;
+        }
+
+        return $admin->unreadNotifications
+                ->whereIn('type', [
+                    \App\Notifications\AccountTransferNotification::class,
+                    \App\Notifications\AccountTransferRedoNotification::class
+                ])
+                ->count();
     }
 }
 

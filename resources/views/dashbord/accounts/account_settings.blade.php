@@ -20,32 +20,6 @@
 
         <div class="card shadow-sm" style="border-top: 3px solid #007bff;">
 
-            {{-- <form method="post" action="{{ route('admin.save_account_setting') }}" enctype="multipart/form-data" id="form">
-                @csrf
-
-                <div class="row col-md-12" style="margin: 10px">
-                    <div class="col-md-6">
-                        <label for="general_account_id" class="form-label">{{ trans('accounts.general_account') }}</label>
-                        <input type="text" class="form-control" name="general_account_id" id="general_account_id" value="">
-                    </div>
-                    <div class="col-md-6">
-                        <label for="masrofat_account" class="form-label">{{ trans('accounts.masrofat_account') }}</label>
-                        <input type="email" class="form-control" name="masrofat_account_id" id="masrofat_account_id" value="">
-                    </div>
-                    <div class="col-md-6">
-                        <label for="employee_account" class="form-label">{{ trans('accounts.employee_account') }}</label>
-                        <input type="text" class="form-control" name="employee_account_id" id="employee_account_id" value="">
-                    </div>
-                </div>
-
-                <div class="modal-footer" style="margin-top: 10px">
-                    <button type="submit" name="submit" value="add"
-                        class="btn btn-primary">{{ trans('accounts.save') }}</button>
-                    <button type="button" class="btn btn-light"
-                        data-bs-dismiss="modal">{{ trans('accounts.cancel') }}</button>
-                </div>
-            </form> --}}
-
             <form method="post" action="{{ route('admin.save_account_setting') }}" enctype="multipart/form-data"
                 id="form">
                 @csrf
@@ -53,7 +27,8 @@
                 <div class="row col-md-12" style="margin: 10px">
                     <div class="col-md-6">
                         <label for="general_account_id" class="form-label">{{ trans('accounts.general_account') }}</label>
-                        <select class="form-control" name="general_account_id" id="general_account_id">
+                        <select class="form-control" name="general_account_id" id="general_account_id"
+                        @cannot('save_account_settings') disabled @endcannot>
                             <option value="">{{ trans('accounts.select_account') }}</option>
                             @foreach ($accounts as $account)
                                 <option value="{{ $account->id }}"
@@ -66,7 +41,8 @@
 
                     <div class="col-md-6">
                         <label for="masrofat_account_id" class="form-label">{{ trans('accounts.masrofat_account') }}</label>
-                        <select class="form-control" name="masrofat_account_id" id="masrofat_account_id">
+                        <select class="form-control" name="masrofat_account_id" id="masrofat_account_id"
+                        @cannot('save_account_settings') disabled @endcannot>
                             <option value="">{{ trans('accounts.select_account') }}</option>
                             @foreach ($accounts as $account)
                                 <option value="{{ $account->id }}"
@@ -80,7 +56,8 @@
                     <div class="col-md-6">
                         <label for="employee_account_id"
                             class="form-label">{{ trans('accounts.employee_account') }}</label>
-                        <select class="form-control" name="employee_account_id" id="employee_account_id">
+                        <select class="form-control" name="employee_account_id" id="employee_account_id"
+                        @cannot('save_account_settings') disabled @endcannot>
                             <option value="">{{ trans('accounts.select_account') }}</option>
                             @foreach ($accounts as $account)
                                 <option value="{{ $account->id }}"
@@ -93,7 +70,9 @@
                 </div>
 
                 <div class="modal-footer" style="margin-top: 10px">
-                    <button type="submit" class="btn btn-primary">{{ trans('accounts.save') }}</button>
+                    @can('save_account_settings')
+                        <button type="submit" class="btn btn-primary">{{ trans('accounts.save') }}</button>
+                    @endcan
                     <button type="button" class="btn btn-light"
                         data-bs-dismiss="modal">{{ trans('accounts.cancel') }}</button>
                 </div>

@@ -13,11 +13,13 @@
             PageTitle($title, $breadcrumbs);
         @endphp
 
-        <div class="d-flex align-items-center gap-2 gap-lg-3">
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAccountTransfers">
-                {{ trans('account_transfers.add_transfer') }}
-            </button>
-        </div>
+        @can('create_account_transfer')
+            <div class="d-flex align-items-center gap-2 gap-lg-3">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAccountTransfers">
+                    {{ trans('account_transfers.add_transfer') }}
+                </button>
+            </div>
+        @endcan
     </div>
 @endsection
 
@@ -67,13 +69,25 @@
                             <select name="to_account" id="to_account" class="form-control" required>
                                 <option value="">{{ trans('account_transfers.select_account') }}</option>
                                 @foreach ($accounts as $account)
-                                    <option value="{{ $account->id }}">{{ $account->name }}</option>
+                                    <option value="{{ $account->id }}" @if($account->id == $masrofatAccountId) data-is-masrofat="true" @endif>{{ $account->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3" id="bandSection" style="display: none;">
+                            <label for="band_id" class="form-label">{{ trans('account_transfers.band') }}</label>
+                            <select name="band_id" id="band_id" class="form-control">
+                                @foreach ($bands as $band)
+                                    <option value="{{ $band->id }}" {{ old('band_id') == $band->id ? 'selected' : '' }}>{{ $band->title }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="mb-3">
                             <label for="amount" class="form-label">{{ trans('account_transfers.amount') }}</label>
                             <input type="number" class="form-control" name="amount" id="amount" required>
+                            <div id="amount_warning" class="text-danger mt-1 small" style="display: none;">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                {{ trans('account_transfers.amount_exceeds_balance') }}
+                            </div>
                         </div>
                         {{-- <div class="mb-3">
                             <label for="date" class="form-label">{{ trans('account_transfers.date') }}</label>
@@ -110,6 +124,7 @@
                 "processing": true,
                 "serverSide": true,
                 "order": [],
+                "pageLength": 10,
                 "ajax": {
                     url: "{{ route('admin.get_ajax_account_transfers') }}",
                     type: 'GET'
@@ -196,14 +211,10 @@
                 "dom": '<"row align-items-center"<"col-md-3"l><"col-md-6"f><"col-md-3"B>>rt<"row align-items-center"<"col-md-6"i><"col-md-6"p>>',
                 "buttons": [{
                         "extend": 'excel',
-                        "text": '<i class="bi bi-file-earmark-excel"></i>إكسل',
-                        "className": 'btn btn-dark'
                     },
                     {
                         "extend": 'copy',
-                        "text": '<i class="bi bi-clipboard"></i>نسخ',
-                        "className": 'btn btn-primary'
-                    }
+                    },
                 ],
                 "lengthMenu": [
                     [5, 10, 25, 50, -1],
@@ -237,6 +248,21 @@
 
     <script>
         $(document).ready(function() {
+            var currentBalance = 0;
+
+            $('#to_account').change(function() {
+                var selectedOption = $(this).find('option:selected');
+                var isMasrofatAccount = selectedOption.data('is-masrofat');
+
+                if (isMasrofatAccount) {
+                    $('#bandSection').show();
+                    $('#band_id').prop('required', true);
+                } else {
+                    $('#bandSection').hide();
+                    $('#band_id').prop('required', false);
+                }
+            });
+
             $('#from_account').change(function() {
                 var id = $(this).val();
                 if (id) {
@@ -245,13 +271,34 @@
                         type: "GET",
                         dataType: "json",
                         success: function(data) {
+                            currentBalance = data.balance;
                             $('#amount').val(data.balance);
+                            $('#amount').attr('max', data.balance);
                         }
                     });
                 } else {
+                    currentBalance = 0;
                     $('#amount').val('');
+                    $('#amount').removeAttr('max');
                 }
             });
+
+            $(document).on('input', '#amount', function() {
+                let enteredAmount = parseFloat($(this).val()) || 0;
+
+                if (enteredAmount > currentBalance) {
+                    $(this).val(currentBalance);
+                    showAmountWarning();
+                }
+            });
+
+            function showAmountWarning() {
+                $('#amount_warning').show();
+
+                setTimeout(() => {
+                    $('#amount_warning').fadeOut();
+                }, 3000);
+            }
         });
     </script>
 

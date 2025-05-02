@@ -1,10 +1,5 @@
 @extends('dashbord.layouts.master')
-<style>
-    .btn:not(.btn-outline):not(.btn-dashed):not(.border-hover):not(.border-active):not(.btn-flush):not(.btn-icon).btn-sm,
-    .btn-group-sm>.btn:not(.btn-outline):not(.btn-dashed):not(.border-hover):not(.border-active):not(.btn-flush):not(.btn-icon) {
-        padding: 10px 12px !important;
-    }
-</style>
+
 @section('toolbar')
     <div id="kt_app_toolbar_container" class="app-container container-xxl d-flex flex-stack">
         @php
@@ -19,11 +14,37 @@
         @endphp
 
 
-        {{-- <div class="d-flex align-items-center gap-2 gap-lg-3">
+        <div class="d-flex align-items-center gap-2 gap-lg-3">
 
-            {{ AddButton(route('admin.invoices.create'))}}
+            <form action="{{ route('admin.invoices_generate') }}" method="POST" class="text-center">
+                @csrf
+                @php
+                    $invoicesGenerated = App\Models\Admin\MonthlyInvoiceGeneration::where('year_month', now()->format('Y-m'))->exists();
+                @endphp
 
-        </div> --}}
+                <div class="d-flex flex-column align-items-center">
+                    <button type="submit"
+                            class="btn btn-primary btn-sm d-flex align-items-center gap-2 ms-4 {{ $invoicesGenerated ? 'disabled' : '' }}"
+                            onclick="{{ !$invoicesGenerated ? "return confirm('هل انت متأكد من انشاء الفواتير لهذا الشهر؟')" : '' }}"
+                            {{ $invoicesGenerated ? 'disabled' : '' }}>
+                        <span class="svg-icon svg-icon-2">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <rect opacity="0.5" x="11.364" y="20.364" width="16" height="2" rx="1"
+                                    transform="rotate(-90 11.364 20.364)" fill="currentColor"/>
+                                <rect x="4.36396" y="11.364" width="16" height="2" rx="1" fill="currentColor"/>
+                            </svg>
+                        </span>
+                        <span>{{ trans('invoices.generate_invoices') }}</span>
+                    </button>
+                </div>
+                @if($invoicesGenerated)
+                    <small class="text-muted mt-1 ms-4" style="font-size: 0.75rem;">
+                        (تم إنشاء الفواتير لهذا الشهر)
+                    </small>
+                @endif
+            </form>
+        </div>
     </div>
 
 @endsection
@@ -31,6 +52,123 @@
 
     <div id="kt_app_content_container" class="app-container container-xxxl">
 
+        <div class="card-body">
+            <div class="col-md-12 row">
+
+                <div class="col-md-3">
+                    <label for="client_id"class="form-label">{{ trans('reports.client_id') }}</label>
+                    <div class="input-group flex-nowrap ">
+                        <span class="input-group-text" id="basic-addon3">{!! form_icon('select1') !!}</i></span>
+                        <div class="overflow-hidden flex-grow-1">
+                            <select class="form-select rounded-start-0" name="client_id" id="client_id"
+                                data-placeholder="{{ trans('reports.select') }}">
+                                <option value="">{{ trans('reports.select') }}</option>
+                                @foreach ($clients as $item)
+                                    <option value="{{ $item->id }}"
+                                        {{ old('client_id') == $item->id ? 'selected' : '' }}>{{ $item->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    @error('client_id')
+                        <span class="invalid-feedback d-block" role="alert">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="col-md-3">
+                    <label for="subscription_id" class="form-label">{{ trans('reports.subscription') }}</label>
+                    <div class="input-group flex-nowrap">
+                        <span class="input-group-text">{!! form_icon('select1') !!}</span>
+                        <select class="form-select" name="subscription_id" id="subscription_id">
+                            <option value="">{{ trans('reports.select') }}</option>
+                            @foreach($subscriptions as $subscription)
+                                <option value="{{ $subscription->id }}">{{ $subscription->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <label for="collector_id" class="form-label">{{ trans('reports.collector') }}</label>
+                    <div class="input-group flex-nowrap">
+                        <span class="input-group-text">{!! form_icon('select1') !!}</span>
+                        <select class="form-select" name="collector_id" id="collector_id">
+                            <option value="">{{ trans('reports.select') }}</option>
+                            @foreach($collectors as $collector)
+                                <option value="{{ $collector->id }}">{{ $collector->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <label for="status" class="form-label">{{ trans('reports.status') }}</label>
+                    <div class="input-group flex-nowrap">
+                        <span class="input-group-text" id="basic-addon4">{!! form_icon('select1') !!}</span>
+                        <select class="form-select" name="status" id="status">
+                            <option value="">
+                                {{ trans('reports.select') }}
+                            </option>
+                            <option value="paid" {{ old('status') == 'paid' ? 'selected' : '' }}>
+                                {{ trans('reports.paid') }}
+                            </option>
+                            <option value="partial" {{ old('status') == 'partial' ? 'selected' : '' }}>
+                                {{ trans('reports.partial') }}
+                            </option>
+                            <option value="unpaid" {{ old('status') == 'unpaid' ? 'selected' : '' }}>
+                                {{ trans('reports.unpaid') }}
+                            </option>
+                        </select>
+                    </div>
+                    @error('status')
+                        <span class="invalid-feedback d-block">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="col-md-3" style="margin-top: 10px;">
+                    <label for="min_amount" class="form-label">{{ trans('reports.min_amount') }}</label>
+                    <div class="input-group flex-nowrap">
+                        <span class="input-group-text">{!! form_icon('money') !!}</span>
+                        <input type="number" class="form-control" name="min_amount" id="min_amount"
+                                placeholder="{{ trans('reports.min_amount') }}">
+                    </div>
+                </div>
+
+                <div class="col-md-3" style="margin-top: 10px;">
+                    <label for="max_amount" class="form-label">{{ trans('reports.max_amount') }}</label>
+                    <div class="input-group flex-nowrap">
+                        <span class="input-group-text">{!! form_icon('money') !!}</span>
+                        <input type="number" class="form-control" name="max_amount" id="max_amount"
+                                placeholder="{{ trans('reports.max_amount') }}">
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3" style="margin-top: 10px">
+                    <label for="from_date" class="form-label">{{ trans('reports.from_date') }}</label>
+                    <div class="input-group flex-nowrap">
+                        <span class="input-group-text">{!! form_icon('date') !!}</span>
+                        <input type="date" class="form-control" name="from_date" id="from_date"
+                            value="{{ old('from_date') }}">
+                    </div>
+                    @error('from_date')
+                        <span class="invalid-feedback d-block">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="col-md-3 mb-3" style="margin-top: 10px;">
+                    <label for="to_date" class="form-label">{{ trans('reports.to_date') }}</label>
+                    <div class="input-group flex-nowrap">
+                        <span class="input-group-text">{!! form_icon('date') !!}</span>
+                        <input type="date" class="form-control" name="to_date" id="to_date"
+                            value="{{ old('to_date') }}">
+                    </div>
+                    @error('to_date')
+                        <span class="invalid-feedback d-block">{{ $message }}</span>
+                    @enderror
+                </div>
+            </div>
+        </div>
         <div class="card shadow-sm" style="border-top: 3px solid #007bff;">
             @php
                 $headers = [
@@ -42,6 +180,7 @@
                     'invoices.remaining_amount',
                     'invoices.due_date',
                     'invoices.paid_date',
+                    'invoices.collected_by',
                     'invoices.status',
                     'invoices.subscription',
                     'invoices.notes',
@@ -69,11 +208,12 @@
                         <div class="mb-3">
                             <label for="invoice_amount" class="form-label">{{ trans('invoices.invoice_amount') }}</label>
                             <input type="number" class="form-control" id="invoice_amount" name="invoice_amount" required
-                                min="1">
+                            min="1">
                         </div>
                         <div class="mb-3">
                             <label for="paid_amount" class="form-label">{{ trans('invoices.invoice_paid_amount') }}</label>
                             <input type="number" class="form-control" id="paid_amount" name="paid_amount">
+                            <small class="text-muted">{{ trans('invoices.remaining_amount') }}: <span id="remaining_amount_note"></span></small>
                         </div>
                         <div class="mb-3">
                             <label for="notes" class="form-label">{{ trans('invoices.notes') }}</label>
@@ -123,8 +263,20 @@
                 "processing": true,
                 "serverSide": true,
                 "order": [],
+                "pageLength": 10,
                 "ajax": {
                     url: "{{ route('admin.invoices.index') }}",
+                    type: 'GET',
+                    data: function(d) {
+                        d.client_id = $('#client_id').val();
+                        d.status = $('#status').val();
+                        d.subscription_id = $('#subscription_id').val();
+                        d.collector_id = $('#collector_id').val();
+                        d.min_amount = $('#min_amount').val();
+                        d.max_amount = $('#max_amount').val();
+                        d.from_date = $('#from_date').val();
+                        d.to_date = $('#to_date').val();
+                    }
                 },
                 "columns": [{
                         data: 'id',
@@ -160,6 +312,10 @@
                     },
                     {
                         data: 'paid_date',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'collected_by',
                         className: 'text-center'
                     },
                     {
@@ -216,7 +372,7 @@
                         }
                     },
                     {
-                        "targets": [2],
+                        "targets": [2, 8],
                         "createdCell": function(td, cellData, rowData, row, col) {
                             $(td).css({
                                 'font-weight': '600',
@@ -246,14 +402,10 @@
                 "dom": '<"row align-items-center"<"col-md-3"l><"col-md-6"f><"col-md-3"B>>rt<"row align-items-center"<"col-md-6"i><"col-md-6"p>>',
                 "buttons": [{
                         "extend": 'excel',
-                        "text": '<i class="bi bi-file-earmark-excel"></i>إكسل',
-                        "className": 'btn btn-dark'
                     },
                     {
                         "extend": 'copy',
-                        "text": '<i class="bi bi-clipboard"></i>نسخ',
-                        "className": 'btn btn-primary'
-                    }
+                    },
                 ],
 
                 "language": {
@@ -292,7 +444,13 @@
         });
     </script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
     <script>
+        $('#client_id, #status, #subscription_id, #collector_id, #min_amount, #max_amount, #from_date, #to_date').on('change keyup', function() {
+            table.ajax.reload();
+        });
+
         function confirmDelete(clientId) {
             Swal.fire({
                 title: '{{ trans('employees.confirm_delete') }}',
@@ -312,11 +470,49 @@
     </script>
 
     <script>
-        function showPayModal(url, remainingAmount, invoiceAmount) {
+        function showPayModal(url, remainingAmount, invoiceAmount, notes) {
+            // console.log(notes)
             $('#payInvoiceForm').attr('action', url);
             $('#invoice_amount').val(invoiceAmount);
             // $('#paid_amount').val(remainingAmount);
+            $('#remaining_amount_note').text(remainingAmount);
+            let notesValue = notes;
+            if (notesValue === 'undefined' || notesValue === null || notesValue === 'null') {
+                notesValue = '';
+            }
+
+            $('#notes').val(notesValue);
+            $('#paid_amount').val('').attr({
+                'max': remainingAmount,
+                'placeholder': 'Max: ' + remainingAmount
+            });
             $('#payInvoiceModal').modal('show');
+        }
+
+        $(document).on('input', '#paid_amount', function() {
+            let enteredAmount = parseFloat($(this).val()) || 0;
+            let remainingAmount = parseFloat($('#remaining_amount_note').text());
+
+            if (enteredAmount > remainingAmount) {
+                $(this).val(remainingAmount);
+                showAmountWarning();
+            }
+        });
+
+        function showAmountWarning() {
+            let warning = $('#amount_warning');
+            if (warning.length === 0) {
+                $('<div id="amount_warning" class="text-danger mt-1 small">' +
+                '<i class="bi bi-exclamation-triangle"></i> ' +
+                'تم تعديل المبلغ إلى الحد الأقصى للمبلغ المتبقي' +
+                '</div>').insertAfter('#paid_amount');
+            } else {
+                warning.show();
+            }
+
+            setTimeout(() => {
+                $('#amount_warning').fadeOut();
+            }, 3000);
         }
 
         function validateAmount() {

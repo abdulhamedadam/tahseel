@@ -1,10 +1,5 @@
 @extends('dashbord.layouts.master')
-<style>
-    .btn:not(.btn-outline):not(.btn-dashed):not(.border-hover):not(.border-active):not(.btn-flush):not(.btn-icon).btn-sm,
-    .btn-group-sm>.btn:not(.btn-outline):not(.btn-dashed):not(.border-hover):not(.border-active):not(.btn-flush):not(.btn-icon) {
-        padding: 10px 12px !important;
-    }
-</style>
+
 @section('toolbar')
     <div id="kt_app_toolbar_container" class="app-container container-xxl d-flex flex-stack">
         @php
@@ -81,7 +76,7 @@
                     url: "{{ route('admin.revenues.index') }}",
                 },
                 "columns": [{
-                        data: 'id',
+                        data: 'counter',
                         className: 'text-center no-export'
                     },
                     {
@@ -149,14 +144,13 @@
                 "dom": '<"row align-items-center"<"col-md-3"l><"col-md-6"f><"col-md-3"B>>rt<"row align-items-center"<"col-md-6"i><"col-md-6"p>>',
                 "buttons": [{
                         "extend": 'excel',
-                        "text": '<i class="bi bi-file-earmark-excel"></i>إكسل',
-                        "className": 'btn btn-dark'
                     },
                     {
                         "extend": 'copy',
-                        "text": '<i class="bi bi-clipboard"></i>نسخ',
-                        "className": 'btn btn-primary'
-                    }
+                    },
+                    // {
+                    //     "extend": 'pdf'
+                    // }
                 ],
 
                 "language": {
@@ -174,8 +168,8 @@
                     }
                 },
                 "lengthMenu": [
-                    [5, 10, 25, 50, -1],
-                    [5, 10, 25, 50, "الكل"]
+                    [10, 25, 50, -1],
+                    [10, 25, 50, "الكل"]
                 ],
             });
 

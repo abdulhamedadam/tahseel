@@ -1,10 +1,5 @@
 @extends('dashbord.layouts.master')
-<style>
-    .btn:not(.btn-outline):not(.btn-dashed):not(.border-hover):not(.border-active):not(.btn-flush):not(.btn-icon).btn-sm,
-    .btn-group-sm>.btn:not(.btn-outline):not(.btn-dashed):not(.border-hover):not(.border-active):not(.btn-flush):not(.btn-icon) {
-        padding: 10px 12px !important;
-    }
-</style>
+
 @section('toolbar')
     <div id="kt_app_toolbar_container" class="app-container container-xxl d-flex flex-stack">
         @php
@@ -36,6 +31,7 @@
                     'invoices.remaining_amount',
                     'invoices.due_date',
                     'invoices.paid_date',
+                    'invoices.collected_by',
                     'invoices.status',
                     'invoices.subscription',
                     'invoices.notes',
@@ -68,6 +64,7 @@
                         <div class="mb-3">
                             <label for="paid_amount" class="form-label">{{ trans('invoices.invoice_paid_amount') }}</label>
                             <input type="number" class="form-control" id="paid_amount" name="paid_amount">
+                            <small class="text-muted">{{ trans('invoices.remaining_amount') }}: <span id="remaining_amount_note"></span></small>
                         </div>
                         <div class="mb-3">
                             <label for="notes" class="form-label">{{ trans('invoices.notes') }}</label>
@@ -117,6 +114,7 @@
                 "processing": true,
                 "serverSide": true,
                 "order": [],
+                "pageLength": 10,
                 "ajax": {
                     url: "{{ route('admin.due_monthly_invoices') }}",
                 },
@@ -154,6 +152,10 @@
                     },
                     {
                         data: 'paid_date',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'collected_by',
                         className: 'text-center'
                     },
                     {
@@ -210,7 +212,7 @@
                         }
                     },
                     {
-                        "targets": [2],
+                        "targets": [2, 8],
                         "createdCell": function(td, cellData, rowData, row, col) {
                             $(td).css({
                                 'font-weight': '600',
@@ -240,14 +242,10 @@
                 "dom": '<"row align-items-center"<"col-md-3"l><"col-md-6"f><"col-md-3"B>>rt<"row align-items-center"<"col-md-6"i><"col-md-6"p>>',
                 "buttons": [{
                         "extend": 'excel',
-                        "text": '<i class="bi bi-file-earmark-excel"></i>إكسل',
-                        "className": 'btn btn-dark'
                     },
                     {
                         "extend": 'copy',
-                        "text": '<i class="bi bi-clipboard"></i>نسخ',
-                        "className": 'btn btn-primary'
-                    }
+                    },
                 ],
 
                 "language": {
@@ -305,11 +303,48 @@
     </script>
 
     <script>
-        function showPayModal(url, remainingAmount, invoiceAmount) {
+        function showPayModal(url, remainingAmount, invoiceAmount, notes) {
             $('#payInvoiceForm').attr('action', url);
             $('#invoice_amount').val(invoiceAmount);
             // $('#paid_amount').val(remainingAmount);
+            $('#remaining_amount_note').text(remainingAmount);
+            let notesValue = notes;
+            if (notesValue === 'undefined' || notesValue === null || notesValue === 'null') {
+                notesValue = '';
+            }
+
+            $('#notes').val(notesValue);
+            $('#paid_amount').val('').attr({
+                'max': remainingAmount,
+                'placeholder': 'Max: ' + remainingAmount
+            });
             $('#payInvoiceModal').modal('show');
+
+            $(document).on('input', '#paid_amount', function() {
+                let enteredAmount = parseFloat($(this).val()) || 0;
+                let remainingAmount = parseFloat($('#remaining_amount_note').text());
+
+                if (enteredAmount > remainingAmount) {
+                    $(this).val(remainingAmount);
+                    showAmountWarning();
+                }
+            });
+        }
+
+        function showAmountWarning() {
+            let warning = $('#amount_warning');
+            if (warning.length === 0) {
+                $('<div id="amount_warning" class="text-danger mt-1 small">' +
+                '<i class="bi bi-exclamation-triangle"></i> ' +
+                'تم تعديل المبلغ إلى الحد الأقصى للمبلغ المتبقي' +
+                '</div>').insertAfter('#paid_amount');
+            } else {
+                warning.show();
+            }
+
+            setTimeout(() => {
+                $('#amount_warning').fadeOut();
+            }, 3000);
         }
 
         function validateAmount() {

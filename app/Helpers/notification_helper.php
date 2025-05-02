@@ -54,6 +54,7 @@ function send_notification_FCM_old($notification_id, $title, $message, $id, $typ
 
 use Google\Auth\Credentials\ServiceAccountCredentials;
 use Google\Auth\OAuth2;
+use Illuminate\Support\Facades\Http;
 
 function getAccessToken()
 {
@@ -253,5 +254,197 @@ function send_notifications2($to_user_id, $to_user_name, $from_user_id, $from_us
 
         add_notifications($to_user_id, $to_user_name, $from_user_id, $from_user_name, $content, $title, $extra_data, $status, $code);
         return   send_notification_FCM($token, $title_fcm, $message, $extra_data[0], $type);
+    }
+}
+
+
+//////////////////////////for oneSginal //////////////////////
+if (!function_exists('sendOneSignalNotification')) {
+    function sendOneSignalNotification($playerIds, $message, $data = null, $url = null)
+    {
+        $appId = config('onesignal.app_id');
+        $restApiKey = config('onesignal.rest_api_key');
+
+        if (!$appId || !$restApiKey) {
+            throw new \Exception('OneSignal configuration not found');
+        }
+
+        $fields = [
+            'app_id' => $appId,
+            'include_player_ids' => is_array($playerIds) ? $playerIds : [$playerIds],
+            'contents' => [
+                'en' => $message
+            ],
+            'data' => $data,
+            'url' => $url
+        ];
+
+        $fields = json_encode($fields);
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://onesignal.com/api/v1/notifications");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json; charset=utf-8',
+            'Authorization: Basic ' . $restApiKey
+        ]);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_HEADER, FALSE);
+        curl_setopt($ch, CURLOPT_POST, TRUE);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode !== 200) {
+            \Log::error('OneSignal API Error: ' . $response);
+            return false;
+        }
+
+        return json_decode($response, true);
+    }
+}
+
+
+if (!function_exists('sendOneSignalNotification1')) {
+    function sendOneSignalNotification1($users = null, $message, $data = null, $url = null, $filters = null)
+    {
+        $playerIds = [];
+        if ($users) {
+            foreach ($users as $user) {
+                if (!empty($user->onesignal_id)) {
+                    $playerIds[] = $user->onesignal_id;
+                }
+            }
+        }
+
+        if (empty($playerIds) && !$filters) {
+            logger()->warning('No valid OneSignal player IDs found for notification');
+            return false;
+        }
+
+        $payload = [
+            'app_id' => config('onesignal.app_id'),
+            'contents' => ['en' => $message],
+            'data' => $data
+        ];
+
+        if ($url) {
+            $payload['url'] = $url;
+        }
+
+        if (!empty($playerIds)) {
+            $payload['include_player_ids'] = $playerIds;
+        } elseif ($filters) {
+            $payload['filters'] = $filters;
+        } else {
+            $payload['included_segments'] = ['All'];
+        }
+
+        logger()->info('OneSignal payload: ' . json_encode($payload));
+
+        $apiKey = config('onesignal.rest_api_key');
+        logger()->info('Using OneSignal API Key: ' . substr($apiKey, 0, 5) . '...');
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Basic ' . $apiKey,
+            'Content-Type' => 'application/json'
+        ])->post('https://onesignal.com/api/v1/notifications', $payload);
+
+        if ($response->failed()) {
+            logger()->error('OneSignal error: ' . $response->body());
+            logger()->error('OneSignal status code: ' . $response->status());
+            return false;
+        }
+
+        return $response->json();
+    }
+    // sendOneSignalNotification1(
+    //     null,
+    //     'إعلان عام لجميع المستخدمين',
+    //     null,
+    //     'https://example.com/announcement'
+    // );
+}
+
+if (!function_exists('sendOneSignalNotification2')) {
+    if (!function_exists('sendOneSignalNotification')) {/**
+        * إرسال إشعار OneSignal متكامل بجميع الخيارات
+        *
+        * @param array|string $playerIds - مصفوفة أو نص لـ Player IDs
+        * @param string $message - نص الإشعار الرئيسي
+        * @param array $options - مصفوفة تحتوي على جميع الخيارات المتقدمة:
+        *    - 'title' => string - عنوان الإشعار
+        *    - 'data' => array - بيانات مخصصة
+        *    - 'url' => string - رابط عند النقر
+        *    - 'image' => string - صورة للإشعار
+        *    - 'buttons' => array - أزرار (array of ['id'=>string, 'text'=>string, 'icon'=>string])
+        *    - 'schedule' => string - وقت الجدولة (تنسيق ISO 8601)
+        *    - 'android_channel_id' => string - قناة أندرويد المخصصة
+        *    - 'ios_badgeType' => string - نوع البادج (Increase/SetTo/None)
+        *    - 'ios_badgeCount' => int - عدد البادج
+        *    - 'ttl' => int - وقت الحياة بالثواني
+        *    - 'priority' => int - الأولوية (10 عاجل، 5 عادي)
+        * @return array|false - استجابة OneSignal أو false عند الفشل
+        */
+        function sendOneSignalNotification2($playerIds, $message, array $options = [])
+        {
+            $defaultParams = [
+                'app_id' => config('onesignal.app_id'),
+                'include_player_ids' => (array) $playerIds,
+                'contents' => ['en' => $message],
+            ];
+
+            // معالجة الخيارات الأساسية
+            $optionalParams = [
+                'headings' => isset($options['title']) ? ['en' => $options['title']] : null,
+                'data' => $options['data'] ?? null,
+                'url' => $options['url'] ?? null,
+                'ios_attachments' => isset($options['image']) ? ['id1' => $options['image']] : null,
+                'big_picture' => $options['image'] ?? null,
+                'buttons' => $options['buttons'] ?? null,
+                'send_after' => $options['schedule'] ?? null,
+                'android_channel_id' => $options['android_channel_id'] ?? null,
+                'ios_badgeType' => $options['ios_badgeType'] ?? null,
+                'ios_badgeCount' => $options['ios_badgeCount'] ?? null,
+                'ttl' => $options['ttl'] ?? null,
+                'priority' => $options['priority'] ?? null,
+                'content_available' => $options['content_available'] ?? false,
+                'mutable_content' => $options['mutable_content'] ?? false,
+            ];
+
+            // إزالة القيم الفارغة
+            $optionalParams = array_filter($optionalParams, function ($value) {
+                return $value !== null;
+            });
+
+            $requestParams = array_merge($defaultParams, $optionalParams);
+
+            try {
+                $response = Http::timeout(15)
+                    ->retry(3, 500)
+                    ->withHeaders([
+                        'Authorization' => 'Basic ' . config('onesignal.rest_api_key'),
+                        'Content-Type' => 'application/json',
+                    ])
+                    ->post('https://onesignal.com/api/v1/notifications', $requestParams);
+
+                if ($response->failed()) {
+                    logger()->error('OneSignal API Error', [
+                        'status' => $response->status(),
+                        'response' => $response->body(),
+                        'request' => $requestParams
+                    ]);
+                    return false;
+                }
+
+                return $response->json();
+
+            } catch (\Exception $e) {
+                logger()->error('OneSignal Connection Error: ' . $e->getMessage());
+                return false;
+            }
+        }
     }
 }

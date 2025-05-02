@@ -53,6 +53,21 @@
                                     </li>
                                     <hr class="nav-separator">
                                 @endcan
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.app_config') }}"
+                                        class="nav-link @if (Route::is('admin.app_config')) active @endif"
+                                        style=" width: 100%;">
+                                        <span
+                                            style="display: flex; justify-content: space-between; align-items: center;">
+                                            <span>
+                                                <i class="far fa-circle nav-icon text-warning"></i>
+                                                {{ trans('settings.app_config') }}
+                                            </span>
+                                            <span class="badge badge-danger"
+                                                style="order: 1; margin-left: 5px;">0</span>
+                                        </span>
+                                    </a>
+                                </li>
                             </ul>
                         </nav>
                     </div>

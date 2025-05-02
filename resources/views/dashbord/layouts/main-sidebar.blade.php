@@ -45,17 +45,28 @@
             <div class="menu menu-column menu-rounded menu-sub-indention fw-semibold px-3" id="#kt_app_sidebar_menu"
                 data-kt-menu="true" data-kt-menu-expand="false">
 
-                {{-- @can('view_dashboard') --}}
-                <div class="menu-item">
-                    <a class="menu-link {{ request()->routeIs(['admin.dashboard']) ? 'active' : '' }}"
-                        href="{{ route('admin.dashboard') }}">
-                        <span class="svg-icon svg-icon-2" style="margin-left: 5px">
-                            <i class="bi bi-speedometer2 text-primary fs-2x"></i>
-                        </span>
-                        <span class="menu-title">{{ trans('sidebar.dashboard') }}</span>
-                    </a>
-                </div>
-                {{-- @endcan --}}
+                @can('view_dashboard')
+                    <div class="menu-item">
+                        <a class="menu-link {{ request()->routeIs(['admin.dashboard']) ? 'active' : '' }}"
+                            href="{{ route('admin.dashboard') }}">
+                            <span class="svg-icon svg-icon-2" style="margin-left: 5px">
+                                <i class="bi bi-speedometer2 text-primary fs-2x"></i>
+                            </span>
+                            <span class="menu-title">{{ trans('sidebar.dashboard') }}</span>
+                        </a>
+                    </div>
+                @endcan
+                @canany('view_subscriptions', 'view_sarf_band')
+                    <hr class="w-100 border border-success">
+
+                    <div class="menu-item ">
+                        <div class="menu-content">
+                            <span
+                                class="fw-bold text-uppercase fs-7 text-success">{{ trans('sidebar.settings_management') }}</span>
+                        </div>
+
+                    </div>
+                @endcan
                 @php
                     $defaultSettingsLink = null;
 
@@ -77,6 +88,19 @@
                     </div>
                 @endif
 
+                @canany(['list_roles', 'list_users', 'view_employees'])
+                    <hr class="w-100 border border-success">
+
+                    <div class="menu-item">
+                        <!--begin:Menu content-->
+                        <div class="menu-content">
+                            <span class="fw-bold text-uppercase fs-7 text-success">
+                                {{ trans('sidebar.user&employees_management') }}
+                            </span>
+                        </div>
+                    </div>
+                @endcanany
+
                 @can('view_employees')
                     <div class="menu-item">
                         <a class="menu-link {{ request()->routeIs(['admin.employee_data', 'jobs', 'admin.archive_shelf_settings', 'shelf', 'admin.archive_settings', 'desk']) ? 'active' : '' }}"
@@ -88,18 +112,7 @@
                             <span class="menu-title">{{ trans('sidebar.employee_data') }}</span>
                         </a>
                     </div>
-{{--                @endcan--}}
 
-                @can('list_clients')
-                    <div class="menu-item">
-                        <a class="menu-link {{ request()->routeIs(['admin.clients.index']) ? 'active' : '' }}"
-                            href="{{ route('admin.clients.index') }}">
-                            <span class="svg-icon svg-icon-2" style="margin-left: 5px">
-                                <i class="bi bi-people text-danger fs-2x"></i>
-                            </span>
-                            <span class="menu-title">{{ trans('sidebar.clients') }}</span>
-                        </a>
-                    </div>
                 @endcan
 
                 @can('list_roles')
@@ -125,6 +138,29 @@
                         </a>
                     </div>
                 @endcan
+
+                @can('list_clients')
+                    <hr class="w-100 border border-success">
+
+                    <div class="menu-item ">
+                        <!--begin:Menu content-->
+                        <div class="menu-content">
+                            <span
+                                class="fw-bold text-uppercase fs-7 text-success">{{ trans('sidebar.clients_management') }}</span>
+                        </div>
+
+                    </div>
+                    <div class="menu-item">
+                        <a class="menu-link {{ request()->routeIs(['admin.clients.index']) ? 'active' : '' }}"
+                            href="{{ route('admin.clients.index') }}">
+                            <span class="svg-icon svg-icon-2" style="margin-left: 5px">
+                                <i class="bi bi-people text-danger fs-2x"></i>
+                            </span>
+                            <span class="menu-title">{{ trans('sidebar.clients') }}</span>
+                        </a>
+                    </div>
+                @endcan
+
                 {{-- <div class="menu-item">
                     <a class="menu-link {{ request()->routeIs(['admin.invoices.index']) ? 'active' : '' }}"
                        href="{{ route('admin.invoices.index') }}">
@@ -164,6 +200,18 @@
                         </div>
                     </div>
                 </div> --}}
+                @canany(['list_invoices', 'view_reports'])
+                    <hr class="w-100 border border-success">
+
+                    <div class="menu-item">
+                        <!--begin:Menu content-->
+                        <div class="menu-content">
+                            <span class="fw-bold text-uppercase fs-7 text-success">
+                                {{ trans('sidebar.invoices&reports_management') }}
+                            </span>
+                        </div>
+                    </div>
+                @endcanany
                 @can('list_invoices')
                     <div data-kt-menu-trigger="click"
                         class="menu-item menu-accordion {{ request()->routeIs(['admin.invoices.index', 'admin.due_monthly_invoices', 'admin.new_paid_invoices']) ? 'show' : '' }}">
@@ -220,6 +268,68 @@
                         </a>
                     </div>
                 @endcan
+
+                @canany(['list_eradat', 'list_masrofat', 'view_accounts', 'view_account_settings', 'view_financial_transactions',
+                    'view_account_transfers'])
+                    <hr class="w-100 border border-success">
+
+                    <div class="menu-item">
+                        <!--begin:Menu content-->
+                        <div class="menu-content">
+                            <span class="fw-bold text-uppercase fs-7 text-success">
+                                {{ trans('sidebar.finance_management') }}
+                            </span>
+                        </div>
+                    </div>
+                @endcanany
+
+                @can('view_accounts')
+                    <div class="menu-item">
+                        <a class="menu-link {{ request()->routeIs(['admin.accounts']) ? 'active' : '' }}"
+                            href="{{ route('admin.accounts') }}">
+                            <span class="svg-icon svg-icon-2" style="margin-left: 5px">
+                                <i class="bi bi-wallet text-primary fs-2x"></i>
+                            </span>
+                            <span class="menu-title">{{ trans('sidebar.accounts') }}</span>
+                        </a>
+                    </div>
+                @endcan
+
+                @can('view_account_settings')
+                    <div class="menu-item">
+                        <a class="menu-link {{ request()->routeIs(['admin.account_settings']) ? 'active' : '' }}"
+                            href="{{ route('admin.account_settings') }}">
+                            <span class="svg-icon svg-icon-2" style="margin-left: 5px">
+                                <i class="bi bi-gear text-primary fs-2x"></i>
+                            </span>
+                            <span class="menu-title">{{ trans('sidebar.account_settings') }}</span>
+                        </a>
+                    </div>
+                @endcan
+                @can('view_financial_transactions')
+                    <div class="menu-item">
+                        <a class="menu-link {{ request()->routeIs(['admin.financial_transactions.index']) ? 'active' : '' }}"
+                            href="{{ route('admin.financial_transactions.index') }}">
+                            <span class="svg-icon svg-icon-2" style="margin-left: 5px">
+                                <i class="bi bi-cash-coin text-primary fs-2x"></i>
+                            </span>
+                            <span class="menu-title">{{ trans('sidebar.financial_transactions') }}</span>
+                        </a>
+                    </div>
+                @endcan
+
+                @can('view_account_transfers')
+                    <div class="menu-item">
+                        <a class="menu-link {{ request()->routeIs(['admin.account_transfers']) ? 'active' : '' }}"
+                            href="{{ route('admin.account_transfers') }}">
+                            <span class="svg-icon svg-icon-2" style="margin-left: 5px">
+                                <i class="bi bi-arrow-left-right text-primary fs-2x"></i>
+                            </span>
+                            <span class="menu-title">{{ trans('sidebar.account_transfers') }}</span>
+                        </a>
+                    </div>
+                @endcan
+
                 @can('list_eradat')
                     <div class="menu-item">
                         <a class="menu-link {{ request()->routeIs(['admin.revenues.index']) ? 'active' : '' }}"
@@ -242,46 +352,19 @@
                         </a>
                     </div>
                 @endcan
-                <div class="menu-item">
-                    <a class="menu-link {{ request()->routeIs(['admin.accounts']) ? 'active' : '' }}"
-                        href="{{ route('admin.accounts') }}">
-                        <span class="svg-icon svg-icon-2" style="margin-left: 5px">
-                            <i class="bi bi-wallet text-primary fs-2x"></i>
-                        </span>
-                        <span class="menu-title">{{ trans('sidebar.accounts') }}</span>
-                    </a>
-                </div>
 
-                <div class="menu-item">
-                    <a class="menu-link {{ request()->routeIs(['admin.account_settings']) ? 'active' : '' }}"
-                        href="{{ route('admin.account_settings') }}">
-                        <span class="svg-icon svg-icon-2" style="margin-left: 5px">
-                            <i class="bi bi-gear text-primary fs-2x"></i>
-                        </span>
-                        <span class="menu-title">{{ trans('sidebar.account_settings') }}</span>
-                    </a>
-                </div>
+                @canany(['view_new_clients_notifications', 'view_unpaid_invoices_notifications'])
+                    <hr class="w-100 border border-success">
 
-                <div class="menu-item">
-                    <a class="menu-link {{ request()->routeIs(['admin.financial_transactions.index']) ? 'active' : '' }}"
-                        href="{{ route('admin.financial_transactions.index') }}">
-                        <span class="svg-icon svg-icon-2" style="margin-left: 5px">
-                            <i class="bi bi-cash-coin text-primary fs-2x"></i>
-                        </span>
-                        <span class="menu-title">{{ trans('sidebar.financial_transactions') }}</span>
-                    </a>
-                </div>
-
-                <div class="menu-item">
-                    <a class="menu-link {{ request()->routeIs(['admin.account_transfers']) ? 'active' : '' }}"
-                        href="{{ route('admin.account_transfers') }}">
-                        <span class="svg-icon svg-icon-2" style="margin-left: 5px">
-                            <i class="bi bi-arrow-left-right text-primary fs-2x"></i>
-                        </span>
-                        <span class="menu-title">{{ trans('sidebar.account_transfers') }}</span>
-                    </a>
-                </div>
-
+                    <div class="menu-item">
+                        <!--begin:Menu content-->
+                        <div class="menu-content">
+                            <span class="fw-bold text-uppercase fs-7 text-success">
+                                {{ trans('sidebar.notifications_management') }}
+                            </span>
+                        </div>
+                    </div>
+                @endcanany
 
                 @php
                     $defaultNotificationLink = null;
@@ -290,12 +373,14 @@
                         $defaultNotificationLink = route('admin.new_clients_notifications');
                     } elseif (auth()->user()->can('view_unpaid_invoices_notifications')) {
                         $defaultNotificationLink = route('admin.unpaid_invoices_notifications');
+                    } else {
+                        $defaultNotificationLink = route('admin.invoices_notifications');
                     }
                     // echo $defaultNotificationLink;
                 @endphp
                 @if ($defaultNotificationLink)
                     <div class="menu-item">
-                        <a class="menu-link {{ request()->routeIs('admin.new_clients_notifications') || request()->routeIs('admin.unpaid_invoices_notifications') ? 'active' : '' }}"
+                        <a class="menu-link {{ request()->routeIs('admin.new_clients_notifications') || request()->routeIs('admin.unpaid_invoices_notifications') || request()->routeIs('admin.invoices_notifications') || request()->routeIs('admin.transfers_notifications') ? 'active' : '' }}"
                             href="{{ $defaultNotificationLink }}">
                             <span class="svg-icon svg-icon-2" style="margin-left: 5px">
                                 <i class="bi bi-bell text-warning fs-2x"></i>

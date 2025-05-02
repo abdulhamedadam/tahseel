@@ -9,6 +9,7 @@ use App\Interfaces\BasicRepositoryInterface;
 use App\Models\Admin;
 use App\Models\Admin\Account;
 use App\Models\Admin\AccountSettings;
+use App\Models\Admin\FinancialTransaction;
 use App\Services\AccountService;
 use App\Traits\ImageProcessing;
 use App\Traits\ValidationMessage;
@@ -27,10 +28,12 @@ class AccountController extends Controller
 
     public function __construct(BasicRepositoryInterface $basicRepository, AccountService $accountService)
     {
-        // $this->middleware('can:list_account')->only('index');
-        // $this->middleware('can:create_account')->only('create', 'store');
-        // $this->middleware('can:update_account')->only('edit', 'update');
-        // $this->middleware('can:delete_account')->only('destroy');
+        $this->middleware('can:view_accounts', ['only' => ['accounts']]);
+        $this->middleware('can:create_account', ['only' => ['add_account']]);
+        $this->middleware('can:edit_account', ['only' => ['edit_account']]);
+        $this->middleware('can:delete_account', ['only' => ['destroy']]);
+        $this->middleware('can:view_account_settings', ['only' => ['account_setting']]);
+        $this->middleware('can:save_account_settings', ['only' => ['save_account_setting']]);
 
         $this->accountsRepository = createRepository($basicRepository, new Account());
         $this->usersRepository   = createRepository($basicRepository, new Admin());
@@ -39,15 +42,25 @@ class AccountController extends Controller
 
     public function accounts()
     {
-        $data['accounts'] = $this->accountsRepository->getAll();
+        $accounts = $this->accountsRepository->getAll();
+        $data['accounts'] = $accounts->isNotEmpty() ? $accounts->toQuery()->whereNull('parent_id')
+            ->whereNull('deleted_at')
+            ->with(['children' => function ($query) {
+                $query->withSum('financialTransactions', 'amount');
+            }])
+            ->withSum('financialTransactions', 'amount')
+            ->get() : collect();
         $data['users'] = $this->usersRepository->getAll();
+        // dd($data);
+        // dd(auth()->user());
         return view('dashbord.accounts.index', $data);
     }
     public function get_ajax_accounts()
     {
         if (request()->ajax()) {
             try {
-                $data = $this->accountsRepository->getAll();
+                $accounts = $this->accountsRepository->getWithRelations(['admin', 'user', 'parent']);
+                $data = $accounts->isNotEmpty() ? $accounts->toQuery()->where('deleted_at', null)->orderBy('created_at', 'desc')->get() : collect();
 
                 $counter = 0;
 
@@ -123,6 +136,7 @@ class AccountController extends Controller
             } else {
                 $validated_data['updated_by'] = auth()->user()->id;
                 $account = $this->accountsRepository->update($request->row_id, $validated_data);
+                $account = $this->accountsRepository->getById($request->row_id);
             }
 
             $level = $this->calculateLevel($account->id);
@@ -207,5 +221,17 @@ class AccountController extends Controller
             test($e->getMessage());
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
+    }
+
+
+    public function get_transactions($id)
+    {
+        $account = Account::findOrFail($id);
+        $transactions = FinancialTransaction::with(['account', 'admin'])->where('account_id', $id)->whereNull('deleted_at')->orderBy('created_at', 'desc')->get();
+
+        return response()->json([
+            'account_name' => $account->name,
+            'transactions' => $transactions
+        ]);
     }
 }

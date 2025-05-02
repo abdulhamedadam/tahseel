@@ -6,11 +6,13 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\PermissionRegistrar;
 
 class PermissionsSeeder extends Seeder
 {
     public function run()
     {
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
         $permissions = [
             [
                 'name' => 'view_dashboard',
@@ -323,12 +325,62 @@ class PermissionsSeeder extends Seeder
                 'title' => ['ar' => 'عرض التقارير', 'en' => 'view reports'],
                 'guard_name' => 'admin',
             ],
-            // [
-            //     'name' => 'generate_reports',
-            //     'title' => ['ar' => 'انشاء التقارير', 'en' => 'generate reports'],
-            //     'guard_name' => 'admin',
-            // ],
 
+            // Accounts permissions
+            [
+                'name' => 'view_accounts',
+                'title' => ['ar' => 'عرض الحسابات', 'en' => 'view accounts'],
+                'guard_name' => 'admin',
+            ],
+            [
+                'name' => 'create_account',
+                'title' => ['ar' => 'إضافة حساب', 'en' => 'create account'],
+                'guard_name' => 'admin',
+            ],
+            [
+                'name' => 'edit_account',
+                'title' => ['ar' => 'تعديل الحساب', 'en' => 'edit account'],
+                'guard_name' => 'admin',
+            ],
+            [
+                'name' => 'delete_account',
+                'title' => ['ar' => 'حذف الحساب', 'en' => 'delete account'],
+                'guard_name' => 'admin',
+            ],
+            [
+                'name' => 'view_account_settings',
+                'title' => ['ar' => 'عرض إعدادات الحساب', 'en' => 'view account settings'],
+                'guard_name' => 'admin',
+            ],
+            [
+                'name' => 'save_account_settings',
+                'title' => ['ar' => 'حفظ إعدادات الحساب', 'en' => 'save account settings'],
+                'guard_name' => 'admin',
+            ],
+
+            // Financial Transactions permissions
+            [
+                'name' => 'view_financial_transactions',
+                'title' => ['ar' => 'عرض المعاملات المالية', 'en' => 'view financial transactions'],
+                'guard_name' => 'admin',
+            ],
+
+            // Account Transfers permissions
+            [
+                'name' => 'view_account_transfers',
+                'title' => ['ar' => 'عرض تحويلات الحساب', 'en' => 'view account transfers'],
+                'guard_name' => 'admin',
+            ],
+            [
+                'name' => 'create_account_transfer',
+                'title' => ['ar' => 'إضافة تحويل حساب', 'en' => 'create account transfer'],
+                'guard_name' => 'admin',
+            ],
+            [
+                'name' => 'redo_account_transfer',
+                'title' => ['ar' => 'إعادة تحويل الحساب', 'en' => 'redo account transfer'],
+                'guard_name' => 'admin',
+            ],
         ];
 
 

@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\app_setting\DiscountController;
 use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\CompanyController;
+use App\Http\Controllers\Admin\ConfigAppController;
 use App\Http\Controllers\Admin\EmployeesController;
 
 use App\Http\Controllers\Admin\FinancialTransactionsController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\Admin\RevenueController;
 use App\Http\Controllers\Admin\RolesController;
 use App\Http\Controllers\Admin\TestsController;
 use App\Http\Controllers\Admin\UsersController;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
@@ -115,6 +117,7 @@ Route::group(
             Route::get('/invoice/{id}/redo', [InvoiceController::class, 'redo_invoice'])->name('redo_invoice');
             Route::get('/invoices/due-monthly', [InvoiceController::class, 'dueMonthlyInvoices'])->name('due_monthly_invoices');
             Route::get('/invoices/new', [InvoiceController::class, 'newlyPaidInvoices'])->name('new_paid_invoices');
+            Route::post('/invoices/generate', [InvoiceController::class, 'generate'])->name('invoices_generate');
 
             Route::get('invoices/reports', [ReportController::class, 'reports'])->name('reports.reports');
             Route::post('reports', [ReportController::class, 'index'])->name('reports.index');
@@ -128,6 +131,10 @@ Route::group(
             Route::get('/get_ajax_notifications/new_clients', [NotificationsController::class, 'get_ajax_notifications'])->name('get_ajax_notifications');
             Route::get('/notifications/unpaid_invoices', [NotificationsController::class, 'unpaid_invoices'])->name('unpaid_invoices_notifications');
             Route::get('/get_ajax_invoice_notifications', [NotificationsController::class, 'get_ajax_invoice_notifications'])->name('get_ajax_invoice_notifications');
+            Route::get('/notifications/invoices', [NotificationsController::class, 'invoices'])->name('invoices_process_notifications');
+            Route::get('/get_ajax_invoices_notifications', [NotificationsController::class, 'get_ajax_invoices_notifications'])->name('get_ajax_invoices_notifications');
+            Route::get('/notifications/transfers', [NotificationsController::class, 'transfers'])->name('transfers_notifications');
+            Route::get('/get_ajax_transfers_notifications', [NotificationsController::class, 'get_ajax_transfers_notifications'])->name('get_ajax_transfers_notifications');
             Route::get('/notifications/read/{id}', [NotificationsController::class, 'mark_notification_read'])->name('mark_notification_read');
 
 
@@ -136,7 +143,7 @@ Route::group(
             Route::get('/edit/account/{id}', [AccountController::class, 'edit_account'])->name('edit_account');
             Route::get('delete/account/{id}', [AccountController::class, 'destroy'])->name('delete_account');
             Route::get('/get_ajax_accounts', [AccountController::class, 'get_ajax_accounts'])->name('get_ajax_accounts');
-
+            Route::get('/accounts/{id}/transactions', [AccountController::class, 'get_transactions'])->name('accounts_transactions');
 
             Route::get('account-settings', [AccountController::class, 'account_setting'])->name('account_settings');
             Route::post('save-account-settings', [AccountController::class, 'save_account_setting'])->name('save_account_setting');
@@ -151,6 +158,12 @@ Route::group(
             Route::get('delete/account_transfers/{id}', [AccountTransferController::class, 'destroy'])->name('delete_account_transfer');
             Route::get('/get_ajax_account_transfers', [AccountTransferController::class, 'get_ajax_account_transfers'])->name('get_ajax_account_transfers');
             Route::post('redo_account_transfer/{id}', [AccountTransferController::class, 'redo_account_transfer'])->name('redo_account_transfer');
+
+
+            /*************************************************************************************************/
+            Route::get('setting/app_config', [ConfigAppController::class, 'index'])->name('app_config');
+            Route::post('setting/app_config/save', [ConfigAppController::class, 'store'])->name('save_app_config');
+
         });
     }
 );
@@ -163,8 +176,53 @@ Route::group(
     ],
     function () {
 
+        Route::get('/invoice/{id}/print', [InvoiceController::class, 'print_invoice'])->name('print_invoice');
 
 
         require __DIR__ . '/adminauth.php';
     }
 );
+
+Route::get('/run-migrate', function () {
+    try {
+        Artisan::call('migrate', [
+            '--force' => true
+        ]);
+
+        return response()->json([
+            'message' => 'Migration completed successfully.',
+            'output' => Artisan::output()
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Migration failed: ' . $e->getMessage()
+        ], 500);
+    }
+})->middleware('auth');
+
+Route::get('/run-specific-migrate/{file}', function ($file) {
+    try {
+        $path = "database/migrations/{$file}";
+
+        if (!file_exists(base_path($path))) {
+            return response()->json([
+                'message' => 'الملف غير موجود.',
+                'path' => $path
+            ], 404);
+        }
+
+        Artisan::call('migrate', [
+            '--path' => $path,
+            '--force' => true
+        ]);
+
+        return response()->json([
+            'message' => 'تم التنفيذ بنجاح.',
+            'output' => Artisan::output()
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'حدث خطأ ما: ' . $e->getMessage()
+        ], 500);
+    }
+})->middleware('auth');

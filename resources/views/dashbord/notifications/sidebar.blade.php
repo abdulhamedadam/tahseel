@@ -45,6 +45,30 @@
                                     </li>
                                     <hr class="nav-separator">
                                 @endcan
+                                    <li class="nav-item">
+                                        <a href="{{ route('admin.invoices_process_notifications') }}" class="nav-link @if (Route::is('admin.invoices_process_notifications')) active @endif" style=" width: 100%;">
+                                <span style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>
+                                        <i class="far fa-circle nav-icon text-warning"></i>
+                                        {{trans('settings.invoices_process')}}
+                                    </span>
+                                    <span class="badge badge-danger" style="order: 1; margin-left: 5px;">{{count_invoices_process_notifications()}}</span>
+                                </span>
+                                        </a>
+                                    </li>
+                                    <hr class="nav-separator">
+                                    <li class="nav-item">
+                                        <a href="{{ route('admin.transfers_notifications') }}" class="nav-link @if (Route::is('admin.transfers_notifications')) active @endif" style=" width: 100%;">
+                                <span style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>
+                                        <i class="far fa-circle nav-icon text-warning"></i>
+                                        {{trans('settings.transfers')}}
+                                    </span>
+                                    <span class="badge badge-danger" style="order: 1; margin-left: 5px;">{{count_transfers_notifications()}}</span>
+                                </span>
+                                        </a>
+                                    </li>
+                                    <hr class="nav-separator">
 
 
                             </ul>

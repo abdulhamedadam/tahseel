@@ -57,11 +57,11 @@
                                     value="{{ old('name', $all_data->name) }}">
                             </div>
                             @error('name')
-                                <span class="fv-plugins-message-container " role="alert">{{ $message }}</span>
+                                <span class="invalid-feedback d-block" role="alert">{{ $message }}</span>
                             @enderror
                         </div>
 
-                        <div class="col-md-3" style="margin-top: 10px">
+                        {{-- <div class="col-md-3" style="margin-top: 10px">
                             <label for="last_name" class="form-label">{{ trans('clients.phone') }}</label>
                             <div class="input-group flex-nowrap">
                                 <span class="input-group-text" id="basic-addon3">{!! form_icon('phone') !!}</span>
@@ -71,7 +71,47 @@
                             @error('phone')
                                 <span class="invalid-feedback d-block" role="alert">{{ $message }}</span>
                             @enderror
+                        </div> --}}
+
+                        <div class="col-md-3" style="margin-top: 10px">
+                            <label for="phone" class="form-label">{{ trans('clients.phone') }}</label>
+                            <div class="input-group flex-nowrap">
+                                <span class="input-group-text">{!! form_icon('phone') !!}</span>
+
+                                <input type="tel" class="form-control @error('phone') is-invalid @enderror"
+                                    name="phone" id="phone" value="{{ old('phone', $all_data->phone) }}"
+                                    placeholder="123456789" maxlength="13">
+
+                                <select class="form-select" id="country_code" style="max-width: 120px;">
+                                    <option value="+961" {{ Str::startsWith(old('phone', $all_data->phone), '+961') ? 'selected' : '' }}>+961 (لبنان)</option>
+                                    <option value="+20" {{ Str::startsWith(old('phone', $all_data->phone), '+20') ? 'selected' : '' }}>+20 (مصر)</option>
+                                    <option value="+966" {{ Str::startsWith(old('phone', $all_data->phone), '+966') ? 'selected' : '' }}>+966 (السعودية)</option>
+                                    <option value="+971" {{ Str::startsWith(old('phone', $all_data->phone), '+971') ? 'selected' : '' }}>+971 (الإمارات)</option>
+                                    <option value="+213" {{ Str::startsWith(old('phone', $all_data->phone), '+213') ? 'selected' : '' }}>+213 (الجزائر)</option>
+                                    <option value="+973" {{ Str::startsWith(old('phone', $all_data->phone), '+973') ? 'selected' : '' }}>+973 (البحرين)</option>
+                                    <option value="+974" {{ Str::startsWith(old('phone', $all_data->phone), '+974') ? 'selected' : '' }}>+974 (قطر)</option>
+                                    <option value="+965" {{ Str::startsWith(old('phone', $all_data->phone), '+965') ? 'selected' : '' }}>+965 (الكويت)</option>
+                                    <option value="+968" {{ Str::startsWith(old('phone', $all_data->phone), '+968') ? 'selected' : '' }}>+968 (عُمان)</option>
+                                    <option value="+962" {{ Str::startsWith(old('phone', $all_data->phone), '+962') ? 'selected' : '' }}>+962 (الأردن)</option>
+                                    <option value="+963" {{ Str::startsWith(old('phone', $all_data->phone), '+963') ? 'selected' : '' }}>+963 (سوريا)</option>
+                                    <option value="+964" {{ Str::startsWith(old('phone', $all_data->phone), '+964') ? 'selected' : '' }}>+964 (العراق)</option>
+                                    <option value="+967" {{ Str::startsWith(old('phone', $all_data->phone), '+967') ? 'selected' : '' }}>+967 (اليمن)</option>
+                                    <option value="+212" {{ Str::startsWith(old('phone', $all_data->phone), '+212') ? 'selected' : '' }}>+212 (المغرب)</option>
+                                    <option value="+216" {{ Str::startsWith(old('phone', $all_data->phone), '+216') ? 'selected' : '' }}>+216 (تونس)</option>
+                                    <option value="+218" {{ Str::startsWith(old('phone', $all_data->phone), '+218') ? 'selected' : '' }}>+218 (ليبيا)</option>
+                                    <option value="+249" {{ Str::startsWith(old('phone', $all_data->phone), '+249') ? 'selected' : '' }}>+249 (السودان)</option>
+                                    <option value="+252" {{ Str::startsWith(old('phone', $all_data->phone), '+252') ? 'selected' : '' }}>+252 (الصومال)</option>
+                                    <option value="+253" {{ Str::startsWith(old('phone', $all_data->phone), '+253') ? 'selected' : '' }}>+253 (جيبوتي)</option>
+                                    <option value="+222" {{ Str::startsWith(old('phone', $all_data->phone), '+222') ? 'selected' : '' }}>+222 (موريتانيا)</option>
+                                    <option value="+970" {{ Str::startsWith(old('phone', $all_data->phone), '+970') ? 'selected' : '' }}>+970 (فلسطين)</option>
+                                    <option value="+1268" {{ Str::startsWith(old('phone', $all_data->phone), '+1268') ? 'selected' : '' }}>+1268 (جزر القمر)</option>
+                                </select>
+                            </div>
+                            @error('phone')
+                                <span class="invalid-feedback d-block" role="alert">{{ $message }}</span>
+                            @enderror
                         </div>
+
 
                         {{-- <div class="col-md-3" style="margin-top: 10px">
                             <label for="email" class="form-label">{{ trans('clients.email') }}</label>
@@ -329,6 +369,33 @@
         }
     </script>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const countryCodeSelect = document.getElementById('country_code');
+            const phoneInput = document.getElementById('phone');
+
+            function extractNumber(phone) {
+                return phone.replace(/^\+\d{1,3}/, '');
+            }
+
+            function updatePhoneInput() {
+                const currentNumber = extractNumber(phoneInput.value);
+                phoneInput.value = countryCodeSelect.value + currentNumber;
+            }
+
+            if (phoneInput.value && !phoneInput.value.startsWith('+')) {
+                updatePhoneInput();
+            }
+
+            countryCodeSelect.addEventListener('change', updatePhoneInput);
+
+            phoneInput.addEventListener('blur', function() {
+                if (!phoneInput.value.startsWith('+')) {
+                    updatePhoneInput();
+                }
+            });
+        });
+    </script>
 
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>

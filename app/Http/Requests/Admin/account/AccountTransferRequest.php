@@ -22,6 +22,7 @@ class AccountTransferRequest extends FormRequest
             'to_account' => 'required|exists:tbl_accounts,id|different:from_account',
             'amount' => 'required|numeric|min:0',
             'notes' => 'nullable|string',
+            'band_id' => 'nullable|exists:tbl_sarf_bands,id',
         ];
     }
 }

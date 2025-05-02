@@ -1,5 +1,5 @@
 <?php return array(
-    'clients' => 'العملاء',
+    'clients' => 'الزبائن',
     'paid_invoices' => 'الفواتير المدفوعة',
     'unpaid_invoices' => 'الفواتير الغير مدفوعة',
     'employees' => 'الموظفين',

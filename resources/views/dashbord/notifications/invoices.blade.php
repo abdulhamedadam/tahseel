@@ -14,13 +14,6 @@
                         <div class="card shadow-sm" style="border-top: 3px solid #007bff;">
                             <div class="card-header">
                                 <h3 class="card-title">{{ trans('notifications.invoices') }}</h3>
-                                {{-- <div class="card-toolbar">
-                                    <div class="text-center">
-                                        <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalSarfBands" >
-                                            <i class="bi bi-plus fs-1"></i> {{ trans('settings.add') }}
-                                        </a>
-                                    </div>
-                                </div> --}}
                             </div>
 
 

@@ -8,9 +8,10 @@ trait ApiResponse
 {
     function responseApi($content = null, $massage = null, $status = null)
     {
-        $array = ['data' => $content,
+        $array = [
+            'result' => $status,
             'message' => $massage,
-            'status' => $status
+            'data' => $content
         ];
         return response()->json($array, $status);
     }
@@ -19,8 +20,9 @@ trait ApiResponse
     {
 
 
-        $array = ['message' => $massage,
-            'status' => $status
+        $array = [
+            'result' => $status,
+            'message' => $massage
         ];
         return response($array, $status);
     }

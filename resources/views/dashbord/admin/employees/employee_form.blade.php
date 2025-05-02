@@ -119,7 +119,7 @@
                                 @enderror
                             </div> --}}
 
-                            <div class="col-md-3" style="margin-top: 10px">
+                            {{-- <div class="col-md-3" style="margin-top: 10px">
                                 <label for="phone" class="form-label">{{ trans('employees.phone') }}</label>
                                 <div class="input-group flex-nowrap">
                                     <span class="input-group-text" id="basic-addon3"><i class="bi bi-phone fs-2"></i></span>
@@ -128,16 +128,77 @@
                                 @error('phone')
                                 <span class="invalid-feedback d-block" role="alert">{{ $message }}</span>
                                 @enderror
+                            </div> --}}
+
+                            <div class="col-md-3" style="margin-top: 10px">
+                                <label for="phone" class="form-label">{{ trans('clients.phone') }}</label>
+                                <div class="input-group flex-nowrap">
+                                    <span class="input-group-text">{!! form_icon('phone') !!}</span>
+                                    <input type="tel" class="form-control @error('phone') is-invalid @enderror"
+                                        name="phone" id="phone" value="{{ old('phone') }}" placeholder="123456789" maxlength="13">
+                                    <select class="form-select" id="country_code" style="max-width: 130px;">
+                                        <option value="+961">+961 (لبنان)</option>
+                                        <option value="+20">+20 (مصر)</option>
+                                        <option value="+966">+966 (السعودية)</option>
+                                        <option value="+971">+971 (الإمارات)</option>
+                                        <option value="+213">+213 (الجزائر)</option>
+                                        <option value="+973">+973 (البحرين)</option>
+                                        <option value="+974">+974 (قطر)</option>
+                                        <option value="+965">+965 (الكويت)</option>
+                                        <option value="+968">+968 (عُمان)</option>
+                                        <option value="+962">+962 (الأردن)</option>
+                                        <option value="+963">+963 (سوريا)</option>
+                                        <option value="+964">+964 (العراق)</option>
+                                        <option value="+967">+967 (اليمن)</option>
+                                        <option value="+212">+212 (المغرب)</option>
+                                        <option value="+216">+216 (تونس)</option>
+                                        <option value="+218">+218 (ليبيا)</option>
+                                        <option value="+249">+249 (السودان)</option>
+                                        <option value="+252">+252 (الصومال)</option>
+                                        <option value="+253">+253 (جيبوتي)</option>
+                                        <option value="+222">+222 (موريتانيا)</option>
+                                        <option value="+970">+970 (فلسطين)</option>
+                                        <option value="+1268">+1268 (جزر القمر)</option>
+                                    </select>
+                                </div>
+                                @error('phone')
+                                    <span class="invalid-feedback d-block" role="alert">{{ $message }}</span>
+                                @enderror
                             </div>
 
                             <div class="col-md-3" style="margin-top: 10px">
-                                <label for="whatsapp_num" class="form-label">{{ trans('employees.whatsapp_num') }}</label>
+                                <label for="whatsapp_num" class="form-label">{{ trans('clients.phone') }}</label>
                                 <div class="input-group flex-nowrap">
-                                    <span class="input-group-text" id="basic-addon3"><i class="bi bi-phone fs-2"></i></span>
-                                    <input type="text" class="form-control" name="whatsapp_num" id="whatsapp_num" value="{{ old('whatsapp_num') }}">
+                                    <span class="input-group-text">{!! form_icon('phone') !!}</span>
+                                    <input type="tel" class="form-control @error('whatsapp_num') is-invalid @enderror"
+                                        name="whatsapp_num" id="whatsapp_num" value="{{ old('whatsapp_num') }}" placeholder="123456789" maxlength="13">
+                                    <select class="form-select" id="country_codee" style="max-width: 130px;">
+                                        <option value="+961">+961 (لبنان)</option>
+                                        <option value="+20">+20 (مصر)</option>
+                                        <option value="+966">+966 (السعودية)</option>
+                                        <option value="+971">+971 (الإمارات)</option>
+                                        <option value="+213">+213 (الجزائر)</option>
+                                        <option value="+973">+973 (البحرين)</option>
+                                        <option value="+974">+974 (قطر)</option>
+                                        <option value="+965">+965 (الكويت)</option>
+                                        <option value="+968">+968 (عُمان)</option>
+                                        <option value="+962">+962 (الأردن)</option>
+                                        <option value="+963">+963 (سوريا)</option>
+                                        <option value="+964">+964 (العراق)</option>
+                                        <option value="+967">+967 (اليمن)</option>
+                                        <option value="+212">+212 (المغرب)</option>
+                                        <option value="+216">+216 (تونس)</option>
+                                        <option value="+218">+218 (ليبيا)</option>
+                                        <option value="+249">+249 (السودان)</option>
+                                        <option value="+252">+252 (الصومال)</option>
+                                        <option value="+253">+253 (جيبوتي)</option>
+                                        <option value="+222">+222 (موريتانيا)</option>
+                                        <option value="+970">+970 (فلسطين)</option>
+                                        <option value="+1268">+1268 (جزر القمر)</option>
+                                    </select>
                                 </div>
                                 @error('whatsapp_num')
-                                <span class="invalid-feedback d-block" role="alert">{{ $message }}</span>
+                                    <span class="invalid-feedback d-block" role="alert">{{ $message }}</span>
                                 @enderror
                             </div>
 
@@ -276,7 +337,52 @@
         }
     </script>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const countryCodeSelect = document.getElementById('country_code');
+            const phoneInput = document.getElementById('phone');
 
+            if (!phoneInput.value.startsWith('+') && countryCodeSelect) {
+                phoneInput.value = countryCodeSelect.value + phoneInput.value;
+            }
+
+            if (countryCodeSelect) {
+                countryCodeSelect.addEventListener('change', function() {
+                    const currentNumber = phoneInput.value.replace(/^\+\d{1,3}/, '');
+                    phoneInput.value = this.value + currentNumber;
+                });
+            }
+
+            phoneInput.addEventListener('blur', function() {
+                if (!/^\+\d{1,3}/.test(this.value)) {
+                    this.value = (countryCodeSelect ? countryCodeSelect.value : '+961') + this.value;
+                }
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const countryCodeSelect = document.getElementById('country_codee');
+            const phoneInput = document.getElementById('whatsapp_num');
+
+            if (!phoneInput.value.startsWith('+') && countryCodeSelect) {
+                phoneInput.value = countryCodeSelect.value + phoneInput.value;
+            }
+
+            if (countryCodeSelect) {
+                countryCodeSelect.addEventListener('change', function() {
+                    const currentNumber = phoneInput.value.replace(/^\+\d{1,3}/, '');
+                    phoneInput.value = this.value + currentNumber;
+                });
+            }
+
+            phoneInput.addEventListener('blur', function() {
+                if (!/^\+\d{1,3}/.test(this.value)) {
+                    this.value = (countryCodeSelect ? countryCodeSelect.value : '+961') + this.value;
+                }
+            });
+        });
+    </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 

@@ -1,10 +1,16 @@
 @extends('dashbord.layouts.master')
-<style>
-    .btn:not(.btn-outline):not(.btn-dashed):not(.border-hover):not(.border-active):not(.btn-flush):not(.btn-icon).btn-sm,
-    .btn-group-sm>.btn:not(.btn-outline):not(.btn-dashed):not(.border-hover):not(.border-active):not(.btn-flush):not(.btn-icon) {
-        padding: 10px 12px !important;
-    }
-</style>
+
+@section('css')
+    <style>
+        .account-row.level-1 {
+            background-color: #f8f9fa;
+        }
+
+        .account-row.level-2 {
+            background-color: #e9ecef;
+        }
+    </style>
+@endsection
 @section('toolbar')
     <div id="kt_app_toolbar_container" class="app-container container-xxl d-flex flex-stack">
         @php
@@ -18,39 +24,46 @@
             PageTitle($title, $breadcrumbs);
         @endphp
 
-
-        <div class="d-flex align-items-center gap-2 gap-lg-3">
-
-            {{-- @can('create_account') --}}
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAccounts">
-                {{ trans('accounts.add_account') }}
-            </button>
-            {{-- @endcan --}}
-
-        </div>
+        @can('create_account')
+            <div class="d-flex align-items-center gap-2 gap-lg-3">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAccounts">
+                    {{ trans('accounts.add_account') }}
+                </button>
+            </div>
+        @endcan
     </div>
-
 @endsection
+
 @section('content')
-
     <div id="kt_app_content_container" class="app-container container-xxxl">
-
         <div class="card shadow-sm" style="border-top: 3px solid #007bff;">
-            @php
-                $headers = [
-                    'accounts.ID',
-                    'accounts.account_name',
-                    'accounts.parent',
-                    'accounts.level',
-                    'accounts.assigned_user',
-                    'accounts.created_by',
-                    'accounts.actions',
-                ];
+            <div class="card-body">
+                <h2>{{ trans('accounts.accounts') }}</h2>
 
-                generateTable($headers);
-            @endphp
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>{{ trans('accounts.ID') }}</th>
+                            <th>{{ trans('accounts.account_name') }}</th>
+                            <th>{{ trans('accounts.parent') }}</th>
+                            <th>{{ trans('accounts.level') }}</th>
+                            <th>{{ trans('accounts.sum_amount') }}</th>
+                            {{-- <th>{{ trans('accounts.assigned_user') }}</th> --}}
+                            <th>{{ trans('accounts.created_by') }}</th>
+                            <th>{{ trans('accounts.actions') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($accounts as $account)
+                            @include('dashbord.accounts.partials.account_row', [
+                                'account' => $account,
+                            ])
+                        @endforeach
+                    </tbody>
+                </table>
+
+            </div>
         </div>
-
     </div>
 
     <div class="modal fade" tabindex="-1" id="modalAccounts">
@@ -78,15 +91,6 @@
                                 @endforeach
                             </select>
                         </div>
-                        {{-- <div class="mb-3">
-                            <label for="user_id" class="form-label">{{ trans('accounts.assigned_user') }}</label>
-                            <select name="user_id" id="user_id" class="form-control">
-                                <option value="">{{ trans('accounts.select_user') }}</option>
-                                @foreach ($users as $user)
-                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
-                                @endforeach
-                            </select>
-                        </div> --}}
                     </div>
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary">{{ trans('accounts.save') }}</button>
@@ -97,156 +101,46 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="transactionsModal" tabindex="-1" aria-labelledby="transactionsModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="transactionsModalLabel">{{ trans('accounts.transactions_for') }} <span
+                            id="accountName"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="table1" class="table table-bordered">
+                                <thead>
+                                    <tr class="fw-bold fs-6 text-gray-800">
+                                        <th style="text-align: center;">{{ trans('accounts.ID') }}</th>
+                                        <th style="text-align: center;">{{ trans('accounts.amount') }}</th>
+                                        <th style="text-align: center;">{{ trans('accounts.account') }}</th>
+                                        <th style="text-align: center;">{{ trans('accounts.date') }}</th>
+                                        <th style="text-align: center;">{{ trans('accounts.time') }}</th>
+                                        <th style="text-align: center;">{{ trans('accounts.type') }}</th>
+                                        <th style="text-align: center;">{{ trans('accounts.notes') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transactionsTableBody">
+                                    <tr>
+                                        <td colspan="8" class="text-center">No transactions found.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @stop
+
 @section('js')
-
-    <script>
-        $(document).ready(function() {
-            //datatables
-            table = $('#table1').DataTable({
-                "language": {
-                    url: "{{ asset('assets/Arabic.json') }}"
-                },
-                "processing": true,
-                "serverSide": true,
-                "order": [],
-                "ajax": {
-                    url: "{{ route('admin.get_ajax_accounts') }}",
-                    type: 'GET'
-                },
-                "columns": [{
-                        data: 'id',
-                        className: 'text-center'
-                    },
-                    {
-                        data: 'name',
-                        className: 'text-center'
-                    },
-                    {
-                        data: 'parent_account',
-                        className: 'text-center'
-                    },
-                    {
-                        data: 'level',
-                        className: 'text-center'
-                    },
-                    {
-                        data: 'assigned_user',
-                        className: 'text-center'
-                    },
-                    {
-                        data: 'created_by',
-                        className: 'text-center'
-                    },
-                    {
-                        data: 'action',
-                        name: 'action',
-                        orderable: false,
-                        className: 'text-center no-export'
-                    },
-                ],
-                "columnDefs": [{
-                        "targets": [1, -1], //last column
-                        "orderable": false, //set not orderable
-                    },
-                    {
-                        "targets": [1],
-                        "createdCell": function(td, cellData, rowData, row, col) {
-                            $(td).css({
-                                'font-weight': '600',
-                                'text-align': 'center',
-                                'color': '#6610f2',
-
-                                'vertical-align': 'middle',
-                            });
-                        }
-                    },
-                    {
-                        "targets": [3, 4],
-                        "createdCell": function(td, cellData, rowData, row, col) {
-                            $(td).css({
-                                'font-weight': '600',
-                                'text-align': 'center',
-                                'vertical-align': 'middle',
-                            });
-                        }
-                    },
-                    {
-                        "targets": [2],
-                        "createdCell": function(td, cellData, rowData, row, col) {
-                            $(td).css({
-                                'font-weight': '600',
-                                'text-align': 'center',
-                                'color': 'green',
-                                'vertical-align': 'middle',
-                            });
-                        }
-                    },
-
-                    {
-                        "targets": [5],
-                        "createdCell": function(td, cellData, rowData, row, col) {
-                            $(td).css({
-                                'font-weight': '600',
-                                'text-align': 'center',
-                                'color': 'red',
-                                'vertical-align': 'middle',
-                            });
-                        }
-                    },
-
-
-
-                ],
-                "order": [],
-                "dom": '<"row align-items-center"<"col-md-3"l><"col-md-6"f><"col-md-3"B>>rt<"row align-items-center"<"col-md-6"i><"col-md-6"p>>',
-                "buttons": [{
-                        "extend": 'excel',
-                        "text": '<i class="bi bi-file-earmark-excel"></i>إكسل',
-                        "className": 'btn btn-dark'
-                    },
-                    {
-                        "extend": 'copy',
-                        "text": '<i class="bi bi-clipboard"></i>نسخ',
-                        "className": 'btn btn-primary'
-                    }
-                ],
-
-                "language": {
-                    "lengthMenu": "عرض _MENU_ سجلات",
-                    "zeroRecords": "لا توجد سجلات",
-                    "info": "عرض الصفحة _PAGE_ من _PAGES_",
-                    "infoEmpty": "لا توجد سجلات",
-                    "infoFiltered": "(مرشح من _MAX_ إجمالي السجلات)",
-                    "search": "بحث:",
-                    "paginate": {
-                        "first": "الأول",
-                        "last": "الأخير",
-                        "next": "التالي",
-                        "previous": "السابق"
-                    }
-                },
-                "lengthMenu": [
-                    [5, 10, 25, 50, -1],
-                    [5, 10, 25, 50, "الكل"]
-                ],
-            });
-
-            $("input").change(function() {
-                $(this).parent().parent().removeClass('has-error');
-                $(this).next().empty();
-            });
-            $("textarea").change(function() {
-                $(this).parent().parent().removeClass('has-error');
-                $(this).next().empty();
-            });
-            $("select").change(function() {
-                $(this).parent().parent().removeClass('has-error');
-                $(this).next().empty();
-            });
-        });
-    </script>
-
     <script>
         function confirmDelete(clientId) {
             Swal.fire({
@@ -271,17 +165,57 @@
                 type: "get",
                 dataType: "json",
                 success: function(data) {
-                    // console.log(data);
                     var allData = data.all_data;
                     $('#row_id').val(allData.id);
                     $('#name').val(allData.name);
                     $('#parent_id').val(allData.parent_id);
-                    // $('#user_id').val(allData.account_id);
-                    // $('#user_id').val(data.account_id).trigger('change');
                 },
             });
         }
+
+        function viewTransactions(id) {
+            $.ajax({
+                url: "{{ route('admin.accounts_transactions', ['id' => '__id__']) }}".replace('__id__', id),
+                type: "GET",
+                dataType: "json",
+                success: function(response) {
+                    $('#accountName').text(response.account_name);
+                    var transactionsTableBody = $('#transactionsTableBody');
+                    transactionsTableBody.empty();
+
+                    if (response.transactions.length > 0) {
+                        response.transactions.forEach(function(transaction) {
+                            transactionsTableBody.append(`
+                                <tr>
+                                    <td class="text-center">${transaction.id}</td>
+                                    <td class="text-center">${transaction.amount}</td>
+                                    <td class="text-center">${transaction.account?.name ?? 'N/A'}</td>
+                                    <td class="text-center">${transaction.date}</td>
+                                    <td class="text-center">${transaction.time ?? ''}</td>
+                                    <td class="text-center">${transaction.type == 'qapd' ? 'قبض' : 'صرف'}</td>
+                                    <td class="text-center">${transaction.notes || ''}</td>
+                                </tr>
+                            `);
+                        });
+                    } else {
+                        transactionsTableBody.append(`
+                            <tr>
+                                <td colspan="8" class="text-center">{{ trans('accounts.no_transactions') }}</td>
+                            </tr>
+                        `);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX Error:", status, error);
+                    alert('Failed to load transactions. Check the console for details.');
+                }
+            });
+
+            $('#transactionsModal').modal('show');
+        }
     </script>
+
+
     <script type="text/javascript" src="{{ asset('vendor/jsvalidation/js/jsvalidation.js') }}"></script>
     {!! JsValidator::formRequest('App\Http\Requests\Admin\account\SaveRequest', '#accountForm') !!}
 @endsection

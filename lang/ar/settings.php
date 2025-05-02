@@ -61,4 +61,9 @@
   'unpaid_invoice' => 'الفواتير المستحقة',
   'subscription_cannot_be_deleted_has_clients' => 'لا يمكن حذف هذا الاشتراك لارتباطه بعملاء',
   'sarf_band_cannot_be_deleted_has_masrofat' => 'لا يمكن حذف صرف البند لارتباطه بمصروفات',
+  'app_config' => 'اعدادات النظام',
+  'phone_service' => 'رقم خدمة العملاء',
+  'currency' => 'العمله',
+  'invoices_process' => 'عمليات الفواتير',
+  'transfers' => 'التحويلات',
 );

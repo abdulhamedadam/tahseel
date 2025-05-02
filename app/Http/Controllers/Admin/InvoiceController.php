@@ -4,17 +4,21 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Interfaces\BasicRepositoryInterface;
+use App\Models\Admin;
 use App\Models\Admin\FinancialTransaction;
 use App\Models\Admin\Invoice;
 use App\Models\Admin\Revenue;
 use App\Models\Admin\Subscription;
 use App\Models\Clients;
+use App\Notifications\InvoicePaidNotification;
+use App\Notifications\InvoiceRedoNotification;
 use App\Services\InvoiceService;
 use App\Traits\ImageProcessing;
 use App\Traits\ValidationMessage;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use DataTables;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class InvoiceController extends Controller
@@ -47,9 +51,48 @@ class InvoiceController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $allData = $this->InvoiceRepository->getWithRelations(['client', 'employee', 'subscription']);
-            //$allData = Invoice::with(['client', 'employee', 'subscription'])->where()->get();
-            return Datatables::of($allData)
+
+            // $allData = $this->InvoiceRepository->getWithRelations(['client', 'employee', 'subscription'])->toQuery()->whereNull('deleted_at')->orderBy('id', 'desc')->get();
+            $invoices = $this->InvoiceRepository->getWithRelations(['client', 'employee', 'subscription', 'revenues.user']);
+            $query = $invoices->isNotEmpty() ? $invoices->toQuery()
+                ->whereNull('deleted_at')
+                ->orderBy('id', 'desc') : collect();
+
+            if ($request->filled('client_id')) {
+                $query->where('client_id', $request->client_id);
+            }
+
+            if ($request->filled('status') && $request->status != '') {
+                $query->where('status', $request->status);
+            }
+
+            if ($request->filled('subscription_id') && $request->subscription_id != '') {
+                $query->whereHas('subscription', function($q) use ($request) {
+                    $q->where('id', $request->subscription_id);
+                });
+            }
+
+            if ($request->filled('collector_id') && $request->collector_id != '') {
+                $query->whereHas('revenues.user', function($q) use ($request) {
+                    $q->where('id', $request->collector_id);
+                });
+            }
+
+            if ($request->filled('min_amount') && $request->min_amount != '') {
+                $query->where('amount', '>=', $request->min_amount);
+            }
+            if ($request->filled('max_amount') && $request->max_amount != '') {
+                $query->where('amount', '<=', $request->max_amount);
+            }
+
+            if ($request->filled('from_date') && $request->from_date != '') {
+                $query->whereDate('created_at', '>=', $request->from_date);
+            }
+            if ($request->filled('to_date') && $request->to_date != '') {
+                $query->whereDate('created_at', '<=', $request->to_date);
+            }
+            return Datatables::of($query)
+
                 ->addColumn('id', function ($row) {
                     return $row->id ?? 'N/A';
                 })
@@ -83,6 +126,15 @@ class InvoiceController extends Controller
                         ? Carbon::parse($row->paid_date)->format('Y-m-d h:i A')
                         : 'N/A';
                 })
+                ->addColumn('collected_by', function ($row) {
+                    $latestRevenue = $row->revenues->sortByDesc('created_at')->first();
+
+                    if ($latestRevenue && $latestRevenue->user) {
+                        return $latestRevenue->user->name;
+                    }
+                    // return trans('invoices.not_found');
+                    return 'N/A';
+                })
                 ->addColumn('status', function ($row) {
                     $status = $row->status ?? 'N/A';
                     $class = match ($status) {
@@ -106,7 +158,7 @@ class InvoiceController extends Controller
 
                     if (($row->status == 'unpaid' || $row->status == 'partial') && auth()->user()->can('pay_invoice')) {
                         $buttons .= '
-                            <a href="javascript:void(0)" onclick="showPayModal(\'' . route('admin.pay_invoice', $row->id) . '\', ' . $row->remaining_amount . ', ' . $row->amount . ')"
+                            <a href="javascript:void(0)" onclick="showPayModal(\'' . route('admin.pay_invoice', $row->id) . '\', ' . $row->remaining_amount . ', ' . $row->amount . ', `'.str_replace('`', '\`', $row->notes ?? '').'`)"
                                 class="btn btn-sm btn-success" title="' . trans('invoices.mark_as_paid') . '" style="font-size: 16px;">
                                 <i class="bi bi-check-circle"></i>
                             </a>';
@@ -151,60 +203,14 @@ class InvoiceController extends Controller
                 ->rawColumns(['subscription', 'action', 'client', 'status', 'month_year', 'invoice_number'])
                 ->make(true);
         }
-        return view($this->admin_view . '.index');
+
+        $data['clients'] = $this->ClientsRepository->getAll();
+        $data['subscriptions'] = Subscription::all();
+        $data['collectors'] = Admin::whereHas('revenues')->get();
+
+        return view($this->admin_view . '.index', $data);
     }
 
-    /***********************************************/
-    // public function create()
-    // {
-    //     $data['invoice_number'] = $this->InvoiceRepository->getLastFieldValue('invoice_number');
-    //     $data['subscriptions'] = $this->SubscriptionRepository->getAll();
-    //     $data['clients'] = $this->ClientsRepository->getAll();
-
-    //     return view($this->admin_view . '.form', $data);
-    // }
-
-    /***********************************************/
-    // public function store(SaveRequests $request)
-    // {
-    //     try {
-    //         $this->invoiceService->store($request);
-    //         toastr()->addSuccess(trans('forms.success'));
-    //         return redirect()->route('admin.invoices.index');
-    //     } catch (\Exception $e) {
-    //         dd($e->getMessage());
-    //         return redirect()->back()->withErrors(['error' => $e->getMessage()]);
-    //     }
-    // }
-
-    /***********************************************/
-    // public function show(string $id)
-    // {
-    //     //
-    // }
-
-    /***********************************************/
-    // public function edit(string $id)
-    // {
-    //     $data['subscriptions'] = $this->SubscriptionRepository->getAll();
-    //     $data['clients'] = $this->ClientsRepository->getAll();
-
-    //     $data['all_data'] =  $this->InvoiceRepository->getById($id);
-
-    //     return view($this->admin_view . '.edit', $data);
-    // }
-    /***********************************************/
-    // public function update(UpdateRequests $request, string $id)
-    // {
-    //     try {
-    //         $this->invoiceService->update($request, $id);
-    //         toastr()->addSuccess(trans('forms.success'));
-    //         return redirect()->route('admin.invoices.index');
-    //     } catch (\Exception $e) {
-    //         dd($e->getMessage());
-    //         return redirect()->back()->withErrors(['error' => $e->getMessage()]);
-    //     }
-    // }
     /***********************************************/
     public function destroy(string $id)
     {
@@ -225,36 +231,39 @@ class InvoiceController extends Controller
         }
     }
 
+    public function pay_invoice1($id, Request $request)
+    {
+        $request->validate([
+            'invoice_amount' => 'required|numeric|min:1',
+            'paid_amount' => 'nullable|numeric',
+            'notes' => 'nullable|string',
+        ]);
+        // dd($request->all());
+        try {
+            $result = $this->invoiceService->payInvoice($id, $request);
+            $invoice = Invoice::findOrFail($id);
+            $admins = Admin::where('status', '1')
+                ->whereNull('deleted_at')
+                // ->where('id', '!=', auth()->id())
+                ->get();
 
-    // public function pay_invoice($id, Request $request)
-    // {
-    //     $request->validate([
-    //         'invoice_amount' => 'required|numeric|min:1',
-    //         'paid_amount' => 'required|numeric',
-    //         'notes' => 'nullable|string',
-    //     ]);
+            foreach ($admins as $admin) {
+                $admin->notify(new InvoicePaidNotification(
+                    $invoice,
+                    $request->paid_amount,
+                    auth()->user(),
+                    'تم دفع فاتورة رقم ' . $invoice->id . ' بقيمة ' . $request->paid_amount . ' جنيه'
+                ));
+            }
 
-    //     $invoice = Invoice::findOrFail($id);
-
-    //     if ($request->paid_amount > $request->amount) {
-    //         return redirect()->back()->with('error', trans('invoices.payment_exceeds_invoice_amount'));
-    //     }
-
-    //     $invoice->amount = $request->invoice_amount;
-    //     $invoice->save();
-    //     // dd($request->all(), $invoice);
-
-    //     // if ($request->paid_amount > $invoice->amount) {
-    //     //     return redirect()->back()->with('error', trans('invoices.payment_exceeds_invoice_amount'));
-    //     // }
-    //     try {
-    //         $invoice->markAsPaid($request->paid_amount, $request->notes);
-    //         toastr()->addSuccess(trans('forms.success'));
-    //         return redirect()->route('admin.invoices.index');
-    //     } catch (\Exception $e) {
-    //         return redirect()->back()->withErrors(['error' => $e->getMessage()]);
-    //     }
-    // }
+            return $result;
+            // toastr()->addSuccess(trans('forms.success'));
+            // return redirect()->back()->with('success', trans('forms.success'));
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
 
     public function pay_invoice($id, Request $request)
     {
@@ -265,12 +274,62 @@ class InvoiceController extends Controller
         ]);
 
         try {
-            return $this->invoiceService->payInvoice($id, $request);
+            DB::beginTransaction();
 
-            // toastr()->addSuccess(trans('forms.success'));
-            // return redirect()->back()->with('success', trans('forms.success'));
+            $result = $this->invoiceService->payInvoice($id, $request);
+            $invoice = Invoice::findOrFail($id);
+
+            $notificationMessage = sprintf(
+                'تم تسديد مبلغ %s %s للفاتورة رقم %s (العميل: %s) - تم الدفع بواسطة %s في %s',
+                number_format($request->paid_amount, 2),
+                get_app_config_data('currency'),
+                $invoice->invoice_number,
+                $invoice->client->name ?? 'غير محدد',
+                auth()->user()->name,
+                now()->format('Y-m-d H:i')
+            );
+
+            $admins = Admin::where('status', '1')
+                ->whereNull('deleted_at')
+                ->whereHas('roles', function($query) {
+                    $query->whereIn('id', [1, 7]);
+                })
+                ->get();
+
+            foreach ($admins as $admin) {
+                $admin->notify(new InvoicePaidNotification(
+                    $invoice,
+                    $request->paid_amount,
+                    auth()->user(),
+                    $notificationMessage
+                ));
+            }
+
+            if (!empty($admins)) {
+                sendOneSignalNotification1(
+                    $admins,
+                    $notificationMessage,
+                    [
+                        'invoice_id' => $invoice->id,
+                        'type' => 'invoice_paid',
+                        'amount' => $request->paid_amount,
+                        'initiator' => auth()->user()->name,
+                        'invoice_details' => [
+                            'number' => $invoice->invoice_number,
+                            'date' => $invoice->paid_date,
+                            'client' => $invoice->client->name ?? 'Unknown'
+                        ]
+                    ],
+                    null
+                );
+            }
+
+            DB::commit();
+
+            return $result;
+
         } catch (\Exception $e) {
-            dd($e->getMessage());
+            DB::rollBack();
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
@@ -288,7 +347,7 @@ class InvoiceController extends Controller
         return view($this->admin_view . '.print', $data);
     }
 
-    public function redo_invoice($id)
+    public function redo_invoice1($id)
     {
         try {
             $invoice = Invoice::findOrFail($id);
@@ -333,9 +392,126 @@ class InvoiceController extends Controller
             }
 
             $lastPayment->delete();
+            $admins = Admin::where('status', '1')
+                ->whereNull('deleted_at')
+                // ->where('id', '!=', auth()->id())
+                ->get();
+
+            foreach ($admins as $admin) {
+                $admin->notify(new InvoiceRedoNotification(
+                    $invoice,
+                    $lastPayment->amount,
+                    auth()->user(),
+                    'تم التراجع عن دفع فاتورة رقم ' . $invoice->id . ' بقيمة ' . $lastPayment->amount . ' جنيه'
+                ));
+            }
 
             return redirect()->back()->with(['success' => trans('messages.redo_successfully')]);
         } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+        }
+    }
+
+    public function redo_invoice($id)
+    {
+        try {
+            DB::beginTransaction();
+
+            $invoice = Invoice::findOrFail($id);
+            $lastPayment = Revenue::where('invoice_id', $id)
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            if (!$lastPayment) {
+                return redirect()->back()->withErrors(['error' => 'لا توجد دفعات سابقة لهذه الفاتورة!']);
+            }
+
+            $invoice->remaining_amount += $lastPayment->amount;
+            $invoice->paid_amount -= $lastPayment->amount;
+
+            $client = Clients::find($invoice->client_id);
+            if (!$client) {
+                return redirect()->back()->withErrors(['error' => 'العميل غير موجود!']);
+            }
+
+            if ($invoice->remaining_amount == $invoice->amount) {
+                $invoice->status = 'unpaid';
+                $invoice->paid_date = null;
+            } elseif ($invoice->remaining_amount > 0) {
+                $invoice->status = 'partial';
+            }
+
+            $invoice->save();
+
+            $financialTransaction = FinancialTransaction::where('account_id', auth()->user()->account_id)
+                ->where('amount', $lastPayment->amount)
+                // ->where('created_by', auth()->id())
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            if ($financialTransaction) {
+                $financialTransaction->delete();
+            }
+
+            $lastPayment->delete();
+
+            // $notificationMessage = sprintf(
+            //     'تم التراجع عن دفع فاتورة رقم %s بقيمة %s جنيه للعميل %s بواسطة %s',
+            //     $invoice->invoice_number,
+            //     $lastPayment->amount,
+            //     $client->name ?? 'غير معروف',
+            //     auth()->user()->name
+            // );
+
+            $notificationMessage = sprintf(
+                'تم التراجع عن دفع فاتورة رقم %s بقيمة %s %s للعميل %s بواسطة %s',
+                $invoice->invoice_number,
+                $lastPayment->amount,
+                get_app_config_data('currency') ?? 'جنيه',
+                $client->name ?? 'غير معروف',
+                auth()->user()->name
+            );
+
+            $admins = Admin::where('status', '1')
+                ->whereNull('deleted_at')
+                ->whereHas('roles', function($query) {
+                    $query->whereIn('id', [1, 7]);
+                })
+                ->get();
+
+            foreach ($admins as $admin) {
+                $admin->notify(new InvoiceRedoNotification(
+                    $invoice,
+                    $lastPayment->amount,
+                    auth()->user(),
+                    $notificationMessage
+                ));
+            }
+
+            if (!empty($admins)) {
+                sendOneSignalNotification1(
+                    $admins,
+                    $notificationMessage,
+                    [
+                        'invoice_id' => $invoice->id,
+                        'type' => 'invoice_payment_redo',
+                        'amount' => $lastPayment->amount,
+                        'initiator' => auth()->user()->name,
+                        'invoice_details' => [
+                            'number' => $invoice->invoice_number,
+                            'client' => $client->name ?? 'Unknown',
+                            'status' => $invoice->status
+                        ]
+                    ],
+                    null
+                );
+            }
+
+            DB::commit();
+            return redirect()->back()->with(['success' => trans('messages.redo_successfully')]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
     }
@@ -350,6 +526,8 @@ class InvoiceController extends Controller
                 ->whereMonth('created_at', $currentMonth)
                 ->whereYear('created_at', $currentYear)
                 ->where('remaining_amount', '>', 0)
+                ->whereNull('deleted_at')
+                ->orderBy('id', 'desc')
                 ->get();
 
             return Datatables::of($allData)
@@ -375,6 +553,14 @@ class InvoiceController extends Controller
                 })
                 ->addColumn('paid_date', function ($row) {
                     return $row->paid_date ? $row->paid_date : 'N/A';
+                })
+                ->addColumn('collected_by', function ($row) {
+                    $latestRevenue = $row->revenues->sortByDesc('created_at')->first();
+
+                    if ($latestRevenue && $latestRevenue->user) {
+                        return $latestRevenue->user->name;
+                    }
+                    return 'N/A';
                 })
                 ->addColumn('amount', function ($row) {
                     return $row->amount ?? 'N/A';
@@ -403,7 +589,7 @@ class InvoiceController extends Controller
 
                     if (($row->status == 'unpaid' || $row->status == 'partial') && auth()->user()->can('pay_invoice')) {
                         $buttons .= '
-                            <a href="javascript:void(0)" onclick="showPayModal(\'' . route('admin.pay_invoice', $row->id) . '\', ' . $row->remaining_amount . ', ' . $row->amount . ')"
+                            <a href="javascript:void(0)" onclick="showPayModal(\'' . route('admin.pay_invoice', $row->id) . '\', ' . $row->remaining_amount . ', ' . $row->amount . ', `'.str_replace('`', '\`', $row->notes ?? '').'`)"
                                 class="btn btn-sm btn-success" title="' . trans('invoices.mark_as_paid') . '" style="font-size: 16px;">
                                 <i class="bi bi-check-circle"></i>
                             </a>';
@@ -456,7 +642,10 @@ class InvoiceController extends Controller
         if ($request->ajax()) {
             $allData = Invoice::with(['client', 'employee', 'subscription'])
                 ->whereIn('status', ['paid', 'partial'])
-                ->whereDate('created_at', '>=', Carbon::now()->subDays(10));
+                ->whereDate('paid_date', '>=', Carbon::now()->subDays(10))
+                ->whereNull('deleted_at')
+                ->orderBy('paid_date', 'desc')
+                ->get();
 
             return Datatables::of($allData)
                 ->addColumn('id', function ($row) {
@@ -489,6 +678,14 @@ class InvoiceController extends Controller
                 })
                 ->addColumn('paid_date', function ($row) {
                     return $row->paid_date ? $row->paid_date : 'N/A';
+                })
+                ->addColumn('collected_by', function ($row) {
+                    $latestRevenue = $row->revenues->sortByDesc('created_at')->first();
+
+                    if ($latestRevenue && $latestRevenue->user) {
+                        return $latestRevenue->user->name;
+                    }
+                    return 'N/A';
                 })
                 ->addColumn('notes', function ($row) {
                     return $row->notes ?? 'N/A';
@@ -536,5 +733,10 @@ class InvoiceController extends Controller
         }
 
         return view($this->admin_view . '.new_paid_invoices');
+    }
+
+    public function generate()
+    {
+        return $this->invoiceService->generateMonthlyInvoices();
     }
 }
