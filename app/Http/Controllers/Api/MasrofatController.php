@@ -35,9 +35,10 @@ class MasrofatController extends Controller
             }
 
             $masrofat = $query->get();
+            $total=$masrofat->sum('value');
 
             $masrofat = MasrofatResource::collection($masrofat);
-            return $this->responseApi($masrofat, 'تم استرجاع المصروفات بنجاح');
+            return $this->responseApi_v2($masrofat, 'تم استرجاع المصروفات بنجاح',true,$total);
         } catch (\Exception $e) {
             return $this->responseApiError('حدث خطأ ما.');
         }

@@ -87,7 +87,7 @@ class InvoicesController extends Controller
                 });
             }
 
-            $invoices = $query->orderBy('created_at', 'desc')->get();
+            $invoices = $query->orderBy('due_date', 'desc')->get();
 
             $data = [
                 'invoices' => InvoiceResource::collection($invoices)

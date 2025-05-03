@@ -32,7 +32,7 @@ class InvoiceResource extends JsonResource
             'collected_by' => $this->revenues->isNotEmpty() ? $this->revenues->first()->user->name : null,
             // 'status' => $this->status,
             'status' => 'unpaid',
-            'invoice_type' => $this->invoice_type,
+            'invoice_type' => trans('invoices.'.$this->invoice_type),
             'notes' => $this->notes,
             'currency' => get_app_config_data('currency')
         ];

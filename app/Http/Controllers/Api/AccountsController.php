@@ -77,19 +77,22 @@ class AccountsController extends Controller
             if (!$settings || !$settings->employee_account_id) {
                 return $this->responseApiError('لم يتم العثور على حساب الموظفين في الإعدادات.');
             }
-
             $employeeAccountId = $settings->employee_account_id;
+            $generalAccountId = $settings->general_account_id;
 
             $accounts = $this->accountsRepository->getAll();
 
             $query = $accounts->isNotEmpty() ? $accounts->toQuery()
-                ->where('parent_id', $employeeAccountId)
+                ->where(function ($q) use ($employeeAccountId, $generalAccountId) {
+                    $q->where('parent_id', $employeeAccountId)
+                        ->orWhereIn('parent_id', (array) $generalAccountId);
+                })
                 ->whereNull('deleted_at')
                 ->with(['children' => function ($query) {
                     $query->withSum('financialTransactions', 'amount');
                 }])
                 ->withSum('financialTransactions', 'amount') : null;
-
+           // dd($query->get());
             if (!$query) {
                 return AccountResource::collection(collect());
             }
@@ -99,8 +102,12 @@ class AccountsController extends Controller
             }
 
             $accounts = $query->get();
+            // dd($accounts);
 
-            return AccountResource::collection($accounts);
+            return response()->json([
+                'data' => AccountResource::collection($accounts),
+                'total_amount' => number_format($accounts->sum('financial_transactions_sum_amount'),2),
+            ]);
 
         } catch (\Exception $e) {
             return $this->responseApiError('حدث خطأ ما.');
