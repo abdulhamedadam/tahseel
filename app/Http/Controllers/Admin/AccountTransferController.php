@@ -75,6 +75,9 @@ class AccountTransferController extends Controller
                     ->addColumn('date', function ($row) {
                         return $row->date ?? 'N/A';
                     })
+                    ->addColumn('notes', function ($row) {
+                        return $row->notes ?? 'N/A';
+                    })
                     ->addColumn('created_by', function ($row) {
                         return $row->admin->name ?? 'N/A';
                     })

@@ -33,6 +33,7 @@
                     'account_transfers.to_account',
                     'account_transfers.amount',
                     'account_transfers.date',
+                    'account_transfers.notes',
                     'account_transfers.created_by',
                     'account_transfers.actions',
                 ];
@@ -147,6 +148,10 @@
                     },
                     {
                         data: 'date',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'notes',
                         className: 'text-center'
                     },
                     {

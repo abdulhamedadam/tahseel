@@ -6,18 +6,22 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\clients\SaveRequests;
 use App\Http\Requests\Admin\clients\UpdateRequests;
 use App\Interfaces\BasicRepositoryInterface;
+use App\Models\Admin;
 use App\Models\Admin\FinancialTransaction;
 use App\Models\Admin\Invoice;
 use App\Models\Admin\Revenue;
 use App\Models\Admin\Subscription;
 use App\Models\Clients;
+use App\Notifications\InvoicePaidNotification;
 use App\Services\ClientService;
 use App\Services\CompanyService;
 use App\Services\ProjectsService;
 use App\Traits\ImageProcessing;
 use App\Traits\ValidationMessage;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use DataTables;
+use Illuminate\Support\Facades\DB;
 
 class ClientController extends Controller
 {
@@ -93,14 +97,39 @@ class ClientController extends Controller
                 ->addColumn('price', function ($row) {
                     return $row->price ?? 'N/A';
                 })
-                ->addColumn('subscription_date', function ($row) {
-                    return $row->subscription_date ? $row->subscription_date : 'N/A';
+                ->addColumn('notes', function ($row) {
+                    return $row->notes ? $row->notes : 'N/A';
                 })
                 ->addColumn('start_date', function ($row) {
                     return $row->start_date ? $row->start_date : 'N/A';
                 })
                 ->addColumn('remaining_amount', function ($row) {
                     return $row->invoices_sum_remaining_amount ?? 0;
+                })
+                // ->addColumn('is_active', function ($row) {
+                //     return $row->is_active
+                //         ? '<span class="badge bg-success">'.trans('clients.active').'</span>'
+                //         : '<span class="badge bg-danger">'.trans('clients.inactive').'</span>';
+                // })
+                ->addColumn('is_active', function ($row) {
+                    if ($row->is_active == '1') {
+                        $title = trans('clients.active');
+                        $class = 'success';
+                        $icon = '<i class="bi bi-check-circle-fill"></i>';
+                    } else {
+                        $title = trans('clients.inactive');
+                        $class = 'danger';
+                        $icon = '<i class="bi bi-x-circle-fill"></i>';
+                    }
+
+                    if (auth()->user()->can('update_client')) {
+                        return '<a href="' . route('admin.clients.change_status', [$row->id, $row->is_active]) . '"
+                                class="btn btn-' . $class . ' btn-sm"
+                                onclick="return confirm(\'' . trans('clients.change_status_msg') . '\');">'
+                                . $icon . ' ' . $title . '</a>';
+                    } else {
+                        return '<span class="badge bg-' . $class . '">' . $icon . ' ' . $title . '</span>';
+                    }
                 })
                 ->addColumn('action', function ($row) {
                     $actionButtons = '<div class="btn-group">';
@@ -133,7 +162,7 @@ class ClientController extends Controller
 
                     return $actionButtons;
                 })
-                ->rawColumns(['subscription', 'action'])
+                ->rawColumns(['subscription', 'action', 'is_active'])
                 ->make(true);
         }
         return view($this->admin_view . '.index');
@@ -270,9 +299,13 @@ class ClientController extends Controller
             'invoice_type' => 'required|in:service,subscription',
             'subscription_id' => 'nullable|exists:tbl_subscriptions,id',
             'amount' => 'required|numeric|min:1',
+            'due_date' => 'required|date|after_or_equal:today',
+            'status' => 'required|in:paid,unpaid',
             // 'remaining_amount' => 'nullable|numeric|min:0|max:' . $request->amount,
             'notes' => 'nullable|string',
         ]);
+
+        DB::beginTransaction();
 
         try {
 
@@ -287,20 +320,25 @@ class ClientController extends Controller
             // $remainingAmount = $request->remaining_amount ?? 0;
             // $paidAmount = $request->amount - $remainingAmount;
 
+            $remainingAmount = $request->status === 'paid' ? 0.00 : $request->amount;
+            $paidAmount = $request->status === 'paid' ? $request->amount : 0.00;
+            $paidDate = $request->status === 'paid' ? now() : null;
+
             $invoiceData = [
                 'invoice_number' => $request->invoice_number,
                 'client_id' => $id,
                 'subscription_id' => $request->invoice_type === 'subscription' ? $request->subscription_id : null,
                 'amount' => $request->amount,
-                // 'remaining_amount' => $remainingAmount,
-                'paid_amount' => $request->amount,
+                'remaining_amount' => $remainingAmount,
+                'paid_amount' => $paidAmount,
                 'enshaa_date' => now()->format('Y-m-d'),
                 'invoice_type' => $request->invoice_type,
                 'notes' => $request->notes,
-                'paid_date' => now(),
-                'due_date' => now()->format('Y-m-d'),
+                'paid_date' => $paidDate,
+                'due_date' => Carbon::parse($request->due_date)->format('Y-m-d'),
                 'created_by' => auth()->user()->id,
-                'status' => 'paid',
+                'status' => $request->status,
+                'auto_generated' => $request->invoice_type === 'subscription'
             ];
 
             // dd($invoiceData);
@@ -310,44 +348,111 @@ class ClientController extends Controller
             // if ($request->remaining_amount < $request->amount) {
             // $admin = auth()->user();
             // $collectedBy = $admin && $admin->is_employee ? $admin->emp_id : auth()->user()->id;
-
-            Revenue::create([
-                'invoice_id' => $invoice->id,
-                'client_id' => $id,
-                // 'amount' => $paidAmount,
-                'amount' => $request->amount,
-                'collected_by' => auth()->id(),
-                'status' => 'paid',
-                'remaining_amount' => 0,
-                'received_at' => now(),
-            ]);
-
-            $accountId = auth()->user()->account_id ?? null;
-            if (!$accountId) {
-                return redirect()->back()->with('error', trans('invoices.no_account_found'));
-            }
-
-            try {
-                FinancialTransaction::create([
-                    'account_id'    => $accountId,
-                    'amount'        => $request->amount,
-                    'date'          => now()->toDateString(),
-                    'time'          => now()->toTimeString(),
-                    'month'         => now()->month,
-                    'year'          => now()->year,
-                    'notes'         => 'سداد مستحقات الفاتورة رقم #' . $invoice->id,
-                    'type'          => 'qapd',
-                    'created_by'    => auth()->id(),
+            if ($request->status === 'paid') {
+                Revenue::create([
+                    'invoice_id' => $invoice->id,
+                    'client_id' => $id,
+                    'amount' => $request->amount,
+                    'collected_by' => auth()->id(),
+                    'status' => 'paid',
+                    'remaining_amount' => 0,
+                    'received_at' => now(),
                 ]);
-            } catch (\Exception $e) {
-                return redirect()->back()->with('error', trans('invoices.financial_transaction_creation_failed'));
+
+                $accountId = auth()->user()->account_id ?? null;
+                if ($accountId) {
+                    FinancialTransaction::create([
+                        'account_id'    => $accountId,
+                        'amount'        => $request->amount,
+                        'date'          => now()->toDateString(),
+                        'time'          => now()->toTimeString(),
+                        'month'         => now()->month,
+                        'year'          => now()->year,
+                        'notes'         => 'سداد مستحقات الفاتورة رقم #' . $invoice->invoice_number,
+                        'type'          => 'qapd',
+                        'created_by'    => auth()->id(),
+                    ]);
+                }
+
+                $paymentType = '';
+                if ($request->invoice_type === 'subscription') {
+                    $paymentType = ' (دفعة مقدمة للاشتراك)';
+                } else {
+                    $paymentType = ' (دفعة مقابل خدمة)';
+                }
+
+                $notificationMessage = sprintf(
+                    'تم دفع مبلغ %s %s%s للعميل %s، %s. (تمت العملية بواسطة: %s)',
+                    number_format($request->amount, 2),
+                    get_app_config_data('currency'),
+                    $paymentType,
+                    $invoice->client->name ?? 'غير محدد',
+                    $request->invoice_type === 'subscription' ?
+                        'لاشتراك ' . ($invoice->subscription->name ?? '') :
+                        'لخدمة ' . ($invoice->notes ?? ''),
+                    auth()->user()->name
+                );
+
+                $admins = Admin::where('status', '1')
+                    ->whereNull('deleted_at')
+                    ->whereHas('roles', function($query) {
+                        $query->whereIn('id', [1, 7]);
+                    })
+                    ->get();
+
+                foreach ($admins as $admin) {
+                    $admin->notify(new InvoicePaidNotification(
+                        $invoice,
+                        $request->amount,
+                        auth()->user(),
+                        $notificationMessage
+                    ));
+                }
+
+                if (!empty($admins)) {
+                    sendOneSignalNotification1(
+                        $admins,
+                        $notificationMessage,
+                        [
+                            'invoice_id' => $invoice->id,
+                            'type' => 'invoice_paid',
+                            'amount' => $request->amount,
+                            'initiator' => auth()->user()->name,
+                            'invoice_details' => [
+                                'number' => $invoice->invoice_number,
+                                'date' => $invoice->paid_date,
+                                'client' => $invoice->client->name ?? 'Unknown'
+                            ]
+                        ],
+                        null
+                    );
+                }
             }
 
-            // }
+            DB::commit();
 
             return redirect()->route('admin.client_paid_invoices', $id)->with('success', trans('clients.invoice_created_successfully.'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', trans('clients.failed_to_create_invoice.'));
         }
     }
+
+    public function change_status($id, $status)
+    {
+        try {
+            $client = $this->ClientsRepository->getById($id);
+            if ($client) {
+                $data['is_active'] = $status == '1' ? '0' : '1';
+
+                $this->ClientsRepository->update($id, $data);
+                toastr()->addSuccess(trans('users.status_changed_successfully'));
+                return redirect()->route('admin.clients.index');
+            }
+            return redirect()->route('admin.clients.index');
+        } catch (\Exception $e) {
+            test($e->getMessage());
+            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+        }
+    }
+
 }

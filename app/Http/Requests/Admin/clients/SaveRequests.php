@@ -31,6 +31,7 @@ class SaveRequests extends FormRequest
             'price'                => 'required',
             'subscription_date'    => 'required|date',
             'start_date'           => 'required|date',
+            'is_active'            => 'nullable|in:0,1',
             'notes'                => 'nullable|string|max:1000',
         ];
     }

@@ -346,14 +346,23 @@ class InvoicesController extends Controller
             //     $invoice->client->name ?? 'غير معروف',
             //     auth('api')->user()->name
             // );
+            // $notificationMessage = sprintf(
+            //     'تم تسديد مبلغ %s %s للفاتورة رقم %s (العميل: %s) - تم الدفع بواسطة %s في %s',
+            //     number_format($paidAmount, 2),
+            //     get_app_config_data('currency'),
+            //     $invoice->invoice_number,
+            //     $invoice->client->name ?? 'غير محدد',
+            //     auth('api')->user()->name,
+            //     // now()->format('Y-m-d H:i')
+            //     $invoice->due_date
+            // );
             $notificationMessage = sprintf(
-                'تم تسديد مبلغ %s %s للفاتورة رقم %s (العميل: %s) - تم الدفع بواسطة %s في %s',
-                number_format($paidAmount, 2),
+                'تم دفع مبلغ %s %s للعميل %s، وكان تاريخ الاستحقاق %s. (تمت العملية بواسطة: %s)',
+                number_format($request->paid_amount, 2),
                 get_app_config_data('currency'),
-                $invoice->invoice_number,
                 $invoice->client->name ?? 'غير محدد',
-                auth('api')->user()->name,
-                now()->format('Y-m-d H:i')
+                $invoice->due_date,
+                auth()->user()->name
             );
 
             $admins = Admin::where('status', '1')

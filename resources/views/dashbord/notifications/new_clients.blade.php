@@ -32,8 +32,9 @@
                                                 <th style="width: 5%">{{ trans('m') }}</th>
                                                 <th class="text-center">{{ trans('notifications.message') }}</th>
                                                 <th class="text-center">{{ trans('notifications.client_name') }}</th>
-                                                <th>{{ trans('notifications.created_at') }}</th>
-                                                <th>{{ trans('notifications.status') }}</th>
+                                                <th class="text-center">{{ trans('notifications.start_date') }}</th>
+                                                <th class="text-center">{{ trans('notifications.created_at') }}</th>
+                                                <th class="text-center">{{ trans('notifications.status') }}</th>
                                                 <th style="width: 20%; text-align: center">{{ trans('notifications.actions') }}</th>
                                             </tr>
                                         </thead>
@@ -85,6 +86,7 @@
                         { data: 'id', name: 'id' },
                         { data: 'message', name: 'message' },
                         { data: 'client_name', name: 'client_name', orderable: false, searchable: false },
+                        { data: 'start_date', name: 'start_date' },
                         { data: 'created_at', name: 'created_at' },
                         { data: 'status', name: 'status' },
                         { data: 'action', name: 'action', orderable: false, searchable: false }
@@ -93,7 +95,7 @@
                     columnDefs: [
 
                         {
-                            "targets": [1],
+                            "targets": [1, 2, 3, 4, 5],
                             "createdCell": function(td, cellData, rowData, row, col) {
                                 $(td).css({
                                     'font-weight': '600',

@@ -3,6 +3,7 @@
 
 
 use App\Interfaces\BasicRepositoryInterface;
+use App\Models\Admin;
 use App\Models\Admin\AccountSettings;
 use App\Models\Admin\Employee;
 use App\Models\Admin\FinancialTransaction;
@@ -442,7 +443,7 @@ if (!function_exists('form_icon')) {
     }
 
     if (!function_exists('get_dashboard_data')) {
-        function get_dashboard_data()
+        function get_dashboard_data1()
         {
             $accountSettings = AccountSettings::first();
             $generalAccountId = $accountSettings ? $accountSettings->general_account_id : null;
@@ -460,6 +461,35 @@ if (!function_exists('form_icon')) {
                 'masrofat' => Masrofat::sum('value'),
 
                 'general_account' => FinancialTransaction::where('account_id', $generalAccountId)->sum('amount'),
+            ];
+        }
+        function get_dashboard_data() {
+            $internetClientsCount = Clients::where('client_type', 'internet')->where('is_active', 1)->count();
+            $satelliteClientsCount = Clients::where('client_type', 'satellite')->where('is_active', 1)->count();
+
+            $paidInvoices = Invoice::where('status', 'paid');
+            $unpaidInvoices = Invoice::where('status', 'unpaid');
+            $partialInvoices = Invoice::where('status', 'partial');
+
+            // $totalPaid = Invoice::sum('paid_amount');
+            $allData = Admin::withSum('financialTransactions', 'amount')
+                            ->get();
+            $totalPaid = $allData->sum('financial_transactions_sum_amount');
+            
+            $totalRemaining = Invoice::sum('remaining_amount');
+
+            $employeesCount = Employee::count();
+            $usersCount = Admin::whereNull('deleted_at')
+                            ->where('status', '1')
+                            ->count();
+
+            return [
+                'internet_clients_count' => $internetClientsCount,
+                'satellite_clients_count' => $satelliteClientsCount,
+                'total_paid' => $totalPaid,
+                'total_remaining' => $totalRemaining,
+                'employees_count' => $employeesCount,
+                'users_count' => $usersCount,
             ];
         }
     }

@@ -40,9 +40,11 @@
                     'clients.address1',
                     'clients.subscription',
                     'clients.price',
-                    'clients.subscription_date',
+                    // 'clients.subscription_date',
+                    'clients.notes',
                     'clients.start_date',
                     'clients.remaining_amount',
+                    'clients.is_active',
                     'clients.action',
                 ];
 
@@ -118,7 +120,7 @@
                         className: 'text-center'
                     },
                     {
-                        data: 'subscription_date',
+                        data: 'notes',
                         className: 'text-center'
                     },
                     {
@@ -127,6 +129,10 @@
                     },
                     {
                         data: 'remaining_amount',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'is_active',
                         className: 'text-center'
                     },
                     {

@@ -16,8 +16,8 @@
                 <div class="col-md-4">
                     <label for="invoice_type" class="form-label">{{ trans('clients.invoice_type') }}</label>
                     <select class="form-control" name="invoice_type" id="invoice_type" required onchange="toggleSubscription()">
-                        <option value="service">{{ trans('clients.service') }}</option>
-                        <option value="subscription">{{ trans('clients.subscription_t') }}</option>
+                        <option value="service" {{ old('invoice_type') == 'service' ? 'selected' : '' }}>{{ trans('clients.service') }}</option>
+                        <option value="subscription" {{ old('invoice_type') == 'subscription' ? 'selected' : '' }}>{{ trans('clients.subscription_t') }}</option>
                     </select>
                 </div>
 
@@ -53,6 +53,26 @@
                     @error('amount')
                         <span class="invalid-feedback d-block" role="alert">{{ $message }}</span>
                     @enderror
+                </div>
+
+                <div class="col-md-4">
+                    <label for="due_date" class="form-label">{{ trans('clients.due_date') }}</label>
+                    <div class="input-group flex-nowrap">
+                        <span class="input-group-text">{!! form_icon('calendar') !!}</span>
+                        <input type="date" class="form-control" name="due_date" id="due_date"
+                            value="{{ old('due_date', date('Y-m-d')) }}" required>
+                    </div>
+                    @error('due_date')
+                        <span class="invalid-feedback d-block" role="alert">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="col-md-4">
+                    <label for="status" class="form-label">{{ trans('clients.status') }}</label>
+                    <select class="form-control" name="status" id="status" required onchange="togglePaymentFields()">
+                        <option value="unpaid" {{ old('status') == 'unpaid' ? 'selected' : '' }}>{{ trans('clients.unpaid') }}</option>
+                        <option value="paid" {{ old('status') == 'paid' ? 'selected' : '' }}>{{ trans('clients.paid') }}</option>
+                    </select>
                 </div>
 
                 {{-- <div class="col-md-4">

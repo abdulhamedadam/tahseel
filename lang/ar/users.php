@@ -14,7 +14,7 @@
   'confirm_delete' => 'تأكيد الحذف',
   'status_changed_successfully' => 'تم تغيير الحالة بنجاح',
   'not_active' => 'غير نشط',
-  'change_type_msg' => 'تغيير نوع الرسالة',
+  'change_type_msg' => 'تغيير نوع الحاله',
   'add_user' => 'اضافة مستخدم',
   'password' => 'كلمة السر',
   'is_employee' => 'هل موظف',

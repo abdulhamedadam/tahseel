@@ -29,6 +29,7 @@ class ClientsController extends Controller
     {
         try {
             $query = Clients::query();
+            $query->where('is_active', 1);
             if ($request->has('search')) {
                 $search = $request->input('search');
                 $query->where('name', 'like', "%{$search}%")

@@ -38,24 +38,25 @@ class ClientService
 
         $client = $this->ClientsRepository->create($validated_data);
 
-        $invoiceNumber = $this->InvoiceRepository->getLastFieldValue('invoice_number');
+        if ($validated_data['is_active'] == 1) {
+            $invoiceNumber = $this->InvoiceRepository->getLastFieldValue('invoice_number');
 
-        $invoice_data = [
-            'invoice_number' => $invoiceNumber,
-            'client_id' => $client->id,
-            'subscription_id' => $validated_data['subscription_id'],
-            'amount' => $validated_data['price'],
-            'remaining_amount' => $validated_data['price'],
+            $invoice_data = [
+                'invoice_number' => $invoiceNumber,
+                'client_id' => $client->id,
+                'subscription_id' => $validated_data['subscription_id'],
+                'amount' => $validated_data['price'],
+                'remaining_amount' => $validated_data['price'],
 
-            'enshaa_date' => now(),
+                'enshaa_date' => now(),
 
-            'due_date' => $validated_data['start_date'],
-            'status' => 'unpaid',
-            'auto_generated' => true,
-        ];
+                'due_date' => $validated_data['start_date'],
+                'status' => 'unpaid',
+                'auto_generated' => true,
+            ];
 
-        $invoice = $this->InvoiceRepository->create($invoice_data);
-
+            $invoice = $this->InvoiceRepository->create($invoice_data);
+        }
         $admins = Admin::where('status', '1')
                     ->whereNull('deleted_at')
                     ->whereHas('roles', function($query) {
@@ -85,7 +86,7 @@ class ClientService
                     'client_name' => $client->name,
                     'subscription' => $client->subscription->name ?? 'غير محدد',
                     'price' => $validated_data['price'],
-                    'invoice_number' => $invoiceNumber,
+                    // 'invoice_number' => $invoiceNumber,
                     'created_by' => auth()->user()->name
                 ],
                 null

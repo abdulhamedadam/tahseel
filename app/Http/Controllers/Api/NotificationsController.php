@@ -31,6 +31,31 @@ class NotificationsController extends Controller
             return $this->responseApiError('حدث خطأ ما.');
         }
     }
+    
+    public function index1(Request $request)
+    {
+        try {
+            $user = auth('api')->user();
+            $perPage = $request->query('per_page', 15);
+            $search = $request->input('search');
+            // dd($search);
+            $notifications = $user->notifications()
+                ->when($search, function ($query) use ($search) {
+                    $query->where('data->message', 'like', '%' . $search . '%');
+                })
+                ->latest()
+                ->paginate($perPage);
+
+            // return NotificationResource::collection($notifications);
+            return response()->json([
+                'result' => true,
+                'message' => 'تم استرجاع الاشعارات بنجاح',
+                'data' => $notifications,
+            ]);
+        } catch (\Exception $e) {
+            return $this->responseApiError('حدث خطأ ما.');
+        }
+    }
 
     // public function index(Request $request)
     // {

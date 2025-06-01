@@ -37,7 +37,7 @@
                     <div class="col-md-12 row" style="margin-top: 10px">
                         <div class="col-md-3" style="margin-top: 10px">
                             <label for="emp_code" class="form-label">{{ trans('clients.client_code') }}</label>
-                            <div class="input-group flex-nowrap">
+                            <div class="input-group">
                                 <span class="input-group-text" id="basic-addon3">{!! form_icon('text') !!}</span>
                                 <input type="text" class="form-control" name="client_code" id="client_code"
                                     value="{{ $client_code }}" readonly>
@@ -49,7 +49,7 @@
 
                         <div class="col-md-3" style="margin-top: 10px">
                             <label for="first_name" class="form-label">{{ trans('clients.name') }}</label>
-                            <div class="input-group flex-nowrap">
+                            <div class="input-group">
                                 <span class="input-group-text" id="basic-addon3">{!! form_icon('text') !!}</span>
                                 <input type="text" class="form-control" name="name" id="name"
                                     value="{{ old('name') }}">
@@ -61,7 +61,7 @@
 
                         {{-- <div class="col-md-3" style="margin-top: 10px">
                             <label for="last_name" class="form-label">{{ trans('clients.phone') }}</label>
-                            <div class="input-group flex-nowrap">
+                            <div class="input-group">
                                 <span class="input-group-text" id="basic-addon3">{!! form_icon('phone') !!}</span>
                                 <input type="number" class="form-control" name="phone" id="phone"
                                     value="{{ old('phone') }}">
@@ -72,7 +72,7 @@
                         </div> --}}
                         <div class="col-md-3" style="margin-top: 10px">
                             <label for="phone" class="form-label">{{ trans('clients.phone') }}</label>
-                            <div class="input-group flex-nowrap">
+                            <div class="input-group">
                                 <span class="input-group-text">{!! form_icon('phone') !!}</span>
                                 <input type="tel" class="form-control @error('phone') is-invalid @enderror"
                                     name="phone" id="phone" value="{{ old('phone') }}" placeholder="123456789" maxlength="13">
@@ -107,7 +107,7 @@
                         </div>
                         {{-- <div class="col-md-3" style="margin-top: 10px">
                             <label for="email" class="form-label">{{ trans('clients.email') }}</label>
-                            <div class="input-group flex-nowrap">
+                            <div class="input-group">
                                 <span class="input-group-text" id="basic-addon3">{!! form_icon('email') !!}</span>
                                 <input type="text" class="form-control" name="email" id="email" value="{{ old('email') }}">
                             </div>
@@ -117,7 +117,7 @@
                         </div> --}}
                         <div class="col-md-3" style="margin-top: 10px">
                             <label for="user" class="form-label">{{ trans('clients.user') }}</label>
-                            <div class="input-group flex-nowrap">
+                            <div class="input-group">
                                 <span class="input-group-text" id="basic-addon3">{!! form_icon('text') !!}</span>
                                 <input type="text" class="form-control" name="user" id="user"
                                     value="{{ old('user') }}">
@@ -131,7 +131,7 @@
                     <div class="col-md-12 row" style="margin-top: 10px"> --}}
                         <div class="col-md-3" style="margin-top: 10px">
                             <label for="national_id" class="form-label">{{ trans('clients.address1') }}</label>
-                            <div class="input-group flex-nowrap">
+                            <div class="input-group">
                                 <span class="input-group-text" id="basic-addon3">{!! form_icon('address') !!}</span>
                                 <input type="text" class="form-control" name="address1" id="address1"
                                     value="{{ old('address1') }}">
@@ -143,7 +143,7 @@
 
                         {{-- <div class="col-md-3" style="margin-top: 10px">
                             <label for="national_id" class="form-label">{{ trans('clients.address2') }}</label>
-                            <div class="input-group flex-nowrap">
+                            <div class="input-group">
                                 <span class="input-group-text" id="basic-addon3">{!! form_icon('address') !!}</span>
                                 <input type="text" class="form-control" name="address2" id="address2" value="{{old('address2')}}">
                             </div>
@@ -153,7 +153,7 @@
                         </div> --}}
                         <div class="col-md-3" style="margin-top: 10px">
                             <label for="national_id" class="form-label">{{ trans('clients.box_switch') }}</label>
-                            <div class="input-group flex-nowrap">
+                            <div class="input-group">
                                 <span class="input-group-text" id="basic-addon3">{!! form_icon('text') !!}</span>
                                 <input type="text" class="form-control" name="box_switch" id="box_switch"
                                     value="{{ old('box_switch') }}">
@@ -165,7 +165,7 @@
 
                         <div class="col-md-3" style="margin-top: 10px">
                             <label for="client_type" class="form-label">{{ trans('clients.client_type') }}</label>
-                            <div class="input-group flex-nowrap">
+                            <div class="input-group">
                                 <span class="input-group-text" id="basic-addon4">{!! form_icon('select2') !!}</span>
                                 <select class="form-select" name="client_type" id="client_type">
                                     <option value="satellite" {{ old('client_type') == 'satellite' ? 'selected' : '' }}>
@@ -183,7 +183,7 @@
 
                         <div class="col-md-3" style="margin-top: 10px">
                             <label for="phone" class="form-label">{{ trans('clients.image') }}</label>
-                            <div class="input-group flex-nowrap">
+                            <div class="input-group">
                                 <span class="input-group-text" id="basic-addon3">{!! form_icon('image') !!}</span>
                                 <input type="file" class="form-control" name="image" id="image"
                                     value="{{ old('image') }}">
@@ -195,7 +195,7 @@
 
                         {{-- <div class="col-md-3" style="margin-top: 10px">
                             <label for="whatsapp_num" class="form-label">{{ trans('clients.commercial_register') }}</label>
-                            <div class="input-group flex-nowrap">
+                            <div class="input-group">
                                 <span class="input-group-text" id="basic-addon3">{!! form_icon('number') !!}</span>
                                 <input type="number" class="form-control" name="commercial_register" id="commercial_register" value="{{ old('commercial_register') }}">
                             </div>
@@ -206,7 +206,7 @@
 
                         <div class="col-md-3" style="margin-top: 10px">
                             <label for="basic-url"class="form-label">{{ trans('clients.subscription') }}</label>
-                            <div class="input-group flex-nowrap ">
+                            <div class="input-group ">
                                 <span class="input-group-text" id="basic-addon3">{!! form_icon('select1') !!}</i></span>
                                 <div class="overflow-hidden flex-grow-1">
                                     <select class="form-select rounded-start-0" name="subscription_id"
@@ -230,7 +230,7 @@
                     <div class="col-md-12 row" style="margin-top: 10px"> --}}
                         <div class="col-md-3" style="margin-top: 10px">
                             <label for="price" class="form-label">{{ trans('clients.price') }}</label>
-                            <div class="input-group flex-nowrap">
+                            <div class="input-group">
                                 <span class="input-group-text" id="basic-addon3">{!! form_icon('price') !!}</span>
                                 <input type="text" class="form-control" id="price" name="price" >
                             </div>
@@ -238,7 +238,7 @@
                         <div class="col-md-3" style="margin-top: 10px">
                             <label for="subscription_date"
                                 class="form-label">{{ trans('clients.subscription_date') }}</label>
-                            <div class="input-group flex-nowrap ">
+                            <div class="input-group">
                                 <span class="input-group-text" id="basic-addon3">{!! form_icon('date') !!}</i></span>
                                 <input type="date" class="form-control" name="subscription_date"
                                     id="subscription_date" value="{{ old('subscription_date') }}">
@@ -250,7 +250,7 @@
 
                         <div class="col-md-3" style="margin-top: 10px">
                             <label for="start_date" class="form-label">{{ trans('clients.start_date') }}</label>
-                            <div class="input-group flex-nowrap ">
+                            <div class="input-group ">
                                 <span class="input-group-text" id="basic-addon3">{!! form_icon('date') !!}</span>
                                 <input type="date" class="form-control" name="start_date" id="start_date"
                                     value="{{ old('start_date') }}">
@@ -262,7 +262,7 @@
 
                         <div class="col-md-3" style="margin-top: 10px">
                             <label for="is_active" class="form-label">{{ trans('clients.is_active') }}</label>
-                            <div class="input-group flex-nowrap ">
+                            <div class="input-group ">
                                 <span class="input-group-text" id="basic-addon3">{!! form_icon('select1') !!}</span>
                                 <select class="form-select" name="is_active" id="is_active">
                                     <option value="1" {{ old('is_active', 1) == 1 ? 'selected' : '' }}>
@@ -279,7 +279,7 @@
                     </div>
                     <div class="col-md-12">
                         <label for="area" class="form-label">{{ trans('clients.notes') }}</label>
-                        <div class="input-group flex-nowrap">
+                        <div class="input-group">
                             <span class="input-group-text" id="basic-addon3">
                                 {!! form_icon('text') !!}
                             </span>

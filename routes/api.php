@@ -40,6 +40,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'v1'], function ($router) {
 
 
         Route::post('/masrofat', [MasrofatController::class, 'index']);
+        Route::get('/statistics', [MasrofatController::class, 'getSystemStatistics']);
 
         Route::get('/accounts', [AccountsController::class, 'index']);
         Route::post('/collectors', [AccountsController::class, 'collectors']);

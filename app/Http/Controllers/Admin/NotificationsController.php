@@ -73,8 +73,12 @@ class NotificationsController extends Controller
                                     '. $client?->name .'
                                 </a>';
                     })
+                    ->addColumn('start_date', function ($row) {
+                        $client = Clients::find($row->data['client_id']);
+                        return $client?->start_date;
+                    })
                     ->addColumn('created_at', function ($row) {
-                        return $row->created_at->format('Y-m-d H:i:s');
+                        return $row->created_at->format('Y-m-d');
                     })
                     ->addColumn('status', function ($row) {
                         return $row->read_at ? trans('notifications.read') : trans('notifications.unread');

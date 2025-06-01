@@ -215,37 +215,44 @@ class InvoiceService
     public function generateMonthlyInvoices()
     {
         $currentYearMonth = Carbon::now()->format('Y-m');
-        // $currentDay = Carbon::now()->day;
-
-        // if ($currentDay > 15) {
-        //     return redirect()->back()
-        //         ->with('error', 'يمكن إنشاء الفواتير الشهرية فقط خلال الأيام الـ15 الأولى من الشهر.');
-        // }
+        $currentMonthStart = Carbon::now()->startOfMonth();
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
 
         if (!$this->canGenerateInvoices()) {
             return redirect()->back()->with('error', 'تم إنشاء الفواتير بالفعل لهذا الشهر.');
         }
 
         try {
-            $clients = Clients::whereNull('deleted_at')->get();
+            $clients = Clients::whereNull('deleted_at')
+                                ->where('is_active', 1)
+                                ->get();
             $invoicesCreated = 0;
-            $currentMonth = Carbon::now()->startOfMonth();
 
             foreach ($clients as $client) {
-                $startDate = Carbon::parse($client->start_date)->startOfMonth();
+                $clientStartDate = Carbon::parse($client->start_date);
 
-                if ($startDate->greaterThanOrEqualTo(date: $currentMonth)) {
+                if ($clientStartDate->startOfMonth()->greaterThanOrEqualTo($currentMonthStart)) {
                     continue;
                 }
 
-                $lastAutoInvoice = Invoice::where('client_id', $client->id)
-                        ->where('auto_generated', true)
-                        ->latest('due_date')
-                        ->first();
-                // dd($lastAutoInvoice);
-                $dueDate = $lastAutoInvoice
-                    ? Carbon::parse($lastAutoInvoice->due_date)->addMonth()
-                    : Carbon::parse($client->start_date ?? $currentMonth)->addMonth();
+                $existingInvoice = Invoice::where('client_id', $client->id)
+                                        ->whereMonth('due_date', $currentMonth)
+                                        ->whereYear('due_date', $currentYear)
+                                        ->where('auto_generated', true)
+                                        ->exists();
+
+                if ($existingInvoice) {
+                    continue;
+                }
+
+                $startDay = Carbon::parse($client->start_date)->day;
+                $dueDate = Carbon::create($currentYear, $currentMonth, $startDay);
+
+                if (!$dueDate->isValid()) {
+                    $dueDate = Carbon::create($currentYear, $currentMonth, 1)->endOfMonth();
+                }
+
 
                 $invoiceNumber = $this->getNextInvoiceNumber();
 

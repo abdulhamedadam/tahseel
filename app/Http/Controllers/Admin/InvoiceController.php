@@ -279,14 +279,23 @@ class InvoiceController extends Controller
             $result = $this->invoiceService->payInvoice($id, $request);
             $invoice = Invoice::findOrFail($id);
 
+            // $notificationMessage = sprintf(
+            //     'تم تسديد مبلغ %s %s للفاتورة رقم %s (العميل: %s) - تم الدفع بواسطة %s في %s',
+            //     number_format($request->paid_amount, 2),
+            //     get_app_config_data('currency'),
+            //     $invoice->invoice_number,
+            //     $invoice->client->name ?? 'غير محدد',
+            //     auth()->user()->name,
+            //     // now()->format('Y-m-d H:i')
+            //     $invoice->due_date
+            // );
             $notificationMessage = sprintf(
-                'تم تسديد مبلغ %s %s للفاتورة رقم %s (العميل: %s) - تم الدفع بواسطة %s في %s',
+                'تم دفع مبلغ %s %s للعميل %s، وكان تاريخ الاستحقاق %s. (تمت العملية بواسطة: %s)',
                 number_format($request->paid_amount, 2),
                 get_app_config_data('currency'),
-                $invoice->invoice_number,
                 $invoice->client->name ?? 'غير محدد',
-                auth()->user()->name,
-                now()->format('Y-m-d H:i')
+                $invoice->due_date,
+                auth()->user()->name
             );
 
             $admins = Admin::where('status', '1')
@@ -523,11 +532,11 @@ class InvoiceController extends Controller
             $currentYear = Carbon::now()->year;
 
             $allData = Invoice::with(['client', 'employee', 'subscription'])
-                ->whereMonth('created_at', $currentMonth)
-                ->whereYear('created_at', $currentYear)
+                ->whereMonth('due_date', $currentMonth)
+                ->whereYear('due_date', $currentYear)
                 ->where('remaining_amount', '>', 0)
                 ->whereNull('deleted_at')
-                ->orderBy('id', 'desc')
+                ->orderBy('due_date')
                 ->get();
 
             return Datatables::of($allData)

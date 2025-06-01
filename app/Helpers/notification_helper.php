@@ -310,55 +310,55 @@ if (!function_exists('sendOneSignalNotification')) {
 if (!function_exists('sendOneSignalNotification1')) {
     function sendOneSignalNotification1($users = null, $message, $data = null, $url = null, $filters = null)
     {
-        $playerIds = [];
-        if ($users) {
-            foreach ($users as $user) {
-                if (!empty($user->onesignal_id)) {
-                    $playerIds[] = $user->onesignal_id;
-                }
-            }
-        }
+        // $playerIds = [];
+        // if ($users) {
+        //     foreach ($users as $user) {
+        //         if (!empty($user->onesignal_id)) {
+        //             $playerIds[] = $user->onesignal_id;
+        //         }
+        //     }
+        // }
 
-        if (empty($playerIds) && !$filters) {
-            logger()->warning('No valid OneSignal player IDs found for notification');
-            return false;
-        }
+        // if (empty($playerIds) && !$filters) {
+        //     logger()->warning('No valid OneSignal player IDs found for notification');
+        //     return false;
+        // }
 
-        $payload = [
-            'app_id' => config('onesignal.app_id'),
-            'contents' => ['en' => $message],
-            'data' => $data
-        ];
+        // $payload = [
+        //     'app_id' => config('onesignal.app_id'),
+        //     'contents' => ['en' => $message],
+        //     'data' => $data
+        // ];
 
-        if ($url) {
-            $payload['url'] = $url;
-        }
+        // if ($url) {
+        //     $payload['url'] = $url;
+        // }
 
-        if (!empty($playerIds)) {
-            $payload['include_player_ids'] = $playerIds;
-        } elseif ($filters) {
-            $payload['filters'] = $filters;
-        } else {
-            $payload['included_segments'] = ['All'];
-        }
+        // if (!empty($playerIds)) {
+        //     $payload['include_player_ids'] = $playerIds;
+        // } elseif ($filters) {
+        //     $payload['filters'] = $filters;
+        // } else {
+        //     $payload['included_segments'] = ['All'];
+        // }
 
-        logger()->info('OneSignal payload: ' . json_encode($payload));
+        // logger()->info('OneSignal payload: ' . json_encode($payload));
 
-        $apiKey = config('onesignal.rest_api_key');
-        logger()->info('Using OneSignal API Key: ' . substr($apiKey, 0, 5) . '...');
+        // $apiKey = config('onesignal.rest_api_key');
+        // logger()->info('Using OneSignal API Key: ' . substr($apiKey, 0, 5) . '...');
 
-        $response = Http::withHeaders([
-            'Authorization' => 'Basic ' . $apiKey,
-            'Content-Type' => 'application/json'
-        ])->post('https://onesignal.com/api/v1/notifications', $payload);
+        // $response = Http::withHeaders([
+        //     'Authorization' => 'Basic ' . $apiKey,
+        //     'Content-Type' => 'application/json'
+        // ])->post('https://onesignal.com/api/v1/notifications', $payload);
 
-        if ($response->failed()) {
-            logger()->error('OneSignal error: ' . $response->body());
-            logger()->error('OneSignal status code: ' . $response->status());
-            return false;
-        }
+        // if ($response->failed()) {
+        //     logger()->error('OneSignal error: ' . $response->body());
+        //     logger()->error('OneSignal status code: ' . $response->status());
+        //     return false;
+        // }
 
-        return $response->json();
+        // return $response->json();
     }
     // sendOneSignalNotification1(
     //     null,
