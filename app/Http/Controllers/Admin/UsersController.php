@@ -95,11 +95,11 @@ class UsersController extends Controller
                         </a>';
                     }
 
+                    // $actionButtons .= ' <a href="' . route('admin.users.permissions', $row->id) . '" class="btn btn-sm btn-info" title="' . trans('users.set_permissions') . '" style="font-size: 16px;">
+                    //     <i class="bi bi-lock"></i>
+                    // </a>';
                     $actionButtons .=  '</div>';
                     return $actionButtons;
-                    // <a href="' . route('admin.users.permissions', $row->id) . '" class="btn btn-sm btn-info" title="' . trans('users.set_permissions') . '" style="font-size: 16px;">
-                    //     <i class="bi bi-lock"></i>
-                    // </a>
                 })
                 ->rawColumns(['name', 'action', 'status', 'role'])
                 ->make(true);

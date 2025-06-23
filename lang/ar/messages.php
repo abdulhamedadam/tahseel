@@ -23,4 +23,11 @@
   'تم إنشاء الفواتير بالفعل لهذا الشهر' => 'تم إنشاء الفواتير بالفعل لهذا الشهر',
   'تم إنشاء 6 فاتورة بنجاح' => 'تم إنشاء 6 فاتورة بنجاح',
   'تم إنشاء 0 فاتورة بنجاح' => 'تم إنشاء 0 فاتورة بنجاح',
+  'تم استيراد 0 عميل بنجاح مع وجود بعض الأخطاء' => 'تم استيراد 0 عميل بنجاح مع وجود بعض الأخطاء',
+  'تم استيراد 0 عميل بنجاح' => 'تم استيراد 0 عميل بنجاح',
+  'Import completed with 0 successful records and 1078 failures' => 'Import completed with 0 successful records and 1078 failures',
+  'Import completed with 1054 successful records and 24 failures' => 'Import completed with 1054 successful records and 24 failures',
+  'Import completed with 17 successful records and 7 failures' => 'Import completed with 17 successful records and 7 failures',
+  'Import completed with 0 successful records and 7 failures' => 'Import completed with 0 successful records and 7 failures',
+  'تم الانتهاء من الاستيراد مع 0 سجل ناجح و 7 فشل' => 'تم الانتهاء من الاستيراد مع 0 سجل ناجح و 7 فشل',
 );

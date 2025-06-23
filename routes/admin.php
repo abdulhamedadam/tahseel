@@ -160,6 +160,8 @@ Route::group(
             Route::get('/get_ajax_account_transfers', [AccountTransferController::class, 'get_ajax_account_transfers'])->name('get_ajax_account_transfers');
             Route::post('redo_account_transfer/{id}', [AccountTransferController::class, 'redo_account_transfer'])->name('redo_account_transfer');
 
+            Route::post('/clients/import', [ClientController::class, 'import'])->name('clients.import');
+            Route::get('/clients/import/show', [ClientController::class, 'showImportForm'])->name('clients.import.show');
 
             /*************************************************************************************************/
             Route::get('setting/app_config', [ConfigAppController::class, 'index'])->name('app_config');

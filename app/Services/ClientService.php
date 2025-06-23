@@ -12,6 +12,8 @@ use App\Models\Admin\Subscription;
 use App\Models\Clients;
 use App\Notifications\NewClientAddedNotification;
 use App\Traits\ImageProcessing;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ClientService
 {
@@ -116,7 +118,123 @@ class ClientService
     /**************************************************/
 
 
+    public function storeFromImport1(array $data)
+    {
+        $data['client_code'] = $this->ClientsRepository->getLastFieldValue('client_code');
 
+        $data['created_by'] = auth()->user()->id;
+
+        $client = $this->ClientsRepository->create($data);
+
+        if ($data['is_active'] == 1) {
+            $invoiceNumber = $this->InvoiceRepository->getLastFieldValue('invoice_number');
+
+            $invoice_data = [
+                'invoice_number' => $invoiceNumber,
+                'client_id' => $client->id,
+                'subscription_id' => $data['subscription_id'],
+                'amount' => $data['price'],
+                'remaining_amount' => $data['price'],
+                'enshaa_date' => now(),
+                'due_date' => $data['start_date'],
+                'status' => 'unpaid',
+                'auto_generated' => true,
+            ];
+
+            $this->InvoiceRepository->create($invoice_data);
+        }
+
+        return $client;
+    }
+
+    public function storeFromImport(array $data)
+    {
+        DB::beginTransaction();
+
+        try {
+            $data['client_code'] = $this->ClientsRepository->getLastFieldValue('client_code');
+            $data['created_by'] = auth()->user()->id;
+
+            $this->validateClientData($data);
+
+            $client = $this->ClientsRepository->create($data);
+
+            if ($data['is_active'] == 1) {
+                $this->createClientInvoice($client, $data);
+            }
+
+            DB::commit();
+
+            // Log::info('Client created from import', [
+            //     'client_id' => $client->id,
+            //     'client_name' => $client->name
+            // ]);
+
+            return $client;
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            // Log::error('Failed to create client from import', [
+            //     'error' => $e->getMessage(),
+            //     'data' => $data
+            // ]);
+
+            throw $e;
+        }
+    }
+
+    protected function validateClientData(array $data)
+    {
+        $required = ['name', 'price', 'subscription_id'];
+
+        foreach ($required as $field) {
+            if (empty($data[$field])) {
+                throw new \InvalidArgumentException("Required field '{$field}' is missing or empty");
+            }
+        }
+
+        if ($data['price'] < 0) {
+            throw new \InvalidArgumentException('Price cannot be negative');
+        }
+    }
+
+    protected function createClientInvoice($client, array $data)
+    {
+        try {
+            $invoiceNumber = $this->InvoiceRepository->getLastFieldValue('invoice_number');
+
+            $invoiceData = [
+                'invoice_number' => $invoiceNumber,
+                'client_id' => $client->id,
+                'subscription_id' => $data['subscription_id'],
+                'amount' => $data['price'],
+                'remaining_amount' => $data['price'],
+                'enshaa_date' => now(),
+                'due_date' => $data['start_date'],
+                'status' => 'unpaid',
+                'auto_generated' => true,
+                'created_by' => auth()->user()->id,
+            ];
+
+            $invoice = $this->InvoiceRepository->create($invoiceData);
+
+            // Log::info('Invoice created for imported client', [
+            //     'invoice_id' => $invoice->id,
+            //     'client_id' => $client->id,
+            //     'amount' => $data['price']
+            // ]);
+
+            return $invoice;
+
+        } catch (\Exception $e) {
+            // Log::error('Failed to create invoice for imported client', [
+            //     'client_id' => $client->id,
+            //     'error' => $e->getMessage()
+            // ]);
+
+        }
+    }
 
 
 }

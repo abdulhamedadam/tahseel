@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\clients\ImportClientsRequest;
 use App\Http\Requests\Admin\clients\SaveRequests;
 use App\Http\Requests\Admin\clients\UpdateRequests;
+use App\Imports\ClientsImport;
 use App\Interfaces\BasicRepositoryInterface;
 use App\Models\Admin;
 use App\Models\Admin\FinancialTransaction;
@@ -22,6 +24,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use DataTables;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ClientController extends Controller
 {
@@ -452,6 +456,182 @@ class ClientController extends Controller
         } catch (\Exception $e) {
             test($e->getMessage());
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+        }
+    }
+
+    /**============================================================== */
+
+    public function showImportForm()
+    {
+        $lastClientCode = $this->ClientsRepository->getLastFieldValue('client_code');
+
+        $subscriptions = $this->SubscriptionRepository->getAll();
+
+        $defaultSubscriptionDate = now()->format('Y-m-d');
+        return view('dashbord.clients.import', [
+            'last_client_code' => $lastClientCode,
+            'subscriptions' => $subscriptions,
+            'default_subscription_date' => $defaultSubscriptionDate,
+        ]);
+    }
+    public function import1(ImportClientsRequest $request)
+    {
+        set_time_limit(300);
+        try {
+            $subscriptionDate = $request->input('subscription_date');
+            $file = $request->file('file');
+
+            $import = new ClientsImport($subscriptionDate);
+            Excel::import($import, $file);
+
+            $successCount = $import->getSuccessCount();
+            $failures = $import->getFailures();
+
+            if (count($failures) > 0) {
+                return redirect()
+                    ->back()
+                    ->with('failures', $failures)
+                    ->with('success_count', $successCount)
+                    ->with('success', trans('clients.import_partial_success', ['count' => $successCount]));
+            }
+
+            toastr()->addSuccess(trans('clients.import_success', ['count' => $successCount]));
+            return redirect()->route('admin.clients.index');
+
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->withErrors(['error' => trans('clients.import_error') . $e->getMessage()]);
+        }
+    }
+
+    public function import2(ImportClientsRequest $request)
+    {
+        set_time_limit(600);
+        ini_set('memory_limit', '512M');
+
+        try {
+            $subscriptionDate = $request->input('subscription_date');
+            $file = $request->file('file');
+
+            $this->validateImportFile($file);
+
+            $import = new ClientsImport($subscriptionDate);
+
+            Excel::import($import, $file);
+
+            $successCount = $import->getSuccessCount();
+            $failures = $import->getFailures();
+
+            Log::info('Client import completed', [
+                'success_count' => $successCount,
+                'failure_count' => count($failures),
+                'user_id' => auth()->id()
+            ]);
+
+            if (count($failures) > 0) {
+                return redirect()
+                    ->back()
+                    ->with('failures', $failures)
+                    ->with('success_count', $successCount)
+                    ->with('warning', trans('clients.import_partial_success', ['count' => $successCount]));
+            }
+
+            toastr()->addSuccess(trans('clients.import_success', ['count' => $successCount]));
+            return redirect()->route('admin.clients.index');
+
+        } catch (\Exception $e) {
+            Log::error('Client import failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'user_id' => auth()->id()
+            ]);
+
+            return redirect()
+                ->back()
+                ->withErrors(['error' => trans('clients.import_error') . ': ' . $e->getMessage()]);
+        }
+    }
+    public function import(ImportClientsRequest $request)
+    {
+        set_time_limit(600);
+        ini_set('memory_limit', '512M');
+
+        try {
+            $subscriptionDate = $request->input('subscription_date');
+            $file = $request->file('file');
+
+            // Log::info('Starting import process', [
+            //     'file_name' => $file->getClientOriginalName(),
+            //     'file_size' => $file->getSize(),
+            //     'file_extension' => $file->getClientOriginalExtension(),
+            //     'subscription_date' => $subscriptionDate
+            // ]);
+
+            // $reader = Excel::toCollection(null, $file);
+            // Log::info('File contents debug', [
+            //     'sheets_count' => $reader->count(),
+            //     'first_sheet_rows' => $reader->first()->count(),
+            //     'first_5_rows' => $reader->first()->take(5)->toArray()
+            // ]);
+
+            $import = new ClientsImport($subscriptionDate);
+            Excel::import($import, $file);
+
+            $successCount = $import->getSuccessCount();
+            $failures = $import->getFailures();
+
+            // Log::info('Import completed', [
+            //     'success_count' => $successCount,
+            //     'failure_count' => count($failures),
+            //     'failures' => $failures
+            // ]);
+
+            if (count($failures) > 0) {
+                return redirect()
+                    ->back()
+                    ->with('failures', $failures)
+                    ->with('success_count', $successCount)
+                    ->with('warning', trans('clients.import_partial_success', [
+                        'success_count' => $successCount,
+                        'failure_count' => count($failures)
+                    ]));
+            }
+
+            return redirect()
+                ->route('admin.clients.index')
+                ->with('success', trans('clients.import_success', [
+                    'count' => $successCount
+                ]));
+
+        } catch (\Exception $e) {
+            // Log::error('Import failed', [
+            //     'error' => $e->getMessage(),
+            //     'trace' => $e->getTraceAsString()
+            // ]);
+
+            // return redirect()
+            //     ->back()
+            //     ->withErrors(['error' => trans('clients.import_error_message', [
+            //         'error' => $e->getMessage()
+            //     ])]);
+            return redirect()
+                ->back()
+                ->withErrors(['error' => trans('clients.import_error')]);
+        }
+    }
+
+    protected function validateImportFile($file)
+    {
+        $allowedExtensions = ['xlsx', 'xls', 'csv'];
+        $extension = strtolower($file->getClientOriginalExtension());
+
+        if (!in_array($extension, $allowedExtensions)) {
+            throw new \InvalidArgumentException('Invalid file format. Only Excel and CSV files are allowed.');
+        }
+
+        if ($file->getSize() > 10 * 1024 * 1024) {
+            throw new \InvalidArgumentException('File size too large. Maximum 10MB allowed.');
         }
     }
 

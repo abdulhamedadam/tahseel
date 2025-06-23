@@ -113,4 +113,5 @@
   'clients_management' => 'ادارة الزبائن',
   'invoices&reports_management' => 'ادارة الفواتير والتقارير',
   'notifications_management' => 'ادارة الاشعارات',
+  'import_clients' => 'استيراد الزبائن',
 );

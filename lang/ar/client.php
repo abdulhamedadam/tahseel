@@ -23,7 +23,9 @@
   'employee' => 'الموظف',
   'remaining_amount' => 'القيمة المتبقية',
   'user' => 'user',
-  'box_switch' => 'box_switch',
-  'client_type' => 'client_type',
-  'start_date' => 'start_date',
+  'box_switch' => 'العلبه',
+  'client_type' => 'نوع العميل',
+  'end_date' => 'تاريخ الانتهاء',
+  'import_clients' => 'استيراد العملاء',
+  'month_subscription' => 'الإشتراك الشهري'
 );

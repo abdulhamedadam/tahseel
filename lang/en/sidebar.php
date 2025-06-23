@@ -78,4 +78,5 @@
   'users' => 'users',
   'notifications' => 'notifications',
   'account_settings' => 'account_settings',
+  'import_clients' => 'import_clients',
 );

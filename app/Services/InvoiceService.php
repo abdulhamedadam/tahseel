@@ -220,7 +220,7 @@ class InvoiceService
         $currentYear = Carbon::now()->year;
 
         if (!$this->canGenerateInvoices()) {
-            return redirect()->back()->with('error', 'تم إنشاء الفواتير بالفعل لهذا الشهر.');
+            return redirect()->back()->with('error', trans('clients.invoices_already_created'));
         }
 
         try {

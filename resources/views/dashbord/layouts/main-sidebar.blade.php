@@ -160,6 +160,18 @@
                         </a>
                     </div>
                 @endcan
+                @can('list_clients')
+
+                    <div class="menu-item">
+                        <a class="menu-link {{ request()->routeIs(['admin.clients.import.show']) ? 'active' : '' }}"
+                            href="{{ route('admin.clients.import.show') }}">
+                            <span class="svg-icon svg-icon-2" style="margin-left: 5px">
+                                <i class="bi bi-people text-danger fs-2x"></i>
+                            </span>
+                            <span class="menu-title">{{ trans('sidebar.import_clients') }}</span>
+                        </a>
+                    </div>
+                @endcan
 
                 {{-- <div class="menu-item">
                     <a class="menu-link {{ request()->routeIs(['admin.invoices.index']) ? 'active' : '' }}"
