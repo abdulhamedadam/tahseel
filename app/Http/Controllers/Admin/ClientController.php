@@ -65,7 +65,6 @@ class ClientController extends Controller
                 ->withSum('invoices', 'remaining_amount')
                 ->orderBy('created_at', 'desc')
                 ->get();
-
             $counter = 0;
 
             return Datatables::of($allData)
@@ -140,9 +139,9 @@ class ClientController extends Controller
                     $actionButtons .= '<button type="button" style="font-size: 16px" class="btn btn-sm btn-secondary">' . trans('employees.actions') . '</button>';
                     $actionButtons .= '<button type="button" class="btn btn-sm btn-secondary dropdown-toggle dropdown-icon" data-bs-toggle="dropdown" aria-expanded="false"><span class="sr-only">Toggle Dropdown</span></button>';
                     $actionButtons .= '<ul class="dropdown-menu">';
-
+                    $actionButtons .= '<li><a style="font-size: 14px" class="hover-effect dropdown-item" href="javascript:void(0)" onclick="showClientDetails(' . $row->id . ')"><i class="bi bi-eye-fill"></i> ' . trans('clients.view_details') . '</a></li>';
                     if (auth()->user()->can('update_client')) {
-                        $actionButtons .= '<li><a style="font-size: 14px" class="hover-effect dropdown-item" href="' . route('admin.clients.edit', $row->id) . '"><i class="bi bi-pencil-square"></i> ' . trans('clients.edit_clients') . '</a></li>';
+                        $actionButtons .= '<li><a style="font-size: 14px" class="hover-effect dropdown-item" href="' . route('admin.clients.edit', $row->id) . '" target="_blank"><i class="bi bi-pencil-square"></i> ' . trans('clients.edit_clients') . '</a></li>';
                     }
 
                     // if (auth()->user()->can('delete_client')) {
@@ -588,6 +587,7 @@ class ClientController extends Controller
             // ]);
 
             if (count($failures) > 0) {
+                // dd($failures);
                 return redirect()
                     ->back()
                     ->with('failures', $failures)
@@ -633,6 +633,15 @@ class ClientController extends Controller
         if ($file->getSize() > 10 * 1024 * 1024) {
             throw new \InvalidArgumentException('File size too large. Maximum 10MB allowed.');
         }
+    }
+
+    public function getClientDetails($id)
+    {
+        $client = Clients::with(['subscription', 'invoices'])
+            ->withSum('invoices', 'remaining_amount')
+            ->findOrFail($id);
+
+        return view($this->admin_view . '.details_modal', compact('client'))->render();
     }
 
 }

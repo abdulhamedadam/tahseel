@@ -1,5 +1,18 @@
 @extends('dashbord.layouts.master')
 
+@section('css')
+<style>
+    .actions-column .btn-group {
+        width: 100%;
+    }
+
+    .actions-column .btn {
+        padding: 2px 6px !important;
+        font-size: 12px !important;
+    }
+</style>
+@endsection
+
 @section('toolbar')
     <div id="kt_app_toolbar_container" class="app-container container-xxl d-flex flex-stack">
         @php
@@ -52,6 +65,36 @@
             @endphp
         </div>
 
+    </div>
+
+
+    <div class="modal fade" id="clientDetailsModal" tabindex="-1" aria-labelledby="clientDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="clientDetailsModalLabel">
+                        <i class="bi bi-person-circle"></i> {{ trans('clients.client_details') }}
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="clientDetailsContent">
+                    <div class="text-center py-5" id="modalLoader">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">{{ trans('clients.loading_details') }}</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> {{ trans('clients.close') }}
+                    </button>
+                    <a href="#" id="editClientBtn" class="btn btn-primary" target="_blank" style="display: none;">
+                        <i class="bi bi-pencil-square"></i> {{ trans('clients.edit_clients') }}
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 
 
@@ -109,7 +152,8 @@
                     },
                     {
                         data: 'address1',
-                        className: 'text-center'
+                        className: 'text-center',
+                        width: "200px"
                     },
                     {
                         data: 'subscription',
@@ -121,7 +165,8 @@
                     },
                     {
                         data: 'notes',
-                        className: 'text-center'
+                        className: 'text-center',
+                        width: "200px"
                     },
                     {
                         data: 'start_date',
@@ -139,12 +184,15 @@
                         data: 'action',
                         name: 'action',
                         orderable: false,
-                        className: 'text-center no-export'
+                        className: 'text-center no-export',
+                        width: "30px"
                     },
                 ],
                 "columnDefs": [{
                         "targets": [-1], //last column
                         "orderable": false, //set not orderable
+                        "width": "25px",
+                        "className": "text-center no-export actions-column"
                     },
                     {
                         "targets": [1],
@@ -204,9 +252,6 @@
                     {
                         "extend": 'copy',
                     },
-                    {
-                        "extend": 'pdf'
-                    }
                 ],
 
                 "language": {
@@ -264,8 +309,33 @@
         }
     </script>
 
+    <script>
+        function showClientDetails(clientId) {
+            $('#clientDetailsModal').modal('show');
 
+            $('#modalLoader').show();
+            $('#clientDetailsContent').html($('#modalLoader'));
+            $('#editClientBtn').hide();
 
-
-
+            $.ajax({
+                url: "{{ route('admin.clients.details', '') }}/" + clientId,
+                type: 'GET',
+                success: function(response) {
+                    $('#modalLoader').hide();
+                    $('#clientDetailsContent').html(response);
+                    $('#editClientBtn').attr('href', "{{ route('admin.clients.edit', '') }}/" + clientId).show();
+                },
+                error: function(xhr, status, error) {
+                    $('#modalLoader').hide();
+                    $('#clientDetailsContent').html(
+                        '<div class="alert alert-danger text-center">' +
+                        '<i class="bi bi-exclamation-triangle fs-1 text-danger"></i>' +
+                        '<h4 class="mt-3">{{ trans("clients.error_loading_details") }}</h4>' +
+                        '<p class="mb-0">{{ trans("clients.please_try_again") }}</p>' +
+                        '</div>'
+                    );
+                }
+            });
+        }
+    </script>
 @endsection

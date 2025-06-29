@@ -21,10 +21,11 @@ class ClientsImport implements ToCollection
     protected $successCount = 0;
     protected $failures = [];
     protected $subscriptionCache = [];
-
-    public function __construct($subscriptionDate)
+    protected $skipRows = 2;
+    public function __construct($subscriptionDate, $skipRows = 2)
     {
         $this->subscriptionDate = $subscriptionDate;
+        $this->skipRows = $skipRows;
         $this->cacheSubscriptions();
     }
 
@@ -39,6 +40,11 @@ class ClientsImport implements ToCollection
     public function collection(Collection $rows)
     {
         foreach ($rows as $index => $row) {
+
+            if ($index < $this->skipRows) {
+                continue;
+            }
+
             DB::beginTransaction();
             try {
                 $this->processRow($row, $index);

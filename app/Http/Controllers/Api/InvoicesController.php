@@ -303,8 +303,9 @@ class InvoicesController extends Controller
             $invoice->remaining_amount = 0;
             $invoice->status = 'paid';
             $invoice->paid_date = now();
-
+        //    dd($invoice->save());
             if (!$invoice->save()) {
+
                 DB::rollBack();
                 return $this->responseApiError('فشل في تحديث الفاتورة');
             }
@@ -320,7 +321,7 @@ class InvoicesController extends Controller
             ]);
 
             $accountId = auth('api')->user()->account_id ?? null;
-
+          //  dd($accountId);
             if (!$accountId) {
                 DB::rollBack();
                 return $this->responseApiError('هذا الحساب غير موجود');
@@ -356,15 +357,16 @@ class InvoicesController extends Controller
             //     // now()->format('Y-m-d H:i')
             //     $invoice->due_date
             // );
+              // dd('ddd');
             $notificationMessage = sprintf(
                 'تم دفع مبلغ %s %s للعميل %s، وكان تاريخ الاستحقاق %s. (تمت العملية بواسطة: %s)',
                 number_format($request->paid_amount, 2),
                 get_app_config_data('currency'),
-                $invoice->client->name ?? 'غير محدد',
+                optional($invoice->client)->name ?? 'غير محدد',
                 $invoice->due_date,
-                auth()->user()->name
+                auth('api')->user()->name
             );
-
+         
             $admins = Admin::where('status', '1')
                 ->whereNull('deleted_at')
                 ->whereHas('roles', function($query) {
@@ -393,7 +395,7 @@ class InvoicesController extends Controller
                         'invoice_details' => [
                             'number' => $invoice->invoice_number,
                             'date' => $invoice->paid_date,
-                            'client' => $invoice->client->name ?? 'Unknown'
+                            'client' => optional($invoice->client)->name ,
                         ]
                     ],
                     null
@@ -404,9 +406,11 @@ class InvoicesController extends Controller
 
             return $this->responseApi(null, 'تم دفع الفاتورة بنجاح');
         } catch (ModelNotFoundException $e) {
+           // dd($e);
             DB::rollBack();
             return $this->responseApiError('الفاتورة غير موجودة');
         } catch (\Exception $e) {
+          //  dd($e);
             DB::rollBack();
             return $this->responseApiError('حدث خطأ ما: ' . $e->getMessage());
         }
