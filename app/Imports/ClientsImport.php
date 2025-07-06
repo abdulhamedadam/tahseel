@@ -226,7 +226,7 @@ class ClientsImport implements ToCollection
         ];
     }
 
-    protected function parseDate($date)
+    protected function parseDate1($date)
     {
         if (!$date) return null;
 
@@ -256,6 +256,57 @@ class ClientsImport implements ToCollection
                 } catch (\Exception $e) {
                     // Log::warning('Carbon parse failed', ['date' => $date, 'error' => $e->getMessage()]);
                 }
+            }
+
+        } catch (\Exception $e) {
+            // Log::warning('Date parsing failed', ['date' => $date, 'error' => $e->getMessage()]);
+        }
+
+        return null;
+    }
+
+    protected function parseDate($date)
+    {
+        if (!$date) return null;
+
+        try {
+            $parsedDate = null;
+
+            if (is_numeric($date)) {
+                $excelEpoch = Carbon::create(1900, 1, 1);
+                $parsedDate = $excelEpoch->addDays($date - 2);
+            }
+            elseif (is_string($date)) {
+                $formats = ['Y/m/d', 'Y-m-d', 'd/m/Y', 'd-m-Y', 'm/d/Y', 'm-d-Y'];
+
+                foreach ($formats as $format) {
+                    try {
+                        $parsed = Carbon::createFromFormat($format, $date);
+                        if ($parsed && $parsed->format($format) === $date) {
+                            $parsedDate = $parsed;
+                            break;
+                        }
+                    } catch (\Exception $e) {
+                        continue;
+                    }
+                }
+
+                if (!$parsedDate) {
+                    try {
+                        $parsedDate = Carbon::parse($date);
+                    } catch (\Exception $e) {
+                        // Log::warning('Carbon parse failed', ['date' => $date, 'error' => $e->getMessage()]);
+                        return null;
+                    }
+                }
+            }
+
+            if ($parsedDate) {
+                if ($parsedDate->month != 1) {
+                    $parsedDate = $parsedDate->subMonth();
+                }
+
+                return $parsedDate->format('Y-m-d');
             }
 
         } catch (\Exception $e) {

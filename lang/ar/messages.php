@@ -30,4 +30,6 @@
   'Import completed with 17 successful records and 7 failures' => 'Import completed with 17 successful records and 7 failures',
   'Import completed with 0 successful records and 7 failures' => 'Import completed with 0 successful records and 7 failures',
   'تم الانتهاء من الاستيراد مع 0 سجل ناجح و 7 فشل' => 'تم الانتهاء من الاستيراد مع 0 سجل ناجح و 7 فشل',
+  'تم استيراد 1070 عميل بنجاح' => 'تم استيراد 1070 عميل بنجاح',
+  'تم إنشاء 1066 فاتورة بنجاح' => 'تم إنشاء 1066 فاتورة بنجاح',
 );

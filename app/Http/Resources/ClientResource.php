@@ -26,8 +26,9 @@ class ClientResource extends JsonResource
             'startDate' => $this->start_date,
             'address' => $this->address1,
             'subscriptionName' => $this->subscription ? $this->subscription->name : null,
-            'subscriptionPrice' => $this->subscription ? $this->subscription->price : null,
-            'total_remaining_amount' => $this->invoices->sum('remaining_amount'),
+            // 'subscriptionPrice' => $this->subscription ? $this->subscription->price : null,
+            'subscriptionPrice' => (string)number_format($this->invoices->sum('remaining_amount'), 2, '.', ''),
+            // 'total_remaining_amount' => $this->invoices->sum('remaining_amount'),
             'currency' => get_app_config_data('currency')
         ];
     }

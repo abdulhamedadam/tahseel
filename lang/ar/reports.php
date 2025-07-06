@@ -23,4 +23,11 @@
   'collector' => 'المحصل',
   'min_amount' => 'من المبلغ',
   'max_amount' => 'الى المبلغ',
+  'filters' => 'filters',
+  'select_client' => 'select_client',
+  'select_subscription' => 'select_subscription',
+  'select_collector' => 'select_collector',
+  'select_status' => 'select_status',
+  'clear_filters' => 'clear_filters',
+  'apply_filters' => 'apply_filters',
 );
