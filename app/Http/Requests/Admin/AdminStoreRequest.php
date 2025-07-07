@@ -28,7 +28,7 @@ class AdminStoreRequest extends FormRequest
             'position' => 'required|string|max:255',
             'email' => 'required|email|unique:admins,email',
             'password' => 'required|string|min:8',
-            'phone' => 'required|unique:admins,phone',
+            'phone' => 'nullable|unique:admins,phone',
             'role' => 'required|exists:roles,id',
             'status' => 'required|in:0,1',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',

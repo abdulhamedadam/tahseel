@@ -23,7 +23,7 @@ class AdminUpdateRequest extends FormRequest
     {
         return [
             'email' => 'required|email|unique:admins,email,'.$this->route('user'),
-            'phone' => 'required|unique:admins,phone,'.$this->route('user'),
+            'phone' => 'nullable|unique:admins,phone,'.$this->route('user'),
             'is_employee' => 'required|in:0,1',
             'emp_id' => 'nullable|exists:tbl_employees,id|required_if:is_employee,1',
             'name' => 'required|string|max:255',

@@ -32,16 +32,20 @@ class ClientsController extends Controller
             $query->where('is_active', 1);
             if ($request->has('search')) {
                 $search = $request->input('search');
-                $query->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%")
-                    ->orWhere('phone', 'like', "%{$search}%")
-                    ->orWhere('user', 'like', "%{$search}%")
-                    ->orWhere('address1', 'like', "%{$search}%")
-                    ->orWhere('box_switch', 'like', "%{$search}%")
-                    ->orWhere('client_type', 'like', "%{$search}%")
-                    ->orWhereHas('subscription', function ($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%");
-                    });
+                $searchTerm = "%{$search}%";
+                
+                $query->where(function($q) use ($searchTerm) {
+                        $q->where('name', 'like', $searchTerm)
+                        ->orWhere('email', 'like', $searchTerm)
+                        ->orWhere('phone', 'like', $searchTerm)
+                        ->orWhere('user', 'like', $searchTerm)
+                        ->orWhere('address1', 'like', $searchTerm)
+                        ->orWhere('box_switch', 'like', $searchTerm)
+                        ->orWhere('client_type', 'like', $searchTerm)
+                        ->orWhereHas('subscription', function ($subQuery) use ($searchTerm) {
+                            $subQuery->where('name', 'like', $searchTerm);
+                        });
+                });
             }
 
             $clients = $query->whereNull('deleted_at')->orderBy('created_at', 'desc')->get();

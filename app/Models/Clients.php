@@ -33,4 +33,11 @@ class Clients extends Model
     {
         return $this->hasMany(Invoice::class, 'client_id');
     }
+
+    public function getLatestInvoiceDueDateAttribute()
+    {
+        return $this->invoices()
+            ->orderBy('created_at', 'desc')
+            ->value('due_date');
+    }
 }

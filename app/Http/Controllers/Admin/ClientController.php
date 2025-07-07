@@ -61,10 +61,38 @@ class ClientController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $allData = Clients::with('subscription')
+            // $allData = Clients::with('subscription')
+            //     ->withSum('invoices', 'remaining_amount')
+            //     ->orderBy('created_at', 'desc')
+            //     ->get();
+            // $counter = 0;
+
+            $query = Clients::with('subscription')
                 ->withSum('invoices', 'remaining_amount')
-                ->orderBy('created_at', 'desc')
-                ->get();
+                ->orderBy('created_at', 'desc');
+
+            if ($request->has('name_search') && !empty($request->name_search)) {
+                $query->where('name', 'like', '%' . $request->name_search . '%');
+            }
+
+            if ($request->has('other_fields_search') && !empty($request->other_fields_search)) {
+                $searchTerm = $request->other_fields_search;
+                $query->where(function($q) use ($searchTerm) {
+                    $q->where('phone', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('address1', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('notes', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('client_type', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('price', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('box_switch', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('start_date', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('user', 'like', '%' . $searchTerm . '%')
+                    ->orWhereHas('subscription', function($subQuery) use ($searchTerm) {
+                        $subQuery->where('name', 'like', '%' . $searchTerm . '%');
+                    });
+                });
+            }
+
+            $allData = $query->get();
             $counter = 0;
 
             return Datatables::of($allData)
@@ -302,7 +330,7 @@ class ClientController extends Controller
             'invoice_type' => 'required|in:service,subscription',
             'subscription_id' => 'nullable|exists:tbl_subscriptions,id',
             'amount' => 'required|numeric|min:1',
-            'due_date' => 'required|date|after_or_equal:today',
+            'due_date' => 'required|date',
             'status' => 'required|in:paid,unpaid',
             // 'remaining_amount' => 'nullable|numeric|min:0|max:' . $request->amount,
             'notes' => 'nullable|string',

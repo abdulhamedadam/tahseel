@@ -40,6 +40,31 @@
 
     <div id="kt_app_content_container" class="app-container container-xxxl">
 
+        <div class="card-body">
+            <div class="col-md-12 row">
+
+                <div class="col-md-3" style="margin-bottom: 10px;">
+                    <label for="nameSearch" class="form-label">{{ trans('clients.search_by_name') }}</label>
+                    <div class="input-group flex-nowrap">
+                        <span class="input-group-text">{!! form_icon('text') !!}</span>
+                        <input type="text" id="nameSearch" class="form-control"
+                            placeholder="{{ trans('clients.enter_client_name') }}">
+                    </div>
+                </div>
+
+                <div class="col-md-3" style="margin-bottom: 10px;">
+                    <label for="otherFieldsSearch" class="form-label">{{ trans('clients.search_other_fields') }}</label>
+                    <div class="input-group flex-nowrap">
+                        <span class="input-group-text">{!! form_icon('text') !!}</span>
+                        <input type="text" id="otherFieldsSearch" class="form-control search-input"
+                                placeholder="{{ trans('clients.search_phone_address_notes') }}">
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
         <div class="card shadow-sm" style="border-top: 3px solid #007bff;">
             @php
                 $headers = [
@@ -120,10 +145,14 @@
                 },
                 "processing": true,
                 "serverSide": true,
-                "searching": true,
+                "searching": false,
                 "order": [],
                 "ajax": {
                     url: "{{ route('admin.clients.index') }}",
+                    data: function(d) {
+                        d.name_search = $('#nameSearch').val();
+                        d.other_fields_search = $('#otherFieldsSearch').val();
+                    }
                 },
                 "columns": [{
                         data: 'id',
@@ -275,6 +304,10 @@
                 "pageLength": 10,
             });
 
+            $('#nameSearch, #otherFieldsSearch').on('change keyup', function() {
+                table.ajax.reload();
+            });
+            
             $("input").change(function() {
                 $(this).parent().parent().removeClass('has-error');
                 $(this).next().empty();

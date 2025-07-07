@@ -87,7 +87,7 @@ class InvoicesController extends Controller
                 });
             }
 
-            $invoices = $query->orderBy('due_date', 'desc')->get();
+            $invoices = $query->orderBy('due_date', 'asc')->get();
 
             $data = [
                 'invoices' => InvoiceResource::collection($invoices)
@@ -366,7 +366,7 @@ class InvoicesController extends Controller
                 $invoice->due_date,
                 auth('api')->user()->name
             );
-         
+
             $admins = Admin::where('status', '1')
                 ->whereNull('deleted_at')
                 ->whereHas('roles', function($query) {

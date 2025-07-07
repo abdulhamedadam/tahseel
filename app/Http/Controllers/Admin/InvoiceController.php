@@ -455,6 +455,11 @@ class InvoiceController extends Controller
             $financialTransaction = FinancialTransaction::where('account_id', auth()->user()->account_id)
                 ->where('amount', $lastPayment->amount)
                 // ->where('created_by', auth()->id())
+                ->where('created_by', $lastPayment->collected_by)
+                ->whereBetween('created_at', [
+                    $lastPayment->created_at->subMinutes(5),
+                    $lastPayment->created_at->addMinutes(5)
+                ])
                 ->orderBy('created_at', 'desc')
                 ->first();
 

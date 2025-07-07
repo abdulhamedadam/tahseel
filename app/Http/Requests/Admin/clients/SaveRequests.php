@@ -18,9 +18,9 @@ class SaveRequests extends FormRequest
         return [
             'client_code'          => 'required|string|max:255|unique:tbl_clients,client_code',
             'name'                 => 'required|string|max:255',
-            'phone'                => 'required|string|max:15|regex:/^\+\d{1,3}\d{6,}$/',
+            'phone'                => 'nullable|string|max:15|regex:/^\+\d{1,3}\d{6,}$/',
             // 'email'                => 'nullable|email|max:255',
-            'user'                 => 'required|string|max:255',
+            'user'                 => 'nullable|string|max:255',
             'address1'             => 'nullable|string|max:255',
             // 'address2'             => 'nullable|string|max:255',
             'box_switch'           => 'nullable|string|max:255',
