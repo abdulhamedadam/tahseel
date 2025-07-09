@@ -1,5 +1,9 @@
 @extends('dashbord.layouts.master')
 
+@section('css')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+@endsection
 @section('toolbar')
     <div id="kt_app_toolbar_container" class="app-container container-xxl d-flex flex-stack">
         @php
@@ -55,27 +59,37 @@
         <div class="card-body">
             <div class="col-md-12 row">
 
-                <div class="col-md-3">
-                    <label for="client_id"class="form-label">{{ trans('reports.client_id') }}</label>
-                    <div class="input-group flex-nowrap ">
-                        <span class="input-group-text" id="basic-addon3">{!! form_icon('select1') !!}</i></span>
-                        <div class="overflow-hidden flex-grow-1">
-                            <select class="form-select rounded-start-0" name="client_id" id="client_id"
-                                data-placeholder="{{ trans('reports.select') }}">
-                                <option value="">{{ trans('reports.select') }}</option>
-                                @foreach ($clients as $item)
-                                    <option value="{{ $item->id }}"
-                                        {{ old('client_id') == $item->id ? 'selected' : '' }}>{{ $item->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+                {{-- <div class="col-md-3">
+                    <label for="client_id" class="form-label">{{ trans('reports.client_id') }}</label>
+                    <div class="input-group flex-nowrap">
+                        <span class="input-group-text">{!! form_icon('select1') !!}</span>
+                        <select class="form-select" name="client_id" id="client_id">
+                            <option value="">{{ trans('reports.select') }}</option>
+                            @foreach ($clients as $item)
+                                <option value="{{ $item->id }}" {{ old('client_id') == $item->id ? 'selected' : '' }}>
+                                    {{ $item->name }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
                     @error('client_id')
                         <span class="invalid-feedback d-block" role="alert">{{ $message }}</span>
                     @enderror
+                </div> --}}
+                <div class="col-md-3">
+                    <label for="client_id" class="form-label">{{ trans('reports.client_id') }}</label>
+                    <div class="input-group flex-nowrap">
+                        <span class="input-group-text">{!! form_icon('select1') !!}</span>
+                        <select class="form-select" name="client_id" id="client_id">
+                            <option value="">{{ trans('reports.select') }}</option>
+                            @foreach ($clients as $item)
+                                <option value="{{ $item->id }}" {{ old('client_id') == $item->id ? 'selected' : '' }}>
+                                    {{ $item->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
-
                 <div class="col-md-3">
                     <label for="subscription_id" class="form-label">{{ trans('reports.subscription') }}</label>
                     <div class="input-group flex-nowrap">
@@ -252,9 +266,27 @@
 
 @stop
 @section('js')
-
+{{-- {{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> --}}
+<!-- ثم Select2 -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
+            // تهيئة Select2 مع تحديد العنصر الأب بشكل صحيح
+            // $('#client_id').select2({
+            //     theme: 'bootstrap-5',
+            //     placeholder: '{{ trans("reports.select") }}',
+            //     allowClear: true,
+            //     width: '100%',
+            //     dropdownParent: $('#client_id').closest('.input-group'),
+            //     language: {
+            //         noResults: function() {
+            //             return "لا توجد نتائج";
+            //         },
+            //         searching: function() {
+            //             return "جاري البحث...";
+            //         },
+            //     }
+            // });
             //datatables
             table = $('#table1').DataTable({
                 "language": {
@@ -448,7 +480,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
     <script>
         $('#client_id, #status, #subscription_id, #collector_id, #min_amount, #max_amount, #from_date, #to_date').on('change keyup', function() {
-            table.ajax.reload();
+            table.ajax.reload(null, false);
         });
 
         function confirmDelete(clientId) {
@@ -543,3 +575,298 @@
         }
     </script>
 @endsection
+{{--
+@section('js')
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- ثم Select2 -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#client_id').select2({
+                theme: 'bootstrap-5',
+                placeholder: '{{ trans("reports.select") }}',
+                allowClear: true,
+                width: '100%',
+                dropdownParent: $('#client_id').closest('.input-group'), // تحديد العنصر الأب الصحيح
+                language: {
+                    noResults: function() {
+                        return "لا توجد نتائج";
+                    },
+                    searching: function() {
+                        return "جاري البحث...";
+                    },
+                    inputTooShort: function() {
+                        return "الرجاء إدخال حرف واحد على الأقل";
+                    }
+                }
+            });
+            //datatables
+            table = $('#table1').DataTable({
+                "language": {
+                    url: "{{ asset('assets/Arabic.json') }}"
+                },
+                "processing": true,
+                "serverSide": true,
+                "order": [],
+                "pageLength": 10,
+                "ajax": {
+                    url: "{{ route('admin.invoices.index') }}",
+                    type: 'GET',
+                    data: function(d) {
+                        d.client_id = $('#client_id').val();
+                        d.status = $('#status').val();
+                        d.subscription_id = $('#subscription_id').val();
+                        d.collector_id = $('#collector_id').val();
+                        d.min_amount = $('#min_amount').val();
+                        d.max_amount = $('#max_amount').val();
+                        d.from_date = $('#from_date').val();
+                        d.to_date = $('#to_date').val();
+                    }
+                },
+                "columns": [{
+                        data: 'id',
+                        className: 'text-center no-export'
+                    },
+                    {
+                        data: 'invoice_number',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'client',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'amount',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'paid_amount',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'remaining_amount',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'due_date',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'paid_date',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'collected_by',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'status',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'subscription',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'notes',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
+                        className: 'text-center no-export'
+                    },
+                ],
+                "columnDefs": [{
+                        "targets": [1, -1],
+                        "orderable": false,
+                    },
+                    {
+                        "targets": [1],
+                        "createdCell": function(td, cellData, rowData, row, col) {
+                            $(td).css({
+                                'font-weight': '600',
+                                'text-align': 'center',
+                                'color': '#6610f2',
+                                'vertical-align': 'middle',
+                            });
+                        }
+                    },
+                    {
+                        "targets": [3, 4],
+                        "createdCell": function(td, cellData, rowData, row, col) {
+                            $(td).css({
+                                'font-weight': '600',
+                                'text-align': 'center',
+                                'vertical-align': 'middle',
+                            });
+                        }
+                    },
+                    {
+                        "targets": [2, 8],
+                        "createdCell": function(td, cellData, rowData, row, col) {
+                            $(td).css({
+                                'font-weight': '600',
+                                'text-align': 'center',
+                                'color': 'green',
+                                'vertical-align': 'middle',
+                            });
+                        }
+                    },
+                    {
+                        "targets": [5],
+                        "createdCell": function(td, cellData, rowData, row, col) {
+                            $(td).css({
+                                'font-weight': '600',
+                                'text-align': 'center',
+                                'color': 'red',
+                                'vertical-align': 'middle',
+                            });
+                        }
+                    },
+                ],
+                "order": [],
+                "dom": '<"row align-items-center"<"col-md-3"l><"col-md-6"f><"col-md-3"B>>rt<"row align-items-center"<"col-md-6"i><"col-md-6"p>>',
+                "buttons": [{
+                        "extend": 'excel',
+                    },
+                    {
+                        "extend": 'copy',
+                    },
+                ],
+                "language": {
+                    "lengthMenu": "عرض _MENU_ سجلات",
+                    "zeroRecords": "لا توجد سجلات",
+                    "info": "عرض الصفحة _PAGE_ من _PAGES_",
+                    "infoEmpty": "لا توجد سجلات",
+                    "infoFiltered": "(مرشح من _MAX_ إجمالي السجلات)",
+                    "search": "بحث:",
+                    "paginate": {
+                        "first": "الأول",
+                        "last": "الأخير",
+                        "next": "التالي",
+                        "previous": "السابق"
+                    }
+                },
+                "lengthMenu": [
+                    [10, 25, 50, -1],
+                    [10, 25, 50, "الكل"]
+                ],
+                "pageLength": 10,
+            });
+
+            // معالج الأحداث للفلترة
+            $('#client_id, #status, #subscription_id, #collector_id, #min_amount, #max_amount, #from_date, #to_date').on('change keyup', function() {
+                table.ajax.reload(null, false); // false للحفاظ على الصفحة الحالية
+            });
+
+            // إزالة الأخطاء عند التغيير
+            $("input").change(function() {
+                $(this).parent().parent().removeClass('has-error');
+                $(this).next().empty();
+            });
+            $("textarea").change(function() {
+                $(this).parent().parent().removeClass('has-error');
+                $(this).next().empty();
+            });
+            $("select").change(function() {
+                $(this).parent().parent().removeClass('has-error');
+                $(this).next().empty();
+            });
+        });
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
+    <script>
+        function confirmDelete(clientId) {
+            Swal.fire({
+                title: '{{ trans('employees.confirm_delete') }}',
+                text: '{{ trans('clients.delete_warning') }}',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: '{{ trans('employees.yes_delete') }}',
+                cancelButtonText: '{{ trans('employees.cancel') }}'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-form-' + clientId).submit();
+                }
+            });
+        }
+    </script>
+
+    <script>
+        function showPayModal(url, remainingAmount, invoiceAmount, notes) {
+            $('#payInvoiceForm').attr('action', url);
+            $('#invoice_amount').val(invoiceAmount);
+            $('#remaining_amount_note').text(remainingAmount);
+            let notesValue = notes;
+            if (notesValue === 'undefined' || notesValue === null || notesValue === 'null') {
+                notesValue = '';
+            }
+            $('#notes').val(notesValue);
+            $('#paid_amount').val('').attr({
+                'max': remainingAmount,
+                'placeholder': 'Max: ' + remainingAmount
+            });
+            $('#payInvoiceModal').modal('show');
+        }
+
+        $(document).on('input', '#paid_amount', function() {
+            let enteredAmount = parseFloat($(this).val()) || 0;
+            let remainingAmount = parseFloat($('#remaining_amount_note').text());
+
+            if (enteredAmount > remainingAmount) {
+                $(this).val(remainingAmount);
+                showAmountWarning();
+            }
+        });
+
+        function showAmountWarning() {
+            let warning = $('#amount_warning');
+            if (warning.length === 0) {
+                $('<div id="amount_warning" class="text-danger mt-1 small">' +
+                '<i class="bi bi-exclamation-triangle"></i> ' +
+                'تم تعديل المبلغ إلى الحد الأقصى للمبلغ المتبقي' +
+                '</div>').insertAfter('#paid_amount');
+            } else {
+                warning.show();
+            }
+
+            setTimeout(() => {
+                $('#amount_warning').fadeOut();
+            }, 3000);
+        }
+
+        function validateAmount() {
+            let amount = $('#paid_amount').val();
+            if (amount <= 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid amount',
+                    text: 'Please enter a valid amount greater than 0.',
+                });
+                return false;
+            }
+            return true;
+        }
+    </script>
+
+    <script>
+        function invoice_details(url) {
+            $.get(url, function(data) {
+                $('#result_info').html(data);
+                $('#modaldetails').modal('show');
+            });
+        }
+
+        function print_invoice(url) {
+            var printWindow = window.open(url, '_blank');
+            printWindow.focus();
+        }
+    </script>
+@endsection --}}

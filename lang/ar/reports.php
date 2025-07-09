@@ -30,4 +30,10 @@
   'select_status' => 'select_status',
   'clear_filters' => 'clear_filters',
   'apply_filters' => 'apply_filters',
+  'search_clients' => 'search_clients',
+  'no_results' => 'no_results',
+  'selected' => 'selected',
+  'select_all' => 'select_all',
+  'deselect_all' => 'deselect_all',
+  'searching' => 'searching',
 );
