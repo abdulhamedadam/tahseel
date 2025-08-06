@@ -33,18 +33,18 @@ class ClientsController extends Controller
             if ($request->has('search')) {
                 $search = $request->input('search');
                 $searchTerm = "%{$search}%";
-                
-                $query->where(function($q) use ($searchTerm) {
-                        $q->where('name', 'like', $searchTerm)
-                        ->orWhere('email', 'like', $searchTerm)
-                        ->orWhere('phone', 'like', $searchTerm)
-                        ->orWhere('user', 'like', $searchTerm)
-                        ->orWhere('address1', 'like', $searchTerm)
-                        ->orWhere('box_switch', 'like', $searchTerm)
-                        ->orWhere('client_type', 'like', $searchTerm)
-                        ->orWhereHas('subscription', function ($subQuery) use ($searchTerm) {
-                            $subQuery->where('name', 'like', $searchTerm);
-                        });
+
+                $query->where(function ($q) use ($searchTerm) {
+                    $q->where('name', 'like', $searchTerm);
+                    // ->orWhere('email', 'like', $searchTerm)
+                    // ->orWhere('phone', 'like', $searchTerm)
+                    // ->orWhere('user', 'like', $searchTerm)
+                    // ->orWhere('address1', 'like', $searchTerm)
+                    // ->orWhere('box_switch', 'like', $searchTerm)
+                    // ->orWhere('client_type', 'like', $searchTerm);
+                    // ->orWhereHas('subscription', function ($subQuery) use ($searchTerm) {
+                    //     $subQuery->where('name', 'like', $searchTerm);
+                    // });
                 });
             }
 
@@ -120,62 +120,76 @@ class ClientsController extends Controller
 
             $user = auth('api')->user();
 
-            $paidInvoices = Invoice::with(['client', 'employee', 'subscription', 'revenues' => function($q) use ($user) {
-                    $q->where('collected_by', $user->id)
+            $paidInvoicesForUser = Invoice::with(['client', 'employee', 'subscription', 'revenues' => function ($q) use ($user) {
+                $q->where('collected_by', $user->id)
                     ->orderBy('received_at', 'desc');
-                }])
+            }])
                 ->where('client_id', $id)
                 ->whereIn('status', ['paid', 'partial'])
                 ->where('created_at', '>=', $oneYearAgo)
                 ->get();
 
-                // dd($paidInvoices);
-                $processedPaidInvoices = [];
-                foreach ($paidInvoices as $invoice) {
-                    if ($invoice->revenues->count() > 0) {
-                        foreach ($invoice->revenues as $revenue) {
+            $paidInvoices = Invoice::with([
+                'client',
+                'employee',
+                'subscription',
+                'revenues' => function ($q) {
+                    $q->orderBy('received_at', 'desc');
+                }
+            ])
+                ->where('client_id', $id)
+                ->whereIn('status', ['paid', 'partial'])
+                ->where('created_at', '>=', $oneYearAgo)
+                ->get();
 
-                            // $paidBeforeThisRevenue = $revenue->amount + $revenue->remaining_amount;
 
-                            $processedPaidInvoices[] = [
-                                'id' => $invoice->id,
-                                'invoice_number' => ($invoice->client->client_type == 'satellite' ? 'SA-' : 'IN-') . $invoice->invoice_number,
-                                'client_id' => $invoice->client->id,
-                                'client_name' => $invoice->client->name,
-                                'client_phone' => $invoice->client->phone,
-                                'client_address' => $invoice->client->address1,
-                                'subscription_id' => $invoice->subscription_id,
-                                'subscription' => $invoice->subscription ? $invoice->subscription->name : trans('invoices.service'),
-                                'amount' => $invoice->amount,
-                                'paid_amount' => $revenue->amount,
-                                // 'remaining_before_payment' => $paidBeforeThisRevenue,
-                                'remaining_amount' => $revenue->remaining_amount,
-                                'due_date' => $invoice->due_date ?? 'N/A',
-                                'paid_date' => $revenue->received_at,
-                                'collected_by' => $revenue->user->name,
-                                // 'status' => $revenue->status,
-                                'status' => 'paid',
-                                'invoice_type' => $invoice->invoice_type,
-                                'notes' => $revenue->notes,
-                                'currency' => get_app_config_data('currency')
-                            ];
-                        }
+            // dd($paidInvoices);
+            $processedPaidInvoices = [];
+            foreach ($paidInvoices as $invoice) {
+                if ($invoice->revenues->count() > 0) {
+                    foreach ($invoice->revenues as $revenue) {
+
+                        // $paidBeforeThisRevenue = $revenue->amount + $revenue->remaining_amount;
+
+                        $processedPaidInvoices[] = [
+                            'id' => $invoice->id,
+                            'invoice_number' => ($invoice->client->client_type == 'satellite' ? 'SA-' : 'IN-') . $invoice->invoice_number,
+                            'client_id' => $invoice->client->id,
+                            'client_name' => $invoice->client->name,
+                            'client_phone' => $invoice->client->phone,
+                            'client_address' => $invoice->client->address1,
+                            'subscription_id' => $invoice->subscription_id,
+                            'subscription' => $invoice->subscription ? $invoice->subscription->name : trans('invoices.service'),
+                            'amount' => $invoice->amount,
+                            'paid_amount' => $revenue->amount,
+                            // 'remaining_before_payment' => $paidBeforeThisRevenue,
+                            'remaining_amount' => $revenue->remaining_amount,
+                            'due_date' => $invoice->due_date ?? 'N/A',
+                            'paid_date' => $revenue->received_at,
+                            'collected_by' => $revenue->user->name,
+                            // 'status' => $revenue->status,
+                            'status' => 'paid',
+                            'invoice_type' => $invoice->invoice_type,
+                            'notes' => $revenue->notes,
+                            'currency' => get_app_config_data('currency')
+                        ];
                     }
                 }
+            }
 
-                $data = [
-                    'client' => new ClientResource($client),
-                    'paid_invoices' => [
-                        'count' => count($processedPaidInvoices),
-                        'total_paid_amount' => $paidInvoices->sum('paid_amount'),
-                        'invoices' => $processedPaidInvoices
-                    ],
-                    'unpaid_and_partial_invoices' => [
-                        'count' => $unpaidAndPartialInvoices->count(),
-                        'total_unpaidAndPartial_amount' => $unpaidAndPartialInvoices->sum('remaining_amount'),
-                        'invoices' => InvoiceResource::collection($unpaidAndPartialInvoices)
-                    ],
-                ];
+            $data = [
+                'client' => new ClientResource($client),
+                'paid_invoices' => [
+                    'count' => count($processedPaidInvoices),
+                    'total_paid_amount' => $paidInvoicesForUser->sum('paid_amount'),
+                    'invoices' => $processedPaidInvoices
+                ],
+                'unpaid_and_partial_invoices' => [
+                    'count' => $unpaidAndPartialInvoices->count(),
+                    'total_unpaidAndPartial_amount' => $unpaidAndPartialInvoices->sum('remaining_amount'),
+                    'invoices' => InvoiceResource::collection($unpaidAndPartialInvoices)
+                ],
+            ];
 
             return $this->responseApi($data, 'تم استرجاع فواتير العميل بنجاح');
         } catch (\Exception $e) {
