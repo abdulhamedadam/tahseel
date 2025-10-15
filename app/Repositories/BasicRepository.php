@@ -84,6 +84,15 @@ class BasicRepository implements BasicRepositoryInterface
         return $query->get();
     }
 
+    public function getBywhereDesc(array $conditions)
+    {
+        $query = $this->model->query();
+        foreach ($conditions as $field => $value) {
+            $query->where($field, $value);
+        }
+        return $query->orderByDesc('id')->get();
+    }
+
     public function getByquerylatest()
     {
         $query = $this->model->query()->latest();

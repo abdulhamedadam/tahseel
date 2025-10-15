@@ -100,6 +100,7 @@ class RolesController extends Controller
     {
         $data['role']      = $this->rolesRepository->getById($id);
         $data['sections']  = $this->permissions();
+        //dd($data['sections']);
         return view('dashbord.roles.edit', $data);
     }
 
@@ -162,6 +163,7 @@ class RolesController extends Controller
                 'add_employee_masrofat',
                 'delete_employee_masrofat',
                 'view_employee_revenues',
+                'view_employee_transactions'
             ])->get(),
             'Roles' => permission::whereIn('name', [
                 'list_roles',

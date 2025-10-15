@@ -90,4 +90,11 @@
   'inactive' => 'inactive',
   'masrofat_added' => 'masrofat_added',
   'masrofat_deleted' => 'masrofat_deleted',
+  'employee_revenues_data' => 'employee_revenues_data',
+  'total' => 'total',
+  'total_revenue' => 'إجمالي الايرادات',
+  'balance' => 'الرصيد',
+  'deficit' => 'العجز',
+  'surplus' => 'الزيادة',
+  'employee_transactions' => 'الحركات المالية',
 );

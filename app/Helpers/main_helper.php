@@ -4,6 +4,7 @@
 
 use App\Interfaces\BasicRepositoryInterface;
 use App\Models\Admin;
+use App\Models\Admin\Account;
 use App\Models\Admin\AccountSettings;
 use App\Models\Admin\Employee;
 use App\Models\Admin\FinancialTransaction;
@@ -339,11 +340,11 @@ if (!function_exists('count_transfers_notifications')) {
         }
 
         return $admin->unreadNotifications
-                ->whereIn('type', [
-                    \App\Notifications\AccountTransferNotification::class,
-                    \App\Notifications\AccountTransferRedoNotification::class
-                ])
-                ->count();
+            ->whereIn('type', [
+                \App\Notifications\AccountTransferNotification::class,
+                \App\Notifications\AccountTransferRedoNotification::class
+            ])
+            ->count();
     }
 }
 
@@ -463,7 +464,8 @@ if (!function_exists('form_icon')) {
                 'general_account' => FinancialTransaction::where('account_id', $generalAccountId)->sum('amount'),
             ];
         }
-        function get_dashboard_data() {
+        function get_dashboard_data()
+        {
             $internetClientsCount = Clients::where('client_type', 'internet')->where('is_active', 1)->count();
             $satelliteClientsCount = Clients::where('client_type', 'satellite')->where('is_active', 1)->count();
 
@@ -473,15 +475,15 @@ if (!function_exists('form_icon')) {
 
             // $totalPaid = Invoice::sum('paid_amount');
             $allData = Admin::withSum('financialTransactions', 'amount')
-                            ->get();
+                ->get();
             $totalPaid = $allData->sum('financial_transactions_sum_amount');
-            
+
             $totalRemaining = Invoice::sum('remaining_amount');
 
             $employeesCount = Employee::count();
             $usersCount = Admin::whereNull('deleted_at')
-                            ->where('status', '1')
-                            ->count();
+                ->where('status', '1')
+                ->count();
 
             return [
                 'internet_clients_count' => $internetClientsCount,
@@ -492,5 +494,24 @@ if (!function_exists('form_icon')) {
                 'users_count' => $usersCount,
             ];
         }
+    }
+
+
+
+
+    //-------------------------------------------------------------------
+    function get_user_account_balance($user_id)
+    {
+        $account_id = Admin::find($user_id)->account_id;
+        $account = Account::with('totalAmount')->find($account_id);
+        return $account->totalAmount;
+    }
+    //-------------------------------------------------------------------
+    function get_employee_account_balance($employee_id)
+    {
+        $account_id = Admin::where('emp_id', $employee_id)->first()->account_id;
+        $account = Account::with('financialTransactions')->find($account_id);
+       // dd($account->financialTransactions->sum('amount'));
+        return $account->financialTransactions->sum('amount');
     }
 }

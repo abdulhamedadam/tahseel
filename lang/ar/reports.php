@@ -36,4 +36,5 @@
   'select_all' => 'select_all',
   'deselect_all' => 'deselect_all',
   'searching' => 'searching',
+  'reset' => 'reset',
 );

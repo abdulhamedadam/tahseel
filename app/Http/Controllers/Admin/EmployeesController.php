@@ -7,10 +7,12 @@ use App\Http\Requests\Admin\Employee\EmployeeStoreRequest;
 use App\Http\Requests\Admin\Employees\AddEmployeeRequest;
 use App\Interfaces\BasicRepositoryInterface;
 use App\Models\Admin;
+use App\Models\Admin\Account;
 use App\Models\Admin\AreaSetting;
 use App\Models\Admin\Branch;
 use App\Models\Admin\Employee;
 use App\Models\Admin\EmployeeFiles;
+use App\Models\Admin\FinancialTransaction;
 use App\Models\Admin\Masrofat;
 use App\Models\Admin\Revenue;
 use App\Models\Admin\SarfBand;
@@ -205,6 +207,7 @@ class EmployeesController extends Controller
     /***********************************************************/
     public function employee_files($id)
     {
+        $data['revenues_data']   =  $this->RevenuesRepository->getBywhereDesc(array('collected_by' => $id));
         $data['all_data']     =  $this->EmployeeRepository->getById($id);
         $data['files_data']   =  $this->EmployeeFilesRepository->getBywhere(array('emp_id' => $id));
         // dd($data);
@@ -242,6 +245,7 @@ class EmployeesController extends Controller
     public function employee_details($id)
     {
         $data['all_data']     =  $this->EmployeeRepository->getById($id);
+                $data['revenues_data']   =  $this->RevenuesRepository->getBywhereDesc(array('collected_by' => $id));
         return view('dashbord.admin.employees.employee_details', $data);
     }
 
@@ -305,6 +309,7 @@ class EmployeesController extends Controller
     {
         $data['all_data']     =  $this->EmployeeRepository->getById($id);
         $data['masrofat_data']   =  $this->MasrofatRepository->getBywhere(array('emp_id' => $id));
+        $data['revenues_data']   =  $this->RevenuesRepository->getBywhereDesc(array('collected_by' => $id));
         $data['bands'] = $this->bandsRepository->getAll();
         // dd($data);
         return view('dashbord.admin.employees.employee_masrofat', $data);
@@ -352,8 +357,22 @@ class EmployeesController extends Controller
     public function employee_revenues($id)
     {
         $data['all_data']     =  $this->EmployeeRepository->getById($id);
-        $data['revenues_data']   =  $this->RevenuesRepository->getBywhere(array('collected_by' => $id));
+        $data['revenues_data']   =  $this->RevenuesRepository->getBywhereDesc(array('collected_by' => $id));
         // dd($data);
         return view('dashbord.admin.employees.employee_revenues', $data);
+    }
+
+    //-----------------------------------------------------------
+    public function employee_transactions($id)
+    {
+        $account_id=Admin::where('emp_id',$id)->first()->account_id;
+        $account = Account::findOrFail($account_id);
+        $transactions = FinancialTransaction::with(['account', 'admin'])->where('account_id', $id)->whereNull('deleted_at')->orderBy('created_at', 'desc')->get();
+
+        $data['revenues_data']   =  $this->RevenuesRepository->getBywhereDesc(array('collected_by' => $id));
+        $data['all_data']     =  $this->EmployeeRepository->getById($id);
+        $data['transactions']   =  $transactions;
+        // dd($data);
+        return view('dashbord.admin.employees.employee_transactions', $data); 
     }
 }

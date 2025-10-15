@@ -48,15 +48,14 @@ class InvoiceController extends Controller
     }
 
 
-    public function index(Request $request)
+    public function index2(Request $request)
     {
         if ($request->ajax()) {
 
-            // $allData = $this->InvoiceRepository->getWithRelations(['client', 'employee', 'subscription'])->toQuery()->whereNull('deleted_at')->orderBy('id', 'desc')->get();
-            $invoices = $this->InvoiceRepository->getWithRelations(['client', 'employee', 'subscription', 'revenues.user']);
-            $query = $invoices->isNotEmpty() ? $invoices->toQuery()
+            // Use direct query builder instead of loading all data first
+            $query = Invoice::with(['client', 'employee', 'subscription', 'revenues.user'])
                 ->whereNull('deleted_at')
-                ->orderBy('id', 'desc') : collect();
+                ->orderBy('id');
 
             if ($request->filled('client_id')) {
                 $query->where('client_id', $request->client_id);
@@ -67,13 +66,13 @@ class InvoiceController extends Controller
             }
 
             if ($request->filled('subscription_id') && $request->subscription_id != '') {
-                $query->whereHas('subscription', function($q) use ($request) {
+                $query->whereHas('subscription', function ($q) use ($request) {
                     $q->where('id', $request->subscription_id);
                 });
             }
 
             if ($request->filled('collector_id') && $request->collector_id != '') {
-                $query->whereHas('revenues.user', function($q) use ($request) {
+                $query->whereHas('revenues.user', function ($q) use ($request) {
                     $q->where('id', $request->collector_id);
                 });
             }
@@ -158,7 +157,7 @@ class InvoiceController extends Controller
 
                     if (($row->status == 'unpaid' || $row->status == 'partial') && auth()->user()->can('pay_invoice')) {
                         $buttons .= '
-                            <a href="javascript:void(0)" onclick="showPayModal(\'' . route('admin.pay_invoice', $row->id) . '\', ' . $row->remaining_amount . ', ' . $row->amount . ', `'.str_replace('`', '\`', $row->notes ?? '').'`)"
+                            <a href="javascript:void(0)" onclick="showPayModal(\'' . route('admin.pay_invoice', $row->id) . '\', ' . $row->remaining_amount . ', ' . $row->amount . ', `' . str_replace('`', '\`', $row->notes ?? '') . '`)"
                                 class="btn btn-sm btn-success" title="' . trans('invoices.mark_as_paid') . '" style="font-size: 16px;">
                                 <i class="bi bi-check-circle"></i>
                             </a>';
@@ -210,6 +209,167 @@ class InvoiceController extends Controller
 
         return view($this->admin_view . '.index', $data);
     }
+
+    //-------------------------------------------------------------------
+    public function index(Request $request)
+    {
+        if ($request->ajax()) {
+
+
+             $query = Invoice::with(['client', 'employee', 'subscription', 'revenues.user'])
+            ->whereNull('deleted_at');
+
+        // Apply filters
+        if ($request->has('client_id') && !empty($request->client_id)) {
+            $query->where('client_id', $request->client_id);
+        }
+
+        if ($request->has('subscription_id') && !empty($request->subscription_id)) {
+            $query->where('subscription_id', $request->subscription_id);
+        }
+
+        if ($request->has('collector_id') && !empty($request->collector_id)) {
+            $query->whereHas('revenues', function($q) use ($request) {
+                $q->where('user_id', $request->collector_id);
+            });
+        }
+
+        if ($request->has('status') && !empty($request->status)) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->has('min_amount') && !empty($request->min_amount)) {
+            $query->where('amount', '>=', $request->min_amount);
+        }
+
+        if ($request->has('max_amount') && !empty($request->max_amount)) {
+            $query->where('amount', '<=', $request->max_amount);
+        }
+
+        if ($request->has('from_date') && !empty($request->from_date)) {
+            $query->whereDate('due_date', '>=', $request->from_date);
+        }
+
+        if ($request->has('to_date') && !empty($request->to_date)) {
+            $query->whereDate('due_date', '<=', $request->to_date);
+        }
+
+        $allData = $query->orderBy('id','desc')->get();
+
+            return Datatables::of($allData)
+                ->addColumn('id', function ($row) {
+                    return $row->id ?? 'N/A';
+                })
+                ->addColumn('invoice_number', function ($row) {
+                    $prefix = $row->client && $row->client->client_type == 'satellite' ? 'SA-' : 'IN-';
+                    return $prefix . $row->invoice_number;
+                })
+                ->addColumn('client', function ($row) {
+                    if ($row->client) {
+                        $url = route('admin.client_paid_invoices', $row->client->id);
+                        return '<a href="' . $url . '" class="text-primary fw-bold" style="text-decoration: underline;">' . $row->client->name . '</a>';
+                    }
+                    return 'N/A';
+                })
+                ->addColumn('subscription', function ($row) {
+                    return $row->subscription ? $row->subscription->name : '<span class="badge bg-success text-white px-4 py-3 rounded-pill fw-bold fs-5">' . trans('invoices.service') . '</span>';
+                })
+                ->addColumn('due_date', function ($row) {
+                    return $row->due_date ?? 'N/A';
+                })
+                ->addColumn('paid_date', function ($row) {
+                    return $row->paid_date ? $row->paid_date : 'N/A';
+                })
+                ->addColumn('collected_by', function ($row) {
+                    $latestRevenue = $row->revenues->sortByDesc('created_at')->first();
+
+                    if ($latestRevenue && $latestRevenue->user) {
+                        return $latestRevenue->user->name;
+                    }
+                    return 'N/A';
+                })
+                ->addColumn('amount', function ($row) {
+                    return $row->amount ?? 'N/A';
+                })
+                ->addColumn('paid_amount', function ($row) {
+                    // return $row->amount - $row->remaining_amount;
+                    return $row->paid_amount ?? 'N/A';
+                })
+                ->addColumn('remaining_amount', function ($row) {
+                    return $row->remaining_amount ?? 'N/A';
+                })
+                ->addColumn('notes', function ($row) {
+                    return $row->notes ?? 'N/A';
+                })
+                ->addColumn('status', function ($row) {
+                    $status = $row->status ?? 'N/A';
+                    $class = match ($status) {
+                        'paid' => 'badge bg-success text-white',
+                        'partial' => 'badge bg-warning text-dark',
+                        'unpaid' => 'badge bg-danger text-white',
+                    };
+                    return '<span class="' . $class . 'px-4 py-3 rounded-pill fw-bold fs-5">' . trans('invoices.' . $status) . '</span>';
+                })
+                ->addColumn('action', function ($row) {
+                    $buttons = '<div class="btn-group btn-group-sm">';
+
+                    if (($row->status == 'unpaid' || $row->status == 'partial') && auth()->user()->can('pay_invoice')) {
+                        $buttons .= '
+                            <a href="javascript:void(0)" onclick="showPayModal(\'' . route('admin.pay_invoice', $row->id) . '\', ' . $row->remaining_amount . ', ' . $row->amount . ', `' . str_replace('`', '\`', $row->notes ?? '') . '`)"
+                                class="btn btn-sm btn-success" title="' . trans('invoices.mark_as_paid') . '" style="font-size: 16px;">
+                                <i class="bi bi-check-circle"></i>
+                            </a>';
+                    }
+                    if (auth()->user()->can('print_invoice')) {
+                        $buttons .= '
+                            <a href="javascript:void(0)" onclick="print_invoice(\'' . route('admin.print_invoice', $row->id) . '\')"
+                                class="btn btn-sm btn-warning" title="' . trans('invoices.print') . '" style="font-size: 16px;">
+                                <i class="bi bi-printer"></i>
+                            </a>';
+                    }
+
+                    if (auth()->user()->can('view_invoice_details')) {
+                        $buttons .= '
+                            <a href="javascript:void(0)" onclick="invoice_details(\'' . route('admin.invoice_details', $row->id) . '\')"
+                                class="btn btn-sm btn-info" title="' . trans('invoices.view_details') . '" style="font-size: 16px;">
+                                <i class="bi bi-eye"></i>
+                            </a>';
+                    }
+
+                    // if (($row->status == 'paid' || $row->status == 'partial') && $row->subscription_id != null) {
+                    if (($row->status == 'paid' || $row->status == 'partial') && auth()->user()->can('redo_invoice')) {
+                        $buttons .= '
+                            <a onclick="return confirm(\'' . trans('invoices.confirm_redo') . '\')"
+                                href="' . route('admin.redo_invoice', $row->id) . '"
+                                class="btn btn-sm btn-secondary" title="' . trans('invoices.redo_invoice') . '" style="font-size: 16px;">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                            </a>';
+                    }
+                    if (auth()->user()->can('delete_invoice')) {
+                        $buttons .= '
+                            <a onclick="return confirm(\'' . trans('employees.confirm_delete') . '\')"
+                                href="' . route('admin.delete_invoice', $row->id) . '"
+                                class="btn btn-sm btn-danger" title="' . trans('clients.delete') . '" style="font-size: 16px;">
+                                <i class="bi bi-trash3"></i>
+                            </a>';
+                    }
+                    $buttons .= '</div>';
+
+                    return $buttons;
+                })
+                ->rawColumns(['subscription', 'action', 'client', 'status', 'invoice_number'])
+                ->make(true);
+        }
+            $data['clients'] = $this->ClientsRepository->getAll();
+        $data['subscriptions'] = Subscription::all();
+        $data['collectors'] = Admin::whereHas('revenues')->get();
+
+        return view($this->admin_view . '.index', $data);
+    }
+
+
+
+    //--------------------------------------------------------------------
 
     /***********************************************/
     public function destroy(string $id)
@@ -300,7 +460,7 @@ class InvoiceController extends Controller
 
             $admins = Admin::where('status', '1')
                 ->whereNull('deleted_at')
-                ->whereHas('roles', function($query) {
+                ->whereHas('roles', function ($query) {
                     $query->whereIn('id', [1, 7]);
                 })
                 ->get();
@@ -336,7 +496,6 @@ class InvoiceController extends Controller
             DB::commit();
 
             return $result;
-
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', $e->getMessage());
@@ -488,7 +647,7 @@ class InvoiceController extends Controller
 
             $admins = Admin::where('status', '1')
                 ->whereNull('deleted_at')
-                ->whereHas('roles', function($query) {
+                ->whereHas('roles', function ($query) {
                     $query->whereIn('id', [1, 7]);
                 })
                 ->get();
@@ -523,7 +682,6 @@ class InvoiceController extends Controller
 
             DB::commit();
             return redirect()->back()->with(['success' => trans('messages.redo_successfully')]);
-
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
@@ -603,7 +761,7 @@ class InvoiceController extends Controller
 
                     if (($row->status == 'unpaid' || $row->status == 'partial') && auth()->user()->can('pay_invoice')) {
                         $buttons .= '
-                            <a href="javascript:void(0)" onclick="showPayModal(\'' . route('admin.pay_invoice', $row->id) . '\', ' . $row->remaining_amount . ', ' . $row->amount . ', `'.str_replace('`', '\`', $row->notes ?? '').'`)"
+                            <a href="javascript:void(0)" onclick="showPayModal(\'' . route('admin.pay_invoice', $row->id) . '\', ' . $row->remaining_amount . ', ' . $row->amount . ', `' . str_replace('`', '\`', $row->notes ?? '') . '`)"
                                 class="btn btn-sm btn-success" title="' . trans('invoices.mark_as_paid') . '" style="font-size: 16px;">
                                 <i class="bi bi-check-circle"></i>
                             </a>';
@@ -650,6 +808,13 @@ class InvoiceController extends Controller
         }
         return view($this->admin_view . '.monthly_due_invoices');
     }
+
+    //--------------------------------------------------------------------------------
+
+
+
+
+    //--------------------------------------------------------------------------------
 
     public function newlyPaidInvoices(Request $request)
     {

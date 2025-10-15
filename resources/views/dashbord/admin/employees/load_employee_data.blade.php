@@ -1,283 +1,138 @@
-{{-- <div class="card shadow  bg-white rounded">
-    <div class="card-header" style="background-color: #f8f9fa;">
-        <h3 class="card-title"><i class="fas fa-text-width"></i> <?= trans('employees.employee_details') ?></h3>
-    </div>
-    <div class="card-body" style="padding: 20px !important;"> --}}
-<style>
-    body {
-        background-color: #f8f9fa;
-        font-family: 'Inter', sans-serif;
-        margin: 0;
-        padding: 0;
-    }
-
-    .profile-card {
-        max-width: 400px;
-        margin: 50px auto;
-        background: #fff;
-        border-radius: 20px;
-        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .profile-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2);
-    }
-
-    .profile-header {
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        padding: 30px;
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        color: #fff;
-    }
-
-    .profile-img {
-        width: 100px;
-        height: 100px;
-        border-radius: 50%;
-        object-fit: cover;
-        margin-bottom: 15px;
-        border: 4px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .profile-name {
-        font-size: 1.75rem;
-        font-weight: 700;
-        margin: 0;
-    }
-
-    .profile-title {
-        font-size: 1rem;
-        color: rgba(255, 255, 255, 0.9);
-        margin: 5px 0;
-    }
-
-    .profile-location {
-        font-size: 0.9rem;
-        color: rgba(255, 255, 255, 0.8);
-    }
-
-    .profile-stats {
-        display: flex;
-        justify-content: space-around;
-        padding: 20px;
-        background-color: #f8f9fa;
-        border-top: 1px solid #e0e0e0;
-    }
-
-    .stat-item {
-        text-align: center;
-    }
-
-    .stat-number {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #333;
-    }
-
-    .stat-label {
-        font-size: 0.85rem;
-        color: #666;
-    }
-
-    .profile-details {
-        padding: 20px;
-    }
-
-    .detail-item {
-        margin-bottom: 15px;
-    }
-
-    .detail-label {
-        font-size: 0.9rem;
-        color: #666;
-        margin-bottom: 5px;
-    }
-
-    .detail-value {
-        font-size: 1rem;
-        font-weight: 600;
-        color: #333;
-    }
-
-    .social-links {
-        text-align: center;
-        padding: 20px;
-        background-color: #f8f9fa;
-        border-top: 1px solid #e0e0e0;
-    }
-
-    .social-icons {
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-    }
-
-    .social-icon {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        color: #555;
-        text-decoration: none;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-        position: relative;
-    }
-
-    .social-icon:hover {
-        background-color: #667eea;
-        color: #fff;
-        transform: translateY(-3px);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    .social-icon .tooltip {
-        position: absolute;
-        top: -30px;
-        left: 50%;
-        transform: translateX(-50%);
-        background-color: #333;
-        color: #fff;
-        font-size: 0.75rem;
-        padding: 4px 8px;
-        border-radius: 4px;
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.3s ease, visibility 0.3s ease;
-    }
-
-    .social-icon:hover .tooltip {
-        opacity: 1;
-        visibility: visible;
-    }
 
 
 
-    .table {
-        width: 100%;
-        margin-bottom: 20px;
-        border-collapse: collapse;
-    }
 
-    .table-bordered {
-        border: 1px solid #e0e0e0;
-    }
+<div class="d-flex flex-wrap flex-sm-nowrap  mb-6">
+   
 
-    .table-sm td,
-    .table-sm th {
-        padding: 12px;
-    }
-
-    .table-striped tbody tr:nth-of-type(odd) {
-        background-color: rgba(0, 0, 0, 0.03);
-    }
-
-    .class_label {
-        font-size: 0.9rem;
-        color: #666;
-    }
-
-    .class_result {
-        font-size: 1rem;
-        font-weight: 600;
-        color: #333;
-    }
-</style>
-
-<div class="profile-card" style="margin-top: -20px">
-    <div class="profile-header">
-        <img src="{{ $all_data->profile_picture && file_exists(public_path('images/' . $all_data->profile_picture)) ? asset('images/' . $all_data->profile_picture) : asset('images/default-user-icon.png') }}"
-            alt="{{ $all_data->name }}" class="profile-img">
-        <h2 class="profile-name">{{ $all_data->first_name . ' ' . $all_data->last_name }}</h2>
-        <p class="profile-location">
-            {{ $all_data->address }}
-        </p>
-    </div>
-    <table class="table table-bordered table-sm table-striped">
-        <tbody>
-            <tr>
-                <td class="class_label" style="width: 25%"><?= trans('employees.name') ?></td>
-                <td class="class_result"><?php echo $all_data->first_name . ' ' . $all_data->last_name; ?></td>
-            </tr>
-            <tr>
-                <td class="class_label" style="width: 25%"><?= trans('employees.employee_code') ?></td>
-                <td class="class_result"><?php echo $all_data->emp_code; ?></td>
-            </tr>
-            {{-- <tr>
-                <td class="class_label" style="width: 25%"><?= trans('employees.email') ?></td>
-                <td class="class_result"><?php echo $all_data->email; ?></td>
-            </tr>
-            <tr>
-                <td class="class_label" style="width: 25%"><?= trans('employees.national_id') ?></td>
-                <td class="class_result"><?php echo $all_data->national_id; ?></td>
-            </tr>
-            <tr>
-                <td class="class_label"><?= trans('employees.gender') ?></td>
-                <td class="class_result"><?php echo trans('employees.' . $all_data->gender); ?></td>
-            </tr> --}}
-            <tr>
-                <td class="class_label"><?= trans('employees.position') ?></td>
-                <td class="class_result"><?php echo $all_data->position; ?></td>
-            </tr>
-            <tr>
-                <td class="class_label"><?= trans('employees.salary') ?></td>
-                <td class="class_result"><?php echo $all_data->salary; ?></td>
-            </tr>
-            @can('view_employee_details')
-                <tr>
-                    <td class="class_label"><?= trans('employees.details') ?></td>
-                    <td class="class_result"><a class="btn btn-primary" role="button" data-bs-toggle="modal"
-                            data-bs-target="#modaldetails" onclick="employee_details({{ $all_data->id }})"><i
-                                class="fa-solid fa-list"></i>{{ trans('employees.detail_employee') }}</a></td>
-                </tr>
-            @endcan
-
-        </tbody>
-    </table>
-</div>
-</div>
-
-
-<div class="modal fade" tabindex="-1" id="modaldetails">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title"><?= trans('employees.employee_details') ?></h3>
-                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal"
-                    aria-label="Close">
-                    <i class="ki-duotone ki-cross fs-1">&times;</i>
-                </div>
-
+    <div class="me-7 mb-4">
+        <div class="symbol symbol-100px symbol-lg-160px symbol-fixed position-relative">
+            <img src="{{ $all_data->profile_picture && file_exists(public_path('images/' . $all_data->profile_picture)) ? asset('images/' . $all_data->profile_picture) : asset('images/default-user-icon.png') }}" alt="{{ $all_data->first_name }} {{ $all_data->last_name }}" />
+            <div
+                class="position-absolute translate-middle bottom-0 start-100 mb-6 bg-success rounded-circle border border-4 border-body h-20px w-20px">
             </div>
-
-            <div id="result_info">
-
-            </div>
-
         </div>
     </div>
-</div>
-@section('js')
-    <script>
-        function employee_details(id) {
-            $.ajax({
-                url: "{{ route('admin.employee_details', ['id' => '__id__']) }}".replace('__id__', id),
-                type: "get",
-                dataType: "html",
-                success: function(html) {
 
-                    $('#result_info').html(html);
-                },
-            });
-        }
-    </script>
-@endsection
+    <div class="flex-grow-1">
+
+        <div class="d-flex justify-content-between align-items-start flex-wrap mb-2">
+
+            <div class="d-flex flex-column">
+
+                <div class="d-flex align-items-center mb-2">
+                    <a href="#"
+                        class="text-gray-900 text-hover-primary fs-2 fw-bold me-1">{{ $all_data->first_name }} {{ $all_data->last_name }}</a>
+                    <a href="#">
+                        <i class="bi bi-patch-check fs-1 text-primary"></i>
+                    </a>
+
+                </div>
+
+                <div class="d-flex flex-wrap fw-semibold fs-6 mb-4 pe-2">
+                    <a href="#"
+                        target="_blank"
+                        class="d-flex align-items-center text-gray-500 text-hover-primary me-5 mb-2">
+                        <i class="bi bi-person-badge fs-4 me-1"></i> {{ $all_data->emp_code }}
+                    </a>
+                    <a href="#" class="d-flex align-items-center text-gray-500 text-hover-primary me-5 mb-2">
+                        <i class="bi bi-envelope fs-4 me-1"></i> {{ $all_data->email }}</a>
+                    <a href="#" class="d-flex align-items-center text-gray-500 text-hover-primary me-5 mb-2">
+                        <i class="bi bi-briefcase fs-4 me-1"></i> {{ $all_data->position }}</a>
+                    <a href="#" class="d-flex align-items-center text-gray-500 text-hover-primary me-5 mb-2">
+                        <i class="bi bi-currency-dollar fs-4 me-1"></i> {{ number_format($all_data->salary, 2) }}</a>
+                </div>
+                <!--end::Info-->
+            </div>
+            <!--end::User-->
+            <!--begin::Actions-->
+            <div class="d-flex my-4">
+                <a href="{{ route('admin.employee_data') }}" class="btn btn-sm btn-light me-2"
+                    id="kt_user_follow_button">
+                    <i class="ki-duotone ki-check fs-3 d-none"></i>
+                    <span class="indicator-label">{{ trans('invoices.back') }}</span>
+                    <span class="indicator-progress">Please wait...
+                        <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
+
+                </a>
+
+
+            </div>
+            <!--end::Actions-->
+        </div>
+
+
+        <div class="d-flex flex-wrap flex-stack">
+            <div class="d-flex flex-column flex-grow-1 pe-8">
+                <div class="d-flex flex-wrap">
+                    <div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 me-6 mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-person-badge fs-3 text-primary me-2"></i>
+                            <div class="fs-2 fw-bold">{{ $all_data->emp_code }}</div>
+                        </div>
+                        <div class="fw-semibold fs-6 text-gray-500">{{ trans('employees.employee_code') }}</div>
+                    </div>
+
+                    <div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 me-6 mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-briefcase fs-3 text-info me-2"></i>
+                            <div class="fs-2 fw-bold">{{ $all_data->position }}</div>
+                        </div>
+                        <div class="fw-semibold fs-6 text-gray-500">{{ trans('employees.position') }}</div>
+                    </div>
+
+                    <div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 me-6 mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-currency-dollar fs-3 text-success me-2"></i>
+                            <div class="fs-2 fw-bold">{{ number_format($all_data->salary, 2) }}</div>
+                        </div>
+                        <div class="fw-semibold fs-6 text-gray-500">{{ trans('employees.salary') }}</div>
+                    </div>
+
+                    <div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 me-6 mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-cash-coin fs-3 text-warning me-2"></i>
+                            <div class="fs-2 fw-bold">{{ number_format($revenues_data->sum('amount'), 2) }}</div>
+                        </div>
+                        <div class="fw-semibold fs-6 text-gray-500">{{ trans('employees.total_revenue') }}</div>
+                    </div>
+
+
+                    <div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 me-6 mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-cash-coin fs-3 text-warning me-2"></i>
+                            <div class="fs-2 fw-bold">{{ number_format(get_employee_account_balance($all_data->id), 2) }}</div>
+                        </div>
+                        <div class="fw-semibold fs-6 text-gray-500">{{ trans('employees.balance') }}</div>
+                    </div>
+
+                    @php
+                        $deficit_surplus = $revenues_data->sum('amount')-get_employee_account_balance($all_data->id);
+                    @endphp
+
+                    @if($deficit_surplus < 0)
+                    <div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 me-6 mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-exclamation-triangle fs-3 text-danger me-2"></i>
+                            <div class="fs-2 fw-bold text-danger">{{ number_format($deficit_surplus, 2) }}</div>
+                        </div>
+                        <div class="fw-semibold fs-6 text-gray-500">{{ trans('employees.deficit') }}</div>
+                    </div>
+                    @endif
+
+                    @if($deficit_surplus > 0)
+                    <div class="border border-gray-300 border-dashed rounded min-w-125px py-3 px-4 me-6 mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-check-circle fs-3 text-success me-2"></i>
+                            <div class="fs-2 fw-bold text-success">{{ number_format($deficit_surplus, 2) }}</div>
+                        </div>
+                        <div class="fw-semibold fs-6 text-gray-500">{{ trans('employees.surplus') }}</div>
+                    </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+

@@ -1,76 +1,70 @@
 @extends('dashbord.layouts.master')
 @section('css')
 
-    @notifyCss
+@notifyCss
 @endsection
 @section('content')
 
-    @include('dashbord.admin.employees.employee_nav')
-
-    <div id="kt_app_content" class="app-content flex-column-fluid">
-        <div id="kt_app_content_container" class="t_container">
 
 
-            <div class="card shadow-sm" style="border-top: 3px solid #007bff;">
-                <div class="card-header" style="background-color: #f8f9fa;">
-                    <h3 class="card-title"></i> {{trans('employees.employee_revenues')}}</h3>
-                    <div class="card-toolbar">
-                        <div class="text-center">
-                        </div>
-                    </div>
-                </div>
 
-                <div class="card-body" style="padding-left: 0px !important;">
-                    <div class="col-md-12 row">
-                        <div class="col-md-8">
-                            @can('view_employee_revenues')
-                                @include('dashbord.admin.employees.employee_revenues_data')
-                            @endcan
-                        </div>
-                        <div class="col-md-4">
-                            @include('dashbord.admin.employees.load_employee_data')
-                        </div>
 
-                    </div>
 
-                </div>
-            </div>
-        </div>
 
-    </div>
+<div id="kt_app_content" class="app-content flex-column-fluid">
 
-    </div>
+    <div id="kt_app_content_container" class="app-container container-xxl">
 
-    <div class="modal fade" tabindex="-1" id="modaldetails">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 class="modal-title"><?= trans('invoices.invoice_details') ?></h3>
-                    <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal"
-                        aria-label="Close">
-                        <i class="ki-duotone ki-cross fs-1">&times;</i>
-                    </div>
+        <div class="card mb-6 mb-xl-9">
+            <div class="card-body pt-9 pb-0">
 
-                </div>
-
-                <div id="result_info">
-
-                </div>
+                @include('dashbord.admin.employees.load_employee_data')
+                @include('dashbord.admin.employees.employee_nav')
 
             </div>
         </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title fs-3 fw-bold">{{trans('employees.employee_revenues')}}</div>
+            </div>
+            <div class="card" style="margin-top:10px">
+                @include('dashbord.admin.employees.employee_revenues_data')
+            </div>
+
+        </div>
+
+
     </div>
+
+</div>
+
 
 
 
 @endsection
 
-@section('js')
 
+<script>
+    window.invoice_details = function(url) {
+        $.get(url, function(data) {
+            $('#result_info').html(data);
+            var modalElement = document.getElementById('modaldetails');
+            if (window.bootstrap && bootstrap.Modal) {
+                var modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+                modal.show();
+            } else if (typeof $ !== 'undefined' && $.fn && $.fn.modal) {
+                $('#modaldetails').modal('show');
+            } else {
+                modalElement.classList.add('show');
+                modalElement.style.display = 'block';
+                modalElement.removeAttribute('aria-hidden');
+                modalElement.setAttribute('aria-modal', 'true');
+            }
+        });
+    }
 
-    @notifyJs
-
-@endsection
-
-
+    
+</script>
+@notifyJs
 

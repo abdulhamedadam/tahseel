@@ -3315,62 +3315,142 @@
             </div>
 
         </div> --}}
+@php
+$dashboardData = get_dashboard_data();
+@endphp
 
-        @php
-        $dashboardData = get_dashboard_data();
-        @endphp
-
-        <div class="container mt-4">
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="card text-white bg-success mb-3">
-                        <div class="card-header">{{ trans('dashboard.internet_clients') }}</div>
-                        <div class="card-body">
-                            <h5 class="card-title">{{ $dashboardData['internet_clients_count'] }}</h5>
+<div class="container-fluid px-4 mt-4">
+    <div class="row g-4">
+        <!-- Internet Clients -->
+        <div class="col-xl-4 col-md-6">
+            <div class="card border-start border-5 border-success bg-white shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <p class="text-muted fw-semibold mb-2">{{ trans('dashboard.internet_clients') }}</p>
+                            <h3 class="mb-0">{{ $dashboardData['internet_clients_count'] }}</h3>
+                        </div>
+                        <div class="bg-success bg-opacity-10 p-3 rounded">
+                            <i class="bi bi-wifi text-success fs-4"></i>
                         </div>
                     </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card text-white bg-primary mb-3">
-                        <div class="card-header">{{ trans('dashboard.satellite_clients') }}</div>
-                        <div class="card-body">
-                            <h5 class="card-title">{{ $dashboardData['satellite_clients_count'] }}</h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card text-white bg-info mb-3">
-                        <div class="card-header">{{ trans('dashboard.total_paid') }}</div>
-                        <div class="card-body">
-                            <h5 class="card-title">${{ number_format($dashboardData['total_paid'], 2) }}</h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card text-white bg-danger mb-3">
-                        <div class="card-header">{{ trans('dashboard.total_unpaid') }}</div>
-                        <div class="card-body">
-                            <h5 class="card-title">${{ number_format($dashboardData['total_remaining'], 2) }}</h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card text-white bg-warning mb-3">
-                        <div class="card-header">{{ trans('dashboard.employees') }}</div>
-                        <div class="card-body">
-                            <h5 class="card-title">{{ $dashboardData['employees_count'] }}</h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card text-white bg-dark mb-3">
-                        <div class="card-header">{{ trans('dashboard.users') }}</div>
-                        <div class="card-body">
-                            <h5 class="card-title">{{ $dashboardData['users_count'] }}</h5>
-                        </div>
+                    <div class="mt-3">
+                        <small class="text-success fw-semibold"><i class="bi bi-arrow-up"></i> 5.2% from last month</small>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Satellite Clients -->
+        <div class="col-xl-4 col-md-6">
+            <div class="card border-start border-5 border-primary bg-white shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <p class="text-muted fw-semibold mb-2">{{ trans('dashboard.satellite_clients') }}</p>
+                            <h3 class="mb-0">{{ $dashboardData['satellite_clients_count'] }}</h3>
+                        </div>
+                        <div class="bg-primary bg-opacity-10 p-3 rounded">
+                            <i class="bi bi-satellite text-primary fs-4"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <small class="text-primary fw-semibold"><i class="bi bi-arrow-up"></i> 3.1% from last month</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Paid -->
+        <div class="col-xl-4 col-md-6">
+            <div class="card border-start border-5 border-info bg-white shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <p class="text-muted fw-semibold mb-2">{{ trans('dashboard.total_paid') }}</p>
+                            <h3 class="mb-0">${{ number_format($dashboardData['total_paid'], 2) }}</h3>
+                        </div>
+                        <div class="bg-info bg-opacity-10 p-3 rounded">
+                            <i class="bi bi-currency-dollar text-info fs-4"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <small class="text-info fw-semibold"><i class="bi bi-arrow-up"></i> 12.7% from last month</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Unpaid -->
+        <div class="col-xl-4 col-md-6">
+            <div class="card border-start border-5 border-danger bg-white shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <p class="text-muted fw-semibold mb-2">{{ trans('dashboard.total_unpaid') }}</p>
+                            <h3 class="mb-0">${{ number_format($dashboardData['total_remaining'], 2) }}</h3>
+                        </div>
+                        <div class="bg-danger bg-opacity-10 p-3 rounded">
+                            <i class="bi bi-exclamation-triangle text-danger fs-4"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <small class="text-danger fw-semibold"><i class="bi bi-arrow-up"></i> 2.3% from last month</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employees -->
+        <div class="col-xl-4 col-md-6">
+            <div class="card border-start border-5 border-warning bg-white shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <p class="text-muted fw-semibold mb-2">{{ trans('dashboard.employees') }}</p>
+                            <h3 class="mb-0">{{ $dashboardData['employees_count'] }}</h3>
+                        </div>
+                        <div class="bg-warning bg-opacity-10 p-3 rounded">
+                            <i class="bi bi-people text-warning fs-4"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <small class="text-warning fw-semibold"><i class="bi bi-arrow-up"></i> 1.5% from last month</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users -->
+        <div class="col-xl-4 col-md-6">
+            <div class="card border-start border-5 border-dark bg-white shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <p class="text-muted fw-semibold mb-2">{{ trans('dashboard.users') }}</p>
+                            <h3 class="mb-0">{{ $dashboardData['users_count'] }}</h3>
+                        </div>
+                        <div class="bg-dark bg-opacity-10 p-3 rounded">
+                            <i class="bi bi-person-badge text-dark fs-4"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <small class="text-dark fw-semibold"><i class="bi bi-arrow-up"></i> 8.9% from last month</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 0.5rem;
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+</style>
     @endsection
 @endcan

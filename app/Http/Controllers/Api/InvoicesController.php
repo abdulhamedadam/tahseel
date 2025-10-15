@@ -360,7 +360,7 @@ class InvoicesController extends Controller
               // dd('ddd');
             $notificationMessage = sprintf(
                 'تم دفع مبلغ %s %s للعميل %s، وكان تاريخ الاستحقاق %s. (تمت العملية بواسطة: %s)',
-                number_format($request->paid_amount, 2),
+                number_format($paidAmount, 2),
                 get_app_config_data('currency'),
                 optional($invoice->client)->name ?? 'غير محدد',
                 $invoice->due_date,

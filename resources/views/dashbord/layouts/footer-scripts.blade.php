@@ -28,6 +28,7 @@
 		<script src="{{asset('assets/js/custom/utilities/modals/users-search.js')}}"></script>
 		<!--end::Custom Javascript-->
 		<!--end::Javascript-->
+
 <script>
     $(document).ready(function (){
 
@@ -73,6 +74,42 @@
         datatable = $('#'+table_id).DataTable(finalConfig);
         return datatable;
     }
+
+</script>
+
+<script>
+
+$(document).ready(function() {
+    if ($('#table_10').length) {
+        $('#table_10').DataTable({
+            processing: true,
+            serverSide: false,
+            order: [],
+            columnDefs: [
+                {
+                    targets: [1, -1],
+                    orderable: false,
+                },
+                {
+                    targets: [1],
+                    createdCell: function(td) {
+                        $(td).css({
+                            'font-weight': '600',
+                            'text-align': 'center',
+                            'color': '#6610f2',
+                            'vertical-align': 'middle',
+                        });
+                    }
+                }
+            ],
+            dom: '<"row align-items-center"<"col-md-3"l><"col-md-6"f><"col-md-3"B>>rt<"row align-items-center"<"col-md-6"i><"col-md-6"p>>',
+            buttons: ['excel', 'copy'],
+            language: {
+                url: "{{ asset('assets/Arabic.json') }}"
+            }
+        });
+    }
+});
 
 </script>
 

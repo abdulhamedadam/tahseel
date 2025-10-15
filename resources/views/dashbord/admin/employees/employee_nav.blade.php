@@ -1,38 +1,42 @@
-<div class="col-md-12">
-    <div class="card" style="margin-right: 20px;margin-left: 20px;margin-top: 5px">
-        <div class="card-body" style="padding: 10px">
 
 
 
-            <div class="row">
-                <!-- Left column for the remaining buttons -->
-                <div class="col-md-11">
-                    @can('view_employee_files')
-                        <a href="{{ route('admin.employee_files', $all_data->id) }}" class="btn btn-success p-2">
-                            <i class="bi bi-folder"></i> <?= trans('employees.employee_files') ?>
-                        </a>
-                    @endcan
-                    @can('view_employee_masrofat')
-                        <a href="{{ route('admin.employee_masrofat', $all_data->id) }}" class="btn btn-danger p-2">
-                            <i class="bi bi-cash-stack"></i> <?= trans('employees.employee_masrofat') ?>
-                        </a>
-                    @endcan
+<div class="separator"></div>
 
-                    @can('view_employee_revenues')
-                        <a href="{{ route('admin.employee_revenues', $all_data->id) }}" class="btn btn-primary p-2">
-                            <i class="bi bi-cash-coin"></i> <?= trans('employees.employee_revenues') ?>
-                        </a>
-                    @endcan
+<ul class="nav nav-stretch nav-line-tabs nav-line-tabs-2x border-transparent fs-5 fw-bold">
+    @can('view_employee_files')
+    <li class="nav-item">
+        <a class="nav-link text-active-primary py-5 me-6 {{ request()->routeIs('admin.employee_files') ? 'active' : '' }}"
+            href="{{ route('admin.employee_files', $all_data->id) }}">
+            <?= trans('employees.employee_files') ?>
+        </a>
+    </li>
 
-                </div>
+    @endcan
+    @can('view_employee_masrofat')
+    <li class="nav-item">
+        <a class="nav-link text-active-primary py-5 me-6 {{ request()->routeIs('admin.employee_masrofat') ? 'active' : '' }}"
+            href="{{ route('admin.employee_masrofat', $all_data->id) }}">
+            {{ trans('employees.employee_masrofat') }}
+        </a>
+    </li>
+    @endcan
 
-                <div class="col-md-1  text-end">
-                    <a class="btn btn-warning" href="{{ route('admin.employee_data') }}">
-                        <i class="bi bi-arrow-repeat fs-3"></i>{{ trans('employees.back') }}
-                    </a>
-                </div>
-            </div>
+    @can('view_employee_revenues')
+    <li class="nav-item">
+        <a class="nav-link text-active-primary py-5 me-6 {{ request()->routeIs('admin.employee_revenues') ? 'active' : '' }}"
+            href="{{ route('admin.employee_revenues', $all_data->id) }}">
+            {{ trans('employees.employee_revenues') }}
+        </a>
+    </li>
+    @endcan
 
-        </div>
-    </div>
-</div>
+    @can('view_employee_transactions')
+    <li class="nav-item">
+        <a class="nav-link text-active-primary py-5 me-6 {{ request()->routeIs('admin.employee_transactions') ? 'active' : '' }}"
+            href="{{ route('admin.employee_transactions', $all_data->id) }}">
+            {{ trans('employees.employee_transactions') }}
+        </a>
+    </li>
+    @endcan
+</ul>
